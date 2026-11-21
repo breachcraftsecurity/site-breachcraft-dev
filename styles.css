@@ -20,3 +20,6 @@ code { font-family:ui-monospace,"Cascadia Mono",Consolas,monospace; font-size:.9
 ul { padding-left:1.2rem; }
 li { margin:.35rem 0; }
 li code, p code { color:var(--ink); }
+.badge { display:inline-flex; align-items:center; gap:.45rem; font:600 .78rem/1 ui-sans-serif,system-ui,sans-serif; color:var(--muted); border:1px solid var(--line); border-radius:99px; padding:.35rem .6rem; margin:0 0 1rem; }
+.badge span { color:var(--accent); letter-spacing:.06em; }
+.licence { font:.85rem/1.6 ui-sans-serif,system-ui,sans-serif; color:var(--muted); border-top:1px solid var(--line); padding-top:1rem; margin:2.5rem 0 1rem; }
