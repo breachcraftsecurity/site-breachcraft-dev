@@ -1,0 +1,38 @@
+{
+  "trailingSlash": "auto",
+  "routes": [
+    {
+      "route": "/scripts/*",
+      "statusCode": 404
+    },
+    {
+      "route": "/README.md",
+      "statusCode": 404
+    },
+    {
+      "route": "/.gitattributes",
+      "statusCode": 404
+    },
+    {
+      "route": "/.github/*",
+      "statusCode": 404
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'self'; script-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'"
+  },
+  "mimeTypes": {
+    ".svg": "image/svg+xml",
+    ".txt": "text/plain; charset=utf-8",
+    ".xml": "application/xml; charset=utf-8"
+  }
+}
