@@ -1,1 +1,1 @@
-{"cname":"breachcraft.dev","wordBudget":320,"maxBytes":90000,"mustInclude":[],"allowButton":true}
+﻿{"cname":"breachcraft.dev","wordBudget":320,"maxBytes":90000,"mustInclude":[],"allowButton":true,"exclude":["brief-lint","site-audit"]}
