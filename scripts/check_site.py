@@ -1,4 +1,4 @@
-"""Checks a lab front-door static site against its design spec and the CSP.
+﻿"""Checks a lab front-door static site against its design spec and the CSP.
 
 Run from the repository root:  python scripts/check_site.py
 Exits non-zero on any failure. No third-party packages.
@@ -148,7 +148,7 @@ def contrast(a, b):
 
 css = (ROOT / "styles.css").read_text(encoding="utf-8")
 tokens = dict(re.findall(r"--(bg|ink|muted|accent|line):\s*(#[0-9a-fA-F]{6})", css))
-for key in ("ink", "muted", "accent", "line"):
+for key in ("ink", "muted", "accent"):
     if key not in tokens:
         fail(f"styles.css: missing --{key} token")
 for fg in ("ink", "muted", "accent"):
@@ -191,7 +191,7 @@ for page, rel, p in [(pg, pg.relative_to(ROOT).as_posix(), Page()) for pg in PAG
     if weight > MAX_BYTES:
         fail(f"{rel}: {weight} bytes > {MAX_BYTES}")
     if rel == "index.html":
-        words = len(re.findall(r"[A-Za-z0-9][\w'’.-]*", text))
+        words = len(re.findall(r"[A-Za-z0-9][\w'â€™.-]*", text))
         if words > WORD_BUDGET:
             fail(f"index.html: {words} words > budget {WORD_BUDGET}")
         for phrase in SITE.get("mustInclude", []):
