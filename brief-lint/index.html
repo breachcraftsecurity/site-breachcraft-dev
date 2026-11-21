@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brief-lint — refuse a brief that cannot be marked</title>
+<meta name="description" content="A linter for lab briefs: five sections, one objective, a concrete evidence line and a pass criterion, or it fails.">
+<link rel="canonical" href="https://breachcraft.dev/brief-lint/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Security</span></p>
+  <p class="kicker">brief-lint</p>
+  <h1>Refuse the brief before a candidate meets it.</h1>
+  <p class="lede">A lab brief is markable or it is filler. This checks the shape and the parts that decide a mark, and exits non-zero so CI can hold the line.</p>
+
+  <h2>Usage</h2>
+  <pre><code>python -m breachcraft_tools.brief_lint path/to/brief.md [--json]</code></pre>
+  <p class="small">Exit 0 clean, 1 problems, 2 usage. No third-party packages.</p>
+
+  <h2>What it refuses</h2>
+  <ul>
+    <li>A title that is not <code># &lt;number&gt; &lt;imperative title&gt;</code>, a title over nine words, or one that opens with a gerund.</li>
+    <li>Any of the five sections missing, or present out of order: <code>objective</code>, <code>granted</code>, <code>evidence</code>, <code>marked</code>, <code>time</code>.</li>
+    <li>An objective with more than one sentence or over 40 words.</li>
+    <li>A <code>granted</code> line that does not say what is granted and what is withheld.</li>
+    <li>Evidence that names no concrete artefact - a blob, query, record, hash, subject, policy, count or similar.</li>
+    <li>A <code>marked</code> line too short to say what a pass looks like.</li>
+    <li>A <code>time</code> line without a number and a unit.</li>
+    <li>Banned words: leverage, synergy, cutting-edge, world-class, best-in-class, passionate.</li>
+  </ul>
+
+  <h2>Why each one exists</h2>
+  <p>A brief that fails any of these turns into a discussion at marking time: whose objective was it, what counts as evidence, what does a pass look like. The linter moves that discussion to authoring, where it is cheap.</p>
+
+  <h2>Limits, stated so a pass is not over-read</h2>
+  <p>It is a shape check, not a judgement. A brief can pass and still be dull, mispriced or aimed at the wrong level. It reads one file at a time and does not know the track, the prerequisites or whether the evidence is actually obtainable in the tenant.</p>
+
+  <p class="action"><a href="/">All tools</a> &rarr;</p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

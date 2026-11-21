@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>site-audit — check a static site before it ships</title>
+<meta name="description" content="Audits a static site folder against its own spec and CSP: links, fragments, budgets, contrast, inline styles and script policy.">
+<link rel="canonical" href="https://breachcraft.dev/site-audit/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Security</span></p>
+  <p class="kicker">site-audit</p>
+  <h1>Check the site against its own spec, not a memory of it.</h1>
+  <p class="lede">Every front door carries a <code>site.json</code> and a CSP. This reads both and fails the build on drift before a reviewer has to find it by eye.</p>
+
+  <h2>Usage</h2>
+  <pre><code>python -m breachcraft_tools.site_audit &lt;folder&gt; [--json]</code></pre>
+  <p class="small">Exit 0 clean, 1 problems, 2 usage. No third-party packages.</p>
+
+  <h2>What it checks</h2>
+  <ul>
+    <li>Tag balance, <code>lang="en-GB"</code>, and one page file per route it can resolve.</li>
+    <li>Scripts: inline script fails; an external same-origin script must be allowed by <code>script-src</code>.</li>
+    <li>Inline <code>style</code> attributes against a <code>style-src 'self'</code> policy.</li>
+    <li>Broken internal links and fragments with no target, across pages.</li>
+    <li>Per-page byte ceiling and <code>index.html</code> word budget from <code>site.json</code>, plus any required phrases.</li>
+    <li>Palette contrast for the ink, muted and accent tokens against the background.</li>
+    <li>Banned words: leverage, synergy, cutting-edge, world-class, best-in-class, passionate.</li>
+  </ul>
+
+  <h2>Limits, stated so a pass is not over-read</h2>
+  <p>Tag balance only; full HTML validity is a tidy step in CI. Contrast is measured on the palette tokens, not per rendered element. CSP is checked against page loads, not by a browser. It cannot see layout, focus order or whether the copy is true.</p>
+
+  <h2>Why it is local</h2>
+  <p>It has to run on the folder before anything is pushed, and it has no service to call. The rules live in the same repository as the sites, so a change to a budget or a required phrase is a normal review.</p>
+
+  <p class="action"><a href="/">All tools</a> &rarr;</p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>
