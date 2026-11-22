@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mandiant Azure AD Investigator - Breachcraft Dev</title>
+<meta name="description" content="This repository contains a PowerShell module for detecting artifacts that may be indicators of UNC2452 and other threat actor activity">
+<link rel="canonical" href="https://breachcraft.dev/tools/mandiant-azure-ad-investigator/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Mandiant Azure AD Investigator</p>
+  <h1>Mandiant Azure AD Investigator</h1>
+  <p class="lede">This repository contains a PowerShell module for detecting artifacts that may be indicators of UNC2452 and other threat actor activity</p>
+  <h2>What it is</h2>
+<h3>Overview</h3>
+<p>This repository contains a PowerShell module for detecting artifacts that may be indicators of UNC2452 and other threat actor activity. Some indicators are "high-fidelity" indicators of compromise, while other artifacts are so called "dual-use" artifacts. Dual-use artifacts may be related to threat actor activity, but also may be related to legitimate functionality. Analysis and verification will be required for these. For a detailed description of the techniques used by UNC2452 see our blog.</p>
+<p>This tool is <strong>read-only</strong>. It does not make any changes to the Microsoft 365 environment.</p>
+<p>In summary this module will:</p>
+<ul>
+<li>Do a best effort job at identifying indicators of compromise that will require further verification and analysis</li>
+</ul>
+<p>It will <em>not</em>:</p>
+<ul>
+<li>Identify a compromise 100% of the time, or</li>
+<li>Tell you if an artifact is legitimate admin activity or threat actor activity.</li>
+</ul>
+<p>With community feedback, the tool may become more thorough in its detection of IOCs. Please open an <a href="https://github.com/mandiant/Mandiant-Azure-AD-Investigator/issues">issue</a>, <a href="https://github.com/mandiant/Mandiant-Azure-AD-Investigator/pulls">submit a PR</a>, or contact the authors if you have problems, ideas, or feedback.</p>
+<h3>Features</h3>
+<h4>Federated Domains (Invoke-MandiantAuditAzureADDomains)</h4>
+<p>This module uses MS Online PowerShell to look for and audit federated domains in Azure AD. All federated domains will be output to the file <code>federated domains.csv</code>.</p>
+<ul>
+<li><strong>Signing Certificate Unusual Validity Period</strong> - Alerts on a federated domain where the signing certificates have a validity period of &gt; 1 year. AD FS managed certificates are valid for only one year. Validity periods that are longer than one year could be an indication that a threat actor has tampered with the domain federation settings. They may also be indicative of the use of a legitimate custom token-signing certificate. Have your administrators verify if this is the case.</li>
+<li><strong>Signing Certificate Mismatch</strong> - Alerts on federated domains where the issuer or subject of the signing certificates do not match. In most cases the token-signing certificates will always be from the same issuer and have the same subject. If there is a mismatch, then it could be an indication that a threat actor has tampered with the domain federation settings. Have your administrators verify if the subject and issuer names are expected, and if not consider performing a forensic investigation to determine how the changes were made and to identify any other evidence of compromise.</li>
+<li><strong>Azure AD Backdoor (any.sts)</strong> - Alerts on federated domains configured with <code>any.sts</code> as the Issuer URI. This is indicative of usage of the Azure AD Backdoor tool. Consider performing a forensic investigation to determine how the changes were made and to identify any other evidence of compromise.</li>
+<li><strong>Federated Domains</strong> - Lists all federated domains and the token issuer URI. Verify that the domain should be federated and that the issuer URI is expected.</li>
+<li><strong>Unverified Domains</strong> - Lists all unverified domains in Azure AD. Unverified domains should not be kept in Azure AD for long in an unverified state. Consider removing them.</li>
+</ul>
+<h4>Examples</h4>
+<pre><code>!! Evidence of AAD backdoor found.
+Consider performing a detailed forensic investigation
+Domain name: foobar.com
+Domain federation name:
+Federation issuer URI: http://any.sts/16B45E3B</code></pre>
+<p>:bangbang: The script has identified a domain that has been federated with an issuer URI that is an indicator of an <a href="https://github.com/Gerenios/AADInternals/blob/master/FederatedIdentityTools.ps1">Azure AD Backdoor</a>. The backdoor sets the issuer URI to hxxp://any.sts by default. Consider performing a forensic investigation to determine how the changes were made and identify any other evidence of compromise.</p>
+<pre><code>!! A token signing certificate has a validity period of more than 365 days. 
+This may be evidence of a signing certificate not generated by AD FS.
+Domain name: foobar.com
+Federation issuer uri: http://sts.foobar.com
+Signing cert not valid before: 1/1/2020 00:00:00
+Signing cert not valid after: 12/31/2025 23:59:59</code></pre>
+<p>:warning: The script has identified a federated domain with a token-signing certificate that is valid for longer than the standard 365 days. Consult with your administrators to see if the token-signing certificate is manually managed and if it is expected to have the stated validity period. Consider performing a forensic investigation if this is not expected.</p>
+<h4>Service Principals (Invoke-MandiantAuditAzureADServicePrincipals)</h4>
+<p>This module uses Azure AD PowerShell to look for and audit Service Principals in Azure AD.</p>
+<ul>
+<li><strong>First-party Service Principals with added credentials</strong> - First-party (Microsoft published) Service Principals should not have added credentials except in rare circumstances. Environments that are or were previously in a hybrid-mode may have credentials added to Exchange Online, Skype for Business, and AAD Password Protection Proxy Service Principals. Verify that the Service Principal credential is part of a legitimate use case. Consider performing a forensic investigation if the credential is not legitimate.</li>
+<li><strong>Service Principals with high level privileges and added credentials</strong> - Identifies Service Principals that have high-risk API permissions assigned and added credentials. While the Service Principal and added permissions are likely legitimate, the added credentials may not be. Verify that the Service Principal credentials are part of a legitimate use case. Verify that the Service Principal needs the listed permissions.</li>
+</ul>
+<h4>Examples</h4>
+<pre><code>!! Identified first-party (Microsoft published) Service Principals with added credentials.
+Only in rare cases should a first-party Service Principal have an added credential.
+Verify that the added credential has a legitimate use case and consider further investigation if not
+*******************************************************************
+Object ID           : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+App ID              : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Display Name        : Office 365 Exchange Online
+Key Credentials     :
+
+CustomKeyIdentifier :
+EndDate             : 12/9/2017 2:10:29 AM
+KeyId               : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+StartDate           : 12/9/2015 1:40:30 AM
+Type                : AsymmetricX509Cert
+Usage               : Verify
+Value               :</code></pre>
+<p>:warning: The script has identified a first-party (Microsoft) Service Principal with added credentials. First-party Service Principals should <em>not</em> have added credentials except in rare cases. Environments that are or were previously in a hybrid-mode may have credentials added to Exchange Online, Skype for Business, and AAD Password Protection Proxy Service Principals. This may also be an artifact of UNC2452 activity in your environment. Consult with your administrators and search the audit logs to verify the credential is legitimate. You can also use the "Service Principal Sign-Ins" tab in the Azure AD Sign-Ins blade to search for authentications to your tenant using this Service Principal.</p>
+<pre><code>!! Identified Service Principals with high-risk API permissions and added credentials.
+Verify that the added credential has a legitimate use case and consider further investigation if not
+Object ID            : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+App ID               : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Display Name         : TestingApp
+Key Credentials      :
+    CustomKeyIdentifier :
+    EndDate             : 1/7/2025 12:00:00 AM
+    KeyId               : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    StartDate           : 1/7/2021 12:00:00 AM
+    Type                : Symmetric
+    Usage               : Verify
+    Value               :
+Password Credentials :
+Risky Permissions    : Domain.ReadWrite.All</code></pre>
+<p>:warning: The script has identified a Service Principal with high-risk API permissions and added credentials. This may be expected, as some third-party or custom-built applications require added credentials in order to function. This may also be an artifact of UNC2452 activity in your environment. Consult with your administrators and search the audit logs to verify the credential is legitimate. You can also use the "Service Principal Sign-Ins" tab in the Azure AD Sign-Ins blade to search for authentications to your tenant using this Service Principal.</p>
+<h4>Applications (Invoke-MandiantAuditAzureADApplications)</h4>
+<p>This module uses Azure AD PowerShell to look for and audit Applications in Azure AD.</p>
+<ul>
+<li><strong>Applications with high level privileges and added credentials</strong> - Alerts on Applications that have high-risk API permissions and added credentials. While the Applications and added permissions are likely legitimate, the added credentials may not be. Verify that the Application credentials are part of a legitimate use case. Verify that the Applications needs the listed permissions.</li>
+</ul>
+<h4>Example</h4>
+<pre><code>!! High-privileged Application with credentials found.
+Validate that the application needs these permissions.
+Validate that the credentials added to the application are associated with a legitimate use case.
+
+ObjectID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+AppID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+DisplayName: Acme Test App
+KeyCredentials:
+PasswordCredentials:
+
+CustomKeyIdentifier :
+EndDate             : 12/22/2021 4:01:52 PM
+KeyId               : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+StartDate           : 12/22/2020 4:01:52 PM
+Value               :
+
+CustomKeyIdentifier :
+EndDate             : 12/21/2021 6:32:54 PM
+KeyId               : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+StartDate           : 12/21/2020 6:33:16 PM
+Value               :
+
+Risky Permissions: 
+Mail.Read (Read mail in all mailboxes)
+Directory.Read.All (Read all data in the organization directory)</code></pre>
+<p>:warning: The script has identified an Application with high-risk API permissions and added credentials. This may be expected, as some third-party or custom-built applications require added credentials in order to function. This may also be an artifact of UNC2452 activity in your environment. Consult with your administrators and search the audit logs to verify the credential is legitimate.</p>
+<h4>Cloud Solution Provider Program (Invoke-MandiantGetCSPInformation)</h4>
+<p>This module checks to see if the tenant is managed by a CSP, or partner, and if delegated administration is enabled. Delegated administration allows the CSP to access a customer tenant with the same privileges as a Global Administrator. Although the CSP program enforces strong security controls on the partner's tenant, a threat actor that compromises the CSP may be able to access customer environments. Organizations should verify if their partner needs delegated admin privileges and remove it if not. If the partner must maintain delegated admin access, consider implementing Conditional Access Policies to restrict their access.</p>
+<p>Organizations can check and manage partner relationships by navigating to the <a href="https://admin.microsoft.com">Admin Center</a> and navigating to <code>Settings</code> -&gt; <code>Partner Relationships</code> on the left-hand menu bar.</p>
+<h4>Mailbox Folder Permissions (Get-MandiantMailboxFolderPermissions)</h4>
+<p>This module audits all the mailboxes in the tenant for the existance of suspicious folder permissions. Specifically, this module will examine the "Top of Information Store" and "Inbox" folders in each mailbox and check the permissions assigned to the "Default" and "Anonymous" users. Any value other than "None" will result in the mailbox being flagged for analysis. In general the Default and Anonymous users should not have permissions on user inboxes as this will allow any user to read their contents. Some organizations may find shared mailboxes with this permission, but it is not recommended practice.</p>
+<h4>Application Impersonation (Get-MandiantApplicationImpersonationHolders)</h4>
+<p>This module outputs the list of users and groups that hold the ApplicationImpersonation role. Any user or member of a group in the output of this command can use impersonation to "act as" and access the mailbox of any other user in the tenant. Organizations should audit the output of this command to ensure that only expected users and groups are included, and where possible further restrict the scope.</p>
+<h4>Purview Audit (Formerly Advanced Audity) (Invoke-MandiantCheckAuditing)</h4>
+<p>This module will enumerate all licensed users in the tenant that are licensed for Purview Audit Mail Items Accessed. It will generate a CSV report documenting whether or not the feature has been enabled on an eligible mailbox. Organizations should filter on mailboxes that are eligible for Mail Items Accessed but have the feature disabled and verify that this is intentional.</p>
+<h4>Unified Audit Log (Get-MandiantUnc2452AuditLogs)</h4>
+<p>This module is a helper script to search the Unified Audit Log. Searching the Unified Audit Log has many technical caveats that can be easy to overlook. This module can help simplify the search process by implementing best practices for navigating these caveats and handling some common errors.</p>
+<p>By default, the module will search for log entries that can record UNC2452 techniques. The log records may also capture legitimate administrator activity, and will need to be verified.</p>
+<ul>
+<li><strong>Update Application</strong> - Records actions taken to update App Registrations. </li>
+<li><strong>Set Domain Auth</strong> - Records when authentication settings for a domain are changed, including the creation of federation realm objects. These events should occur rarely in an environment and may indicate a threat actor configuring an AAD backdoor.</li>
+<li><strong>Set Federation Settings</strong> - Records when the federation realm object for a domain is modified. These events should occur rarely in an environment and may indicate a threat actor preparing to execute a Golden SAML attack.</li>
+<li><strong>Update Application Certificates and Secrets</strong> - Records when a secret or certificate is added to an App Registration.</li>
+<li><strong>PowerShell Mailbox Logins</strong> - Records Mailbox Login operations where the client application was PowerShell.</li>
+<li><strong>Update Service Principal</strong> - Records when updates are made to an existing Service Principal.</li>
+<li><strong>Add Service Principal Credentials</strong> - Records when a secret or certificate is added to a Service Principal.</li>
+<li><strong>Add App Role Assignment</strong> - Records when an App Role (Application Permission) is added.</li>
+<li><strong>App Role Assignment for User</strong> - Records when an App Role is assigned to a user.</li>
+<li><strong>PowerShell Authentication</strong> - Records when a user authenticates to Azure AD using a PowerShell client.</li>
+<li><strong>New Management Role Assignments</strong> - Records when new management role assignments are created. This can be useful to identify new ApplicationImpersonation grants.</li>
+</ul>
+<h3>Usage</h3>
+<h4>Required Modules</h4>
+<p>The PowerShell module requires the installation of three Microsoft 365 PowerShell modules.</p>
+<ul>
+<li>AzureAD</li>
+<li>MSOnline</li>
+<li>ExchangeOnlineManagement</li>
+<li>Microsoft.Graph</li>
+</ul>
+<p>To install the modules:</p>
+<ol>
+<li>Open a PowerShell window as a local administrator (right-click then select Run As Administrator)</li>
+<li>Run the command <code>Install-Module &lt;MODULE NAME HERE&gt;</code> and follow the prompts</li>
+</ol>
+<h4>Required User Permissions</h4>
+<p>The PowerShell module must be run with a Microsoft 365 account assigned specific privileges.</p>
+<ul>
+<li><code>Global Administrator</code> or <code>Global Reader</code> role in the Azure AD portal</li>
+<li><code>View-Only Audit Logs</code> in the Exchange Control Panel</li>
+<li><code>User.Read.All</code> and <code>Directory.Read.All</code> scopes. <code>Global Reader</code> role holders should have the ability to use these scopes automatically.</li>
+</ul>
+<p>To grant an account <code>View-Only Audit Logs</code> in the Exchange Control Panel:</p>
+<ol>
+<li>Navigate to <a href="https://outlook.office365.com/ecp">https://outlook.office365.com/ecp</a> and login as a global admin or exchange admin (not the exact URL may differ if you are in an alternate cloud)</li>
+<li>Click <code>admin roles</code> in the dashboard, or expand the <code>roles</code> tab on the left and click <code>admin roles</code> if you are in the new UI</li>
+<li>Create a new admin role by clicking the <code>+</code> sign or clicking <code>add new role group</code></li>
+<li>Give your role a name and default write-scope</li>
+<li>Add the <code>View-Only Audit Logs</code> permission to the role</li>
+<li>Add the user to the role</li>
+</ol>
+<p><strong>Note</strong> it can take up to an hour for this role to apply</p>
+<h4>Running the tool</h4>
+<ol>
+<li>Download this tool as a ZIP and unzip it, or clone the repository to your system</li>
+<li>Open a PowerShell window</li>
+<li>Change directories to the location of this module <code>cd C:\path\to\the\module</code></li>
+<li>Import this module <code>Import-Module .\MandiantAzureADInvestigator.psd1</code> you should receive this output</li>
+</ol>
+<pre><code>
+      Mandiant Azure AD Investigator
+    Focusing on UNC2452 Investigations
+
+PS C:\Users\admin\Desktop\mandiant&gt;</code></pre>
+<ol>
+<li>Connect to Azure AD by running <code>Connect-MandiantAzureEnvironment -UserPrincipalName &lt;your username here&gt;</code>. You should receive a login prompt and output to the PowerShell window indicating the connections have been established. <strong>Note</strong>: If you run into issues you may need to change your execution policy by running <code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned</code>. This may require administrator privileges.</li>
+</ol>
+<pre><code>----------------------------------------------------------------------------
+The module allows access to all existing remote PowerShell (V1) cmdlets in addition to the 9 new, faster, and more reliable cmdlets.
+
+|--------------------------------------------------------------------------|
+|    Old Cmdlets                    |    New/Reliable/Faster Cmdlets       |
+|--------------------------------------------------------------------------|
+|    Get-CASMailbox                 |    Get-EXOCASMailbox                 |
+|    Get-Mailbox                    |    Get-EXOMailbox                    |
+|    Get-MailboxFolderPermission    |    Get-EXOMailboxFolderPermission    |
+|    Get-MailboxFolderStatistics    |    Get-EXOMailboxFolderStatistics    |
+|    Get-MailboxPermission          |    Get-EXOMailboxPermission          |
+|    Get-MailboxStatistics          |    Get-EXOMailboxStatistics          |
+|    Get-MobileDeviceStatistics     |    Get-EXOMobileDeviceStatistics     |
+|    Get-Recipient                  |    Get-EXORecipient                  |
+|    Get-RecipientPermission        |    Get-EXORecipientPermission        |
+|--------------------------------------------------------------------------|
+
+To get additional information, run: Get-Help Connect-ExchangeOnline or check https://aka.ms/exops-docs
+
+Send your product improvement suggestions and feedback to exocmdletpreview@service.microsoft.com. For issues related to the module, contact Microsoft support. Don't use the feedback alias for problems or support issues.
+----------------------------------------------------------------------------
+
+Account                                              Environment TenantId                             TenantDomain
+-------                                              ----------- --------                             ------------
+doug@test.onmicrosoft.com AzureCloud  xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx test.onm...</code></pre>
+<ol>
+<li>Run all checks <code>Invoke-MandiantAllChecks -OutputPath &lt;path\to\output\files&gt;</code>. You can also run individual checks using the specific cmdlet.</li>
+<li>Review the output on the screen and the written CSV files.</li>
+</ol>
+<h3>Further Reading</h3>
+<p>For additional information from Mandiant regarding UNC2452, please see:</p>
+<ul>
+<li><a href="https://www.mandiant.com/resources/evasive-attacker-leverages-solarwinds-supply-chain-compromises-with-sunburst-backdoor">Highly Evasive Attacker Leverages SolarWinds Supply chain to Compromise Multiple Global Victims with SUNBURST Backdoor</a></li>
+<li><a href="https://www.mandiant.com/resources/remediation-and-hardening-strategies-for-microsoft-365-to-defend-against-unc2452">Remediation and Hardening Strategies for Microsoft 365 to Defend Against UNC2452</a></li>
+</ul>
+<p>The response to UNC2452 has been a significant effort across the security industry and these blogs heavily cite additional contributions that will be of value to users of this tool. We recommend reading the linked material from these posts to best understand activity in your environment. As always, the Mandiant team is available to answer follow-up questions or further assist on an investigation <a href="https://www.mandiant.com/report-incident">by contacting us here.</a></p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Azure AD incident response and investigation</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #azure #incident-response #forensics #investigation #mandiant</li></ul>
+<h3>Purpose</h3>
+<p>Mandiant Azure AD Investigator helps:</p>
+<ul>
+<li>Investigate Azure AD compromises</li>
+<li>Collect relevant logs and data</li>
+<li>Identify suspicious activities</li>
+<li>Support incident response</li>
+</ul>
+<p>Developed by Mandiant (Google Cloud)</p>
+<h3>Installation</h3>
+<pre><code>Install-Module -Name Mandiant-Azure-AD-Investigator</code></pre>
+<h3>Investigation Functions</h3>
+<pre><code># Collect Azure AD logs
+Get-AzureADAuditLogs
+Get-AzureADSignInLogs
+
+# User investigation
+Get-AzureADUserInvestigation -UserPrincipalName user@company.com
+
+# App investigation
+Get-AzureADAppInvestigation
+
+# Role investigation
+Get-AzureADRoleInvestigation</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Mandiant Tool</strong>: From leading IR firm 💡 <strong>Azure AD Focus</strong>: Specialized for EntraID investigation 💡 <strong>Incident Response</strong>: Designed for compromise investigations 💡 <strong>Comprehensive</strong>: Collects multiple log sources</p>
+<h3>Resources</h3>
+<ul>
+<li>PowerShell Gallery: Search for Mandiant-Azure-AD-Investigator</li>
+<li>Company: Mandiant (Google Cloud)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

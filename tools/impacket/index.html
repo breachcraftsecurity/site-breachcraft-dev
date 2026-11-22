@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>impacket - Breachcraft Dev</title>
+<meta name="description" content="Copyright Fortra, LLC and its affiliated companies">
+<link rel="canonical" href="https://breachcraft.dev/tools/impacket/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">impacket</p>
+  <h1>impacket</h1>
+  <p class="lede">Copyright Fortra, LLC and its affiliated companies</p>
+  <h2>What it is</h2>
+<p>Impacket ========</p>
+<p>Copyright Fortra, LLC and its affiliated companies. All rights reserved.</p>
+<p>Impacket was originally created by <a href="https://www.secureauth.com/labs/open-source-tools/impacket">SecureAuth</a>, and now maintained by Fortra's Core Security.</p>
+<p>Impacket is a collection of Python classes for working with network protocols. Impacket is focused on providing low-level programmatic access to the packets and for some protocols (e.g. SMB1-3 and MSRPC) the protocol implementation itself. Packets can be constructed from scratch, as well as parsed from raw data, and the object-oriented API makes it simple to work with deep hierarchies of protocols. The library provides a set of tools as examples of what can be done within the context of this library.</p>
+<p>What protocols are featured? ----------------------------</p>
+<ul>
+<li>Ethernet, Linux "Cooked" capture.</li>
+<li>IP, TCP, UDP, ICMP, IGMP, ARP.</li>
+<li>IPv4 and IPv6 Support.</li>
+<li>NMB and SMB1, SMB2 and SMB3 (high-level implementations).</li>
+<li>MSRPC version 5, over different transports: TCP, SMB/TCP, SMB/NetBIOS and HTTP.</li>
+<li>Plain, NTLM and Kerberos authentications, using password/hashes/tickets/keys.</li>
+<li>Portions/full implementation of the following MSRPC interfaces: EPM, DTYPES, LSAD, LSAT, NRPC, RRP, SAMR, SRVS, WKST, SCMR, BKRP, DHCPM, EVEN6, MGMT, SASEC, TSCH, DCOM, WMI, OXABREF, NSPI, OXNSPI.</li>
+<li>Portions of TDS (MSSQL) and LDAP protocol implementations.</li>
+</ul>
+<p>Maintainer ==========</p>
+<p><a href="https://www.coresecurity.com/">Core Security</a></p>
+<p>Table of Contents =================</p>
+<ul>
+<li>Getting Impacket</li>
+<li>Setup</li>
+<li>Testing</li>
+<li>Licensing</li>
+<li>Disclaimer</li>
+<li>Contact Us</li>
+</ul>
+<p>Getting Impacket ================</p>
+<h4>Latest version</h4>
+<ul>
+<li>Impacket v0.13.0</li>
+</ul>
+<p><a href="https://github.com/fortra/impacket/releases">Current and past releases</a></p>
+<h4>Development version</h4>
+<ul>
+<li>Impacket v0.14.0-dev (<strong><a href="https://github.com/fortra/impacket/tree/master">master branch</a></strong>)</li>
+</ul>
+<p>Setup =====</p>
+<h4>Quick start</h4>
+<blockquote><p>:information_source: We recommend using <code>pipx</code> over <code>pip</code> for system-wide installations.</p></blockquote>
+<p>In order to grab the latest stable release run:</p>
+<p>python3 -m pipx install impacket</p>
+<p>If you want to play with the unreleased changes, download the development version from the <a href="https://github.com/fortra/impacket/tree/master">master branch</a>, extract the package, and execute the following command from the directory where Impacket has been unpacked:</p>
+<p>python3 -m pipx install .</p>
+<h4>Docker Support</h4>
+<p>Build Impacket's image:</p>
+<p>$ docker build -t "impacket:latest" .</p>
+<p>Using Impacket's image:</p>
+<p>$ docker run -it --rm "impacket:latest"</p>
+<p>Testing =======</p>
+<p>The library leverages the <a href="https://docs.pytest.org/">pytest</a> framework for organizing and marking test cases, <a href="https://tox.readthedocs.io/">tox</a> to automate the process of running them across supported Python versions, and <a href="https://coverage.readthedocs.io/">coverage</a> to obtain coverage statistics.</p>
+<p>A comprehensive testing guide is available.</p>
+<p>Licensing =========</p>
+<p>This software is provided under a slightly modified version of the Apache Software License. See the accompanying LICENSE file for more information.</p>
+<p>SMBv1 and NetBIOS support based on Pysmb by Michael Teo.</p>
+<p>Disclaimer ==========</p>
+<p>The spirit of this Open Source initiative is to help security researchers, and the community, speed up research and educational activities related to the implementation of networking protocols and stacks.</p>
+<p>The information in this repository is for research and educational purposes and not meant to be used in production environments and/or as part of commercial products.</p>
+<p>If you desire to use this code or some part of it for your own uses, we recommend applying proper security development life cycle and secure coding practices, as well as generate and track the respective indicators of compromise according to your needs.</p>
+<p>Contact Us ==========</p>
+<p>Whether you want to report a bug, send a patch, or give some suggestions on this package, reach out to us at <a href="https://www.coresecurity.com/about/contact.">https://www.coresecurity.com/about/contact.</a></p>
+<p>For security-related questions check our security policy.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Library and Tools</li><li><strong>Purpose</strong> Network protocol manipulation and exploitation</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #python #smb #kerberos #ntlm #active-directory #lateral-movement</li></ul>
+<h3>Installation</h3>
+<pre><code>pip3 install impacket
+
+# Or from source
+git clone https://github.com/fortra/impacket.git
+cd impacket
+pip3 install .</code></pre>
+<h3>Common Tools</h3>
+<pre><code># PSExec-like functionality
+psexec.py domain/user:password@target
+
+# SMB enumeration
+smbclient.py domain/user:password@target
+
+# Secretsdump (cred extraction)
+secretsdump.py domain/user:password@dc-ip
+
+# Kerberoasting
+GetUserSPNs.py domain/user:password -dc-ip dc-ip -request
+
+# AS-REP Roasting
+GetNPUsers.py domain/ -usersfile users.txt -dc-ip dc-ip
+
+# DCSync
+secretsdump.py domain/user:password@dc-ip -just-dc
+
+# WMI exec
+wmiexec.py domain/user:password@target</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Network Protocols</strong>: Low-level protocol implementations 💡 <strong>Pass-the-Hash</strong>: Many tools support PTH attacks 💡 <strong>No Agent</strong>: Pure network-based, no agent needed 💡 <strong>Cross-Platform</strong>: Works on Linux/macOS for Windows targeting 💡 <strong>Active Directory</strong>: Essential toolkit for AD pentesting</p>
+<h3>Note</h3>
+<p>Windows AD toolkit, included for comprehensive coverage.</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/fortra/impacket">https://github.com/fortra/impacket</a></li>
+<li>Company: Fortra (SecureAuth)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

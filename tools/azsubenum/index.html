@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AzSubEnum - Azure Service Subdomain Enumeration - Breachcraft Dev</title>
+<meta name="description" content="AzSubEnum is a specialized subdomain enumeration tool tailored for Azure services">
+<link rel="canonical" href="https://breachcraft.dev/tools/azsubenum/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">AzSubEnum - Azure Service Subdomain Enumeration</p>
+  <h1>AzSubEnum - Azure Service Subdomain Enumeration</h1>
+  <p class="lede">AzSubEnum is a specialized subdomain enumeration tool tailored for Azure services</p>
+  <h2>What it is</h2>
+<h3>How it works?</h3>
+<p>AzSubEnum operates by using DNS resolution techniques and systematic permutation methods to unveil subdomains associated with Azure services such as Azure App Services, Storage Accounts, Azure Databases (including MSSQL, Cosmos DB, and Redis), Key Vaults, CDN, Email, SharePoint, Azure Container Registry, and more. Its functionality extends to comprehensively scanning different Azure service domains to identify associated subdomains.</p>
+<p>With this tool, users can conduct thorough subdomain enumeration within Azure environments, aiding security professionals, researchers, and administrators in gaining insights into the expansive landscape of Azure services and their corresponding subdomains.</p>
+<h3>Why i create this?</h3>
+<p>During my learning journey on Azure AD exploitation, I discovered that the Azure subdomain tool, <a href="https://github.com/NetSPI/MicroBurst/blob/master/Misc/Invoke-EnumerateAzureSubDomains.ps1">Invoke-EnumerateAzureSubDomains</a> from NetSPI, was unable to run on my Debian PowerShell. Consequently, I created a crude implementation of that tool in Python.</p>
+<h3>Usage</h3>
+<pre><code>➜  AzSubEnum git:(main) ✗ python3 azsubenum.py --help
+usage: azsubenum.py [-h] -b BASE [-v] [-t THREADS] [-p PERMUTATIONS]
+
+Azure Subdomain Enumeration
+
+options:
+  -h, --help            show this help message and exit
+  -b BASE, --base BASE  Base name to use
+  -v, --verbose         Show verbose output
+  -t THREADS, --threads THREADS
+                        Number of threads for concurrent execution
+  -p PERMUTATIONS, --permutations PERMUTATIONS
+                        File containing permutations</code></pre>
+<p>Basic enumeration:</p>
+<pre><code>python3 azsubenum.py -b retailcorp --thread 10</code></pre>
+<p>Using permutation wordlists:</p>
+<pre><code>python3 azsubenum.py -b retailcorp --thread 10 --permutation permutations.txt</code></pre>
+<p>With verbose output:</p>
+<pre><code>python3 azsubenum.py -b retailcorp --thread 10 --permutation permutations.txt --verbose</code></pre>
+<h3>Screenshot</h3>
+<h3>Let's contribute!</h3>
+<p>Do you have any ideas on how to enhance this tool? Let's contribute!</p>
+<h3>Disclaimer</h3>
+<p>Any actions and or activities related to the material contained within this tool is solely your responsibility. The misuse of the information in this tool can result in criminal charges brought against the persons in question.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Script</li><li><strong>Purpose</strong> Azure subscription enumeration via authentication token</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #azure #enumeration #subscription #reconnaissance</li></ul>
+<h3>Installation</h3>
+<pre><code>git clone https://github.com/yuyudhn/AzSubEnum.git
+cd AzSubEnum
+pip3 install -r requirements.txt</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># Enumerate subscriptions
+python3 azsubenum.py -t &lt;access-token&gt;
+
+# With output file
+python3 azsubenum.py -t &lt;access-token&gt; -o subscriptions.txt</code></pre>
+<h3>ENUM: Subscription Enumeration</h3>
+<pre><code># Basic enumeration
+python3 azsubenum.py -t "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+
+# Save results
+python3 azsubenum.py -t &lt;token&gt; -o output.txt
+
+# Get token first (using Az CLI)
+TOKEN=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
+python3 azsubenum.py -t "$TOKEN"</code></pre>
+<h3>What It Discovers</h3>
+<ul>
+<li>Subscription IDs</li>
+<li>Subscription names</li>
+<li>Subscription states</li>
+<li>Tenant associations</li>
+<li>Access levels</li>
+</ul>
+<h3>Token Requirements</h3>
+<p>Requires Azure Management API access token:</p>
+<ul>
+<li>Resource: <code>https://management.azure.com/</code></li>
+<li>Get via Az CLI, AADInternals, TokenTactics, etc.</li>
+</ul>
+<h3>Integration</h3>
+<pre><code># Chain with other tools
+TOKEN=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
+
+# Enumerate subscriptions
+python3 azsubenum.py -t "$TOKEN" -o subs.txt
+
+# Use discovered subscriptions
+az account set --subscription &lt;discovered-sub-id&gt;</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Token Source</strong>: Works with any valid Azure Management token 💡 <strong>Multi-Sub</strong>: Discovers all accessible subscriptions 💡 <strong>Quick Recon</strong>: Fast way to understand Azure footprint 💡 <strong>Integration</strong>: Chain with PowerZure, Az CLI, etc.</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/yuyudhn/AzSubEnum">https://github.com/yuyudhn/AzSubEnum</a></li>
+<li>Author: @yuyudhn</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

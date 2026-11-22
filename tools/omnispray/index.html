@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Omnispray - Breachcraft Dev</title>
+<meta name="description" content="&gt; Omnispray | Modular Enumeration and Password Spraying Framework -- v0.1.4">
+<link rel="canonical" href="https://breachcraft.dev/tools/omnispray/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Omnispray</p>
+  <h1>Omnispray</h1>
+  <p class="lede">&gt; Omnispray | Modular Enumeration and Password Spraying Framework -- v0.1.4</p>
+  <h2>What it is</h2>
+<blockquote><p>Omnispray | Modular Enumeration and Password Spraying Framework -- v0.1.4</p></blockquote>
+<p>Omnispray aims to replace tools such as <a href="https://github.com/0xZDH/o365spray">o365spray</a> and provide a modular framework to expand enumeration and spraying beyond just a single target/application.</p>
+<p>The primary goal is to provide a framework to allow for the easy development and implementation of user enumeration and password spraying techniques for a variety of targets/applications. While there are currently several prebuilt modules included, this tool provides module templates to give users the tools needed to extend the tools usage for non-standard cases. The goal is also to provide a central tool to handle all enumeration and spraying.</p>
+<h3>Modules</h3>
+<p>See MODULES.md for information on custom module development as well as details on included modules (O365, OWA, etc.).</p>
+<h3>Usage</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>-m&lt;br/&gt;--module</td><td>Specify the module to run via the modules/ directory.</td></tr>
+<tr><td>-d&lt;br/&gt;--domain</td><td>Target domain for enumeration/spraying.</td></tr>
+<tr><td>-tenant&lt;br/&gt;--tenant</td><td>Target tenant name in case it differs with domain for enumeration/spraying.</td></tr>
+<tr><td>-t&lt;br/&gt;--type</td><td>Module type. If left blank, Omnispray will attempt to autodetect the module type based on the module name. {enum, spray}</td></tr>
+<tr><td>--url</td><td>Target URL. This is for modules that don't use a standard URL for targeting.</td></tr>
+<tr><td>-u&lt;br/&gt;--user</td><td>Single username/email to process.</td></tr>
+<tr><td>-us&lt;br/&gt;--users</td><td>Multiple users/emails to process. (--users uname1 uname2 uname3 ...)</td></tr>
+<tr><td>-uf&lt;br/&gt;--userfile</td><td>File containing multiple users/emails to process.</td></tr>
+<tr><td>-p&lt;br/&gt;--password</td><td>Single password to process.</td></tr>
+<tr><td>-ps&lt;br/&gt;--passwords</td><td>Multiple passwords to process. (--passwords password1 password2 password3 ...)</td></tr>
+<tr><td>-pf&lt;br/&gt;--passwordfile</td><td>File containing multiple password to process.</td></tr>
+<tr><td>-c&lt;br/&gt;--count</td><td>When password spraying, number of password attempts to run before resetting lockout timer. Default: 1 password per spray rotation</td></tr>
+<tr><td>-l&lt;br/&gt;--lockout</td><td>Password spraying lockout policy reset time (in minutes). Default: 15 minutes</td></tr>
+<tr><td>-s&lt;br/&gt;--split</td><td>When enumerating, number of usernames to group by during execution</td></tr>
+<tr><td>-w&lt;br/&gt;--wait</td><td>If splitting user enumeration via --split, time to wait between group runs (in minutes). Default: 5 minutes</td></tr>
+<tr><td>--timeout</td><td>Request timeout in seconds. Default: 25 seconds</td></tr>
+<tr><td>--proxy</td><td>Proxy to pass traffic through (e.g. <a href="http://127.0.0.1:8080">http://127.0.0.1:8080</a>).</td></tr>
+<tr><td>--proxy-url</td><td>URL of proxy to request instead of the module URL. This is to be used with tools such as FireProx.</td></tr>
+<tr><td>--proxy-headers</td><td>Custom headers to use when a --proxy-url has been provided (--proxy-headers "header: value" "header2: value" "header3: value" ...) (e.g. "X-My-X-Forwarded-For: 127.0.0.1" when using FireProx)</td></tr>
+<tr><td>--outdir</td><td>Directory for results and tested files. Default: results/</td></tr>
+<tr><td>--logdir</td><td>Directory for log files. Default: logs/</td></tr>
+<tr><td>--pause</td><td>Sleep (jitter) time before each task is executed in seconds. If set to '-1', a random pause, between 0.250 and 0.750, will occur before each task execution. Default: 0.250 seconds</td></tr>
+<tr><td>--rate</td><td>Number of concurrent connections during enumeration/spraying. Default: 10 threads</td></tr>
+<tr><td>--version</td><td>Print the tool version</td></tr>
+<tr><td>--debug</td><td>Print debug information</td></tr>
+</tbody>
+</table>
+<h4>Examples</h4>
+<p>O365 user enumeration via the Office module.</p>
+<pre><code>&gt; python3 omnispray.py --type enum -uf users.txt --module o365_enum_office</code></pre>
+<p>O365 password spraying via the ActiveSync module.</p>
+<pre><code>&gt; python3 omnispray.py --type spray -uf users.txt -pf passwords.txt \
+                       --module o365_spray_activesync \
+                       --count 3 --lockout 30</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Framework</li><li><strong>Purpose</strong> Modular enumeration and password spraying framework (successor to o365spray)</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #enumeration #password-spray #modular #o365 #owa #python</li></ul>
+<h3>Installation</h3>
+<pre><code>git clone https://github.com/0xZDH/Omnispray.git
+cd Omnispray
+pip3 install -r requirements.txt</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># O365 enumeration
+python3 omnispray.py --type enum -uf users.txt --module o365_enum_office
+
+# O365 password spray
+python3 omnispray.py --type spray -uf users.txt -pf passwords.txt --module o365_spray_activesync --count 2 --lockout 30
+
+# With FireProx
+python3 omnispray.py --type spray -uf users.txt -p 'Password!' --module o365_spray_oauth2 --proxy-url https://xyz.execute-api.us-east-1.amazonaws.com/fireprox/</code></pre>
+<h3>Available Modules</h3>
+<p><strong>Enumeration:</strong></p>
+<ul>
+<li>o365_enum_office</li>
+<li>o365_enum_oauth2</li>
+<li>o365_enum_activesync</li>
+<li>owa_enum_basic</li>
+</ul>
+<p><strong>Spraying:</strong></p>
+<ul>
+<li>o365_spray_activesync</li>
+<li>o365_spray_oauth2</li>
+<li>o365_spray_ews</li>
+<li>owa_spray_basic</li>
+</ul>
+<h3>ENUM: User Enumeration</h3>
+<pre><code># Office module (recommended)
+python3 omnispray.py --type enum -uf users.txt --module o365_enum_office --domain company.com
+
+# OAuth2 module
+python3 omnispray.py --type enum -uf users.txt --module o365_enum_oauth2 --domain company.com
+
+# ActiveSync module
+python3 omnispray.py --type enum -uf users.txt --module o365_enum_activesync --domain company.com
+
+# OWA enumeration
+python3 omnispray.py --type enum -uf users.txt --module owa_enum_basic --url https://mail.company.com</code></pre>
+<h3>CRED: Password Spraying</h3>
+<pre><code># ActiveSync spray (common)
+python3 omnispray.py --type spray -uf valid-users.txt -p 'Password123!' --module o365_spray_activesync --count 1 --lockout 15
+
+# OAuth2 spray
+python3 omnispray.py --type spray -uf users.txt -p 'Summer2024!' --module o365_spray_oauth2 --count 2 --lockout 30
+
+# EWS spray
+python3 omnispray.py --type spray -uf users.txt -pf passwords.txt --module o365_spray_ews --count 3 --lockout 45
+
+# OWA spray
+python3 omnispray.py --type spray -uf users.txt -p 'Password!' --module owa_spray_basic --url https://mail.company.com</code></pre>
+<h3>Advanced Options</h3>
+<pre><code># With proxy
+python3 omnispray.py --type spray -uf users.txt -p 'Pass!' --module o365_spray_oauth2 --proxy http://127.0.0.1:8080
+
+# With FireProx
+python3 omnispray.py --type spray -uf users.txt -p 'Pass!' --module o365_spray_oauth2 --proxy-url https://abc.execute-api.us-east-1.amazonaws.com/fireprox/
+
+# Custom headers
+python3 omnispray.py --type spray -uf users.txt -p 'Pass!' --module o365_spray_oauth2 --proxy-url https://fireprox-url/ --proxy-headers "X-My-X-Forwarded-For: 1.2.3.4"
+
+# Rate limiting
+python3 omnispray.py --type spray -uf users.txt -p 'Pass!' --module o365_spray_oauth2 --rate 5 --pause 2
+
+# Custom output
+python3 omnispray.py --type enum -uf users.txt --module o365_enum_office --outdir ./custom-results/ --logdir ./custom-logs/</code></pre>
+<h3>Lockout Protection</h3>
+<pre><code># Conservative: 1 password every 30 minutes
+python3 omnispray.py --type spray -uf users.txt -pf passwords.txt --module o365_spray_activesync --count 1 --lockout 30
+
+# Moderate: 2 passwords every 20 minutes
+python3 omnispray.py --type spray -uf users.txt -pf passwords.txt --module o365_spray_oauth2 --count 2 --lockout 20
+
+# --count: passwords per cycle
+# --lockout: minutes to wait between cycles</code></pre>
+<h3>Custom Modules</h3>
+<p>Omnispray supports custom module development:</p>
+<ul>
+<li>See MODULES.md in repository</li>
+<li>Templates for enum and spray modules</li>
+<li>Extend to new targets/applications</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Modular Design</strong>: Easier to extend than o365spray 💡 <strong>FireProx Ready</strong>: Built-in support for proxy URLs 💡 <strong>Multiple Modules</strong>: Different protocols for evasion 💡 <strong>Custom Development</strong>: Easy to add new target modules 💡 <strong>Rate Control</strong>: Granular control over request rate 💡 <strong>Successor</strong>: Replaces o365spray with more flexibility</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/0xZDH/Omnispray">https://github.com/0xZDH/Omnispray</a></li>
+<li>Author: @0xZDH</li>
+<li>Related: o365spray (predecessor)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

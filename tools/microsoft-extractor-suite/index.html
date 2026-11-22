@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started with the Microsoft-Extractor-Suite - Breachcraft Dev</title>
+<meta name="description" content="To get started with the Microsoft-Extractor-Suite, check out the Microsoft-Extractor-Suite docs">
+<link rel="canonical" href="https://breachcraft.dev/tools/microsoft-extractor-suite/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Getting started with the Microsoft-Extractor-Suite</p>
+  <h1>Getting started with the Microsoft-Extractor-Suite</h1>
+  <p class="lede">To get started with the Microsoft-Extractor-Suite, check out the Microsoft-Extractor-Suite docs</p>
+  <h2>What it is</h2>
+<p>To get started with the Microsoft-Extractor-Suite, check out the <a href="https://microsoft-365-extractor-suite.readthedocs.io/en/latest/">Microsoft-Extractor-Suite docs.</a></p>
+<h3>About Microsoft-Extractor-Suite</h3>
+<p>Microsoft-Extractor-Suite is a fully-featured, actively-maintained, Powershell tool designed to streamline the process of collecting all necessary data and information from various sources within Microsoft.</p>
+<p>The following Microsoft data sources are supported:</p>
+<ul>
+<li>Unified Audit Log</li>
+<li>Admin Audit Log</li>
+<li>Mailbox Audit Log</li>
+<li>Mailbox Rules</li>
+<li>Transport Rules</li>
+<li>Message Trace Logs</li>
+<li>Entra ID Sign-In Logs</li>
+<li>Entra ID Audit Logs</li>
+<li>Azure Activity Logs</li>
+<li>Azure Directory Activity Logs</li>
+</ul>
+<p>In addition to the log sources above the tool is also able to retrieve other relevant information:</p>
+<ul>
+<li>Registered OAuth applications in Entra ID</li>
+<li>The MFA status for all users</li>
+<li>The creation time and date of the last password change for all users</li>
+<li>The risky users</li>
+<li>The risky detections</li>
+<li>The conditional access policies</li>
+<li>Administrator directory roles and their users</li>
+<li>A specific or list of e-mail(s) or attachment(s)</li>
+<li>Delegated permissions for all mailboxes in Microsoft 365</li>
+<li>Information about all devices registered in Entra ID</li>
+<li>Audit status and settings for all mailboxes in Microsoft 365</li>
+<li>Functions designed to gather information about groups</li>
+<li>Functions designed to gather information about licenses</li>
+<li>Retrieve Role Activity Information</li>
+<li>Generates an overview of all Privileged Identity Management (PIM) role assignments</li>
+<li>Security alerts</li>
+</ul>
+<p>Microsoft-Extractor-Suite was created by Joey Rentenaar and Korstiaan Stam and is maintained by the <a href="https://www.invictus-ir.com/">Invictus IR</a> team.</p>
+<h3>Usage</h3>
+<p>To get started with the Microsoft-Extractor-Suite tool, make sure the requirements are met. If you do not have the Connect-ExchangeOnline, AZ module or/and connect-mggraph installed check <a href="https://microsoft-365-extractor-suite.readthedocs.io/en/latest/installation/Installation.html">the installation guide</a>.</p>
+<p>Install the Microsoft-Extractor-Suite toolkit:</p>
+<blockquote><p>Install-Module -Name Microsoft-Extractor-Suite</p></blockquote>
+<p>To import the Microsoft-Extractor-Suite:</p>
+<blockquote><p>Import-Module .\Microsoft-Extractor-Suite.psd1</p></blockquote>
+<p>You must sign-in to Microsoft 365 or Azure depending on your use case before running the functions. To sign in, use one of the cmdlets:</p>
+<blockquote><p>Connect-M365 or connect-exchangeonline</p></blockquote>
+<blockquote><p>connect-mggraph</p></blockquote>
+<blockquote><p>Connect-AzureAZ or Connect-AzAccount</p></blockquote>
+<h3>Available Functions</h3>
+<h4>Unified Audit Log</h4>
+<ul>
+<li><code>Get-UAL</code> - Collect all Unified Audit Logs</li>
+<li><code>Get-UALStatistics</code> - Displays the total number of logs within the Unified Audit Logs per Record Type</li>
+<li><code>Get-MailboxAuditLog</code> - Collect Mailbox Audit Logs</li>
+<li><code>Get-AdminAuditLog</code> - Collect Admin Audit Logs</li>
+</ul>
+<h4>Mailbox &amp; Transport Rules</h4>
+<ul>
+<li><code>Show-MailboxRules</code> - Shows mailbox rules</li>
+<li><code>Get-MailboxRules</code> - Export mailbox rules</li>
+<li><code>Get-TransportRules</code> - Export transport rules</li>
+<li><code>Show-TransportRules</code> - Shows transport rules</li>
+</ul>
+<h4>Mail and Message Tracking</h4>
+<ul>
+<li><code>Get-MessageTraceLog</code> - Collect message tracking logs</li>
+<li><code>Get-Email</code> - Download specific or bullk emails</li>
+<li><code>Show-Email</code> - Show email content</li>
+<li><code>Get-Attachment</code> - Download email attachments</li>
+<li><code>Get-Sessions</code> - Collect session information related to MailItemsaccessed events</li>
+<li><code>Get-MessageIDs</code> - Extract message IDs from MailItemsaccessed events</li>
+</ul>
+<h4>Sign-In &amp; Audit Logging</h4>
+<ul>
+<li><code>Get-GraphEntraSignInLogs</code> - Collect sign-in logs</li>
+<li><code>Get-GraphEntraAuditLogs</code> - Collect audit logs</li>
+</ul>
+<h4>Activity Logging</h4>
+<ul>
+<li><code>Get-ActivityLogs</code> - Collect activity logs</li>
+<li><code>Get-DirectoryActivityLogs</code> - Collect directory activity logs</li>
+</ul>
+<h4>OAuth apps</h4>
+<ul>
+<li><code>Get-OAuthPermissions</code> - Collect OAuth application permissions Via AZ module</li>
+<li><code>Get-OAuthPermissionsGraph</code> - Collect OAuth application permissions via Graph API</li>
+</ul>
+<h4>User Related</h4>
+<ul>
+<li><code>Get-Users</code> - Collect user information</li>
+<li><code>Get-AdminUsers</code> - Collect users with administrative privileges</li>
+<li><code>Get-MFA</code> - Collect MFA status for users</li>
+<li><code>Get-RiskyUsers</code> - Collect risky users</li>
+<li><code>Get-RiskyDetections</code> - Collect risky detection events</li>
+</ul>
+<h4>Conditional Access Policies</h4>
+<ul>
+<li><code>Get-ConditionalAccessPolicies</code> - Collect conditional access policies</li>
+</ul>
+<h4>Device Management</h4>
+<ul>
+<li><code>Get-Devices</code> - Collect device registration information</li>
+</ul>
+<h4>Permissions and Audit Settings</h4>
+<ul>
+<li><code>Get-MailboxAuditStatus</code> - Collect the mailbox audit configurations</li>
+<li><code>Get-MailboxPermissions</code> - Collect delegated mailbox permissions</li>
+</ul>
+<h4>License Management</h4>
+<ul>
+<li><code>Get-Licenses</code> - Collect all licenses in the tenant with retention times and premium license indicators</li>
+<li><code>Get-LicenseCompatibility</code> - Checks the presence of E5, P2, P1, and E3 licenses and informs about functionality limitations</li>
+<li><code>Get-EntraSecurityDefaults</code> - Checks the status of Entra ID security defaults</li>
+<li><code>Get-LicensesByUser</code> - Collect license assignments for all users in the tenant</li>
+</ul>
+<h4>Group Management</h4>
+<ul>
+<li><code>Get-Groups</code> - Collect all groups in the organization including details such as group ID and display name</li>
+<li><code>Get-GroupMembers</code> - Collect all members of each group and their relevant details</li>
+<li><code>Get-DynamicGroups</code> - Collect all dynamic groups and their membership rules</li>
+</ul>
+<h4>Role Management</h4>
+<ul>
+<li><code>Get-PIMAssignments</code> - Generates a report of all Privileged Identity Management (PIM) role assignments in Entra ID.</li>
+<li><code>Get-AllRoleActivity</code> - Retrieves all directory role memberships with last login information for users.</li>
+</ul>
+<h4>Security Management</h4>
+<ul>
+<li><code>Get-SecurityAlerts</code> - Retrieves security alerts</li>
+</ul>
+<h4>Automatically collect everything you want</h4>
+<ul>
+<li><code>Get-AllEvidence</code> - Collect all (almost) available evidence types automatically</li>
+<li><code>Start-MESTriage</code> - Performs quick triage for specific users using customizable templates</li>
+</ul>
+<h4>Authentication &amp; Session Management</h4>
+<ul>
+<li><code>Connect-M365</code> - Connect to Microsoft 365 services</li>
+<li><code>Connect-Azure</code> - Connect to Azure/Entra ID</li>
+<li><code>Connect-AzureAZ</code> - Connect using Az module</li>
+<li><code>Disconnect-M365</code> - Disconnect from Microsoft 365 services</li>
+<li><code>Disconnect-Azure</code> - Disconnect from Azure/Entra ID</li>
+<li><code>Disconnect-AzureAZ</code> - Disconnect from Az module session</li>
+</ul>
+<h3>Related Projects</h3>
+<p>To enhance your analysis, consider exploring the <a href="https://github.com/LETHAL-FORENSICS/Microsoft-Analyzer-Suite">Microsoft-Analyzer-Suite</a> developed by LETHAL FORENSICS. This suite offers a collection of PowerShell scripts specifically designed for analyzing Microsoft 365 and Microsoft Entra ID data, which can be extracted using the Microsoft-Extractor-Suite.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> M365 and Azure forensics/IR data collection and analysis</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #forensics #incident-response #m365 #azure #logs #audit #exfiltration #blue-team #red-team</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Install from PowerShell Gallery
+Install-Module -Name Microsoft-Extractor-Suite
+
+# Or import from local path
+Import-Module .\Microsoft-Extractor-Suite.psd1
+
+# Install required dependencies
+Install-Module Az
+Install-Module ExchangeOnlineManagement
+Install-Module Microsoft.Graph
+
+# Connect to services (choose based on what you're collecting)
+Connect-M365              # Microsoft 365
+Connect-MgGraph          # Microsoft Graph
+Connect-AzAccount        # Azure</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Collect everything automatically
+Get-AllEvidence -OutputDir .\evidence\
+
+# Unified Audit Log
+Get-UAL -UserIds user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Sign-in logs
+Get-GraphEntraSignInLogs -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Mailbox rules (persistence check)
+Get-MailboxRules -OutputDir .\rules\
+
+# OAuth permissions (malicious apps)
+Get-OAuthPermissionsGraph -OutputDir .\oauth\</code></pre>
+<h3>EXFIL: Unified Audit Log Collection</h3>
+<h4>EXFIL: Collect Unified Audit Log</h4>
+<p><strong>Use Case:</strong> Extract all M365 audit logs</p>
+<pre><code># Collect all UAL for date range
+Get-UAL -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\ual\
+
+# Specific user
+Get-UAL -UserIds user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Specific record types
+Get-UAL -RecordType AzureActiveDirectory,ExchangeAdmin -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Specific operations
+Get-UAL -Operations UserLoggedIn,MailItemsAccessed -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h4>EXFIL: UAL Statistics</h4>
+<p><strong>Use Case:</strong> Get overview of available logs</p>
+<pre><code># Display log counts by record type
+Get-UALStatistics -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Shows:
+# - Total logs per RecordType
+# - Helps identify what data is available</code></pre>
+<h4>EXFIL: Mailbox Audit Log</h4>
+<p><strong>Use Case:</strong> Collect mailbox-specific audit logs</p>
+<pre><code># Specific mailbox
+Get-MailboxAuditLog -Identity user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# All mailboxes
+Get-MailboxAuditLog -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Specific operations (e.g., mail access)
+Get-MailboxAuditLog -Operations MailItemsAccessed -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h4>EXFIL: Admin Audit Log</h4>
+<p><strong>Use Case:</strong> Collect Exchange admin activity</p>
+<pre><code># Admin actions
+Get-AdminAuditLog -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\admin\
+
+# Track admin changes</code></pre>
+<h3>EXFIL: Sign-In &amp; Audit Logs</h3>
+<h4>EXFIL: Entra ID Sign-In Logs</h4>
+<p><strong>Use Case:</strong> Collect authentication logs</p>
+<pre><code># All sign-ins
+Get-GraphEntraSignInLogs -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\signin\
+
+# Specific user
+Get-GraphEntraSignInLogs -UserPrincipalName user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Failed sign-ins only
+Get-GraphEntraSignInLogs -StartDate 2024-01-01 -EndDate 2024-01-31 | Where-Object {$_.Status.ErrorCode -ne 0}</code></pre>
+<h4>EXFIL: Entra ID Audit Logs</h4>
+<p><strong>Use Case:</strong> Collect Azure AD change logs</p>
+<pre><code># All audit logs
+Get-GraphEntraAuditLogs -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\audit\
+
+# Specific activity type
+Get-GraphEntraAuditLogs -ActivityType "Add user" -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h3>EXFIL: Azure Activity Logs</h3>
+<h4>EXFIL: Azure Activity Logs</h4>
+<p><strong>Use Case:</strong> Collect Azure resource activity</p>
+<pre><code># All activity logs
+Get-ActivityLogs -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\azure\
+
+# Specific subscription
+Get-ActivityLogs -SubscriptionId "sub-id" -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h4>EXFIL: Directory Activity Logs</h4>
+<p><strong>Use Case:</strong> Collect directory-level changes</p>
+<pre><code># Directory activity
+Get-DirectoryActivityLogs -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\directory\</code></pre>
+<h3>EXFIL: Email &amp; Message Tracking</h3>
+<h4>EXFIL: Message Trace Logs</h4>
+<p><strong>Use Case:</strong> Track email flow</p>
+<pre><code># Message tracking
+Get-MessageTraceLog -StartDate 2024-01-01 -EndDate 2024-01-31 -OutputDir .\messages\
+
+# Specific sender/recipient
+Get-MessageTraceLog -SenderAddress attacker@evil.com -StartDate 2024-01-01 -EndDate 2024-01-31
+Get-MessageTraceLog -RecipientAddress victim@company.com -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h4>EXFIL: Download Emails</h4>
+<p><strong>Use Case:</strong> Extract specific emails</p>
+<pre><code># Download email by message ID
+Get-Email -UserPrincipalName user@company.com -MessageId "&lt;message-id&gt;" -OutputDir .\emails\
+
+# Bulk download
+Get-Email -UserPrincipalName user@company.com -Subject "Confidential" -OutputDir .\emails\
+
+# Show email content
+Show-Email -UserPrincipalName user@company.com -MessageId "&lt;message-id&gt;"</code></pre>
+<h4>EXFIL: Download Attachments</h4>
+<p><strong>Use Case:</strong> Extract email attachments</p>
+<pre><code># Get attachments
+Get-Attachment -UserPrincipalName user@company.com -MessageId "&lt;message-id&gt;" -OutputDir .\attachments\
+
+# Bulk attachment extraction</code></pre>
+<h4>EXFIL: Email Session Information</h4>
+<p><strong>Use Case:</strong> Correlate MailItemsAccessed events</p>
+<pre><code># Get session information
+Get-Sessions -UserPrincipalName user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31
+
+# Extract message IDs from MailItemsAccessed
+Get-MessageIDs -UserPrincipalName user@company.com -StartDate 2024-01-01 -EndDate 2024-01-31</code></pre>
+<h3>ENUM: Mailbox Rules &amp; Transport Rules</h3>
+<h4>ENUM: Mailbox Rules</h4>
+<p><strong>Use Case:</strong> Detect persistence via mailbox rules</p>
+<pre><code># Show mailbox rules (console output)
+Show-MailboxRules -Identity user@company.com
+
+# Export all mailbox rules
+Get-MailboxRules -OutputDir .\rules\
+
+# Specific mailbox
+Get-MailboxRules -Identity user@company.com -OutputDir .\rules\
+
+# Look for suspicious rules:
+# - Forwarding to external addresses
+# - Auto-delete rules
+# - Moving emails to hidden folders</code></pre>
+<h4>ENUM: Transport Rules</h4>
+<p><strong>Use Case:</strong> Detect email redirection/interception</p>
+<pre><code># Show transport rules
+Show-TransportRules
+
+# Export transport rules
+Get-TransportRules -OutputDir .\transport\
+
+# Look for:
+# - Forwarding rules
+# - BCC rules
+# - Conditional routing</code></pre>
+<h3>ENUM: OAuth &amp; Application Permissions</h3>
+<h4>ENUM: OAuth Application Permissions</h4>
+<p><strong>Use Case:</strong> Detect malicious applications</p>
+<pre><code># Via Az module
+Get-OAuthPermissions -OutputDir .\oauth\
+
+# Via Graph API (more detailed)
+Get-OAuthPermissionsGraph -OutputDir .\oauth\
+
+# Review for:
+# - Suspicious app names
+# - Excessive permissions
+# - Recently added apps
+# - External/unverified publishers</code></pre>
+<h3>ENUM: User Information</h3>
+<h4>ENUM: User Enumeration</h4>
+<p><strong>Use Case:</strong> Collect user details</p>
+<pre><code># All users
+Get-Users -OutputDir .\users\
+
+# Specific user
+Get-Users -UserPrincipalName user@company.com -OutputDir .\users\
+
+# Includes:
+# - Creation date
+# - Last password change
+# - Account status
+# - Assigned licenses</code></pre>
+<h4>ENUM: Admin Users</h4>
+<p><strong>Use Case:</strong> Identify privileged accounts</p>
+<pre><code># All users with admin roles
+Get-AdminUsers -OutputDir .\admins\
+
+# Shows:
+# - Directory role assignments
+# - Privileged users
+# - Admin activity</code></pre>
+<h4>ENUM: MFA Status</h4>
+<p><strong>Use Case:</strong> Identify accounts without MFA</p>
+<pre><code># MFA status for all users
+Get-MFA -OutputDir .\mfa\
+
+# Shows:
+# - MFA enabled/disabled
+# - MFA methods configured
+# - Accounts vulnerable to compromise</code></pre>
+<h4>ENUM: Risky Users</h4>
+<p><strong>Use Case:</strong> Identify compromised accounts</p>
+<pre><code># Risky users (Identity Protection)
+Get-RiskyUsers -OutputDir .\risky\
+
+# Risky detections
+Get-RiskyDetections -OutputDir .\detections\
+
+# Shows:
+# - Risk level (High/Medium/Low)
+# - Risk reasons
+# - Detection timestamps</code></pre>
+<h3>ENUM: Conditional Access &amp; Security</h3>
+<h4>ENUM: Conditional Access Policies</h4>
+<p><strong>Use Case:</strong> Audit CA configuration</p>
+<pre><code># Export all CA policies
+Get-ConditionalAccessPolicies -OutputDir .\ca\
+
+# Review for:
+# - Policy gaps
+# - Excluded users/groups
+# - Weak controls
+# - MFA exemptions</code></pre>
+<h4>ENUM: Security Alerts</h4>
+<p><strong>Use Case:</strong> Collect security alerts</p>
+<pre><code># Get security alerts
+Get-SecurityAlerts -OutputDir .\alerts\
+
+# Review active threats</code></pre>
+<h4>ENUM: Security Defaults Status</h4>
+<p><strong>Use Case:</strong> Check if security defaults enabled</p>
+<pre><code># Check Entra ID security defaults
+Get-EntraSecurityDefaults</code></pre>
+<h3>ENUM: Device Information</h3>
+<h4>ENUM: Registered Devices</h4>
+<p><strong>Use Case:</strong> Audit device registrations</p>
+<pre><code># All registered devices
+Get-Devices -OutputDir .\devices\
+
+# Shows:
+# - Device ID
+# - Device type/OS
+# - Registration date
+# - Compliance status
+# - Owners</code></pre>
+<h3>ENUM: Mailbox Permissions &amp; Audit</h3>
+<h4>ENUM: Mailbox Permissions</h4>
+<p><strong>Use Case:</strong> Detect delegated access</p>
+<pre><code># All delegated permissions
+Get-MailboxPermissions -OutputDir .\permissions\
+
+# Specific mailbox
+Get-MailboxPermissions -Identity user@company.com -OutputDir .\permissions\
+
+# Look for:
+# - FullAccess permissions
+# - SendAs permissions
+# - SendOnBehalf permissions
+# - Unusual delegations</code></pre>
+<h4>ENUM: Mailbox Audit Status</h4>
+<p><strong>Use Case:</strong> Verify audit configuration</p>
+<pre><code># Audit status for all mailboxes
+Get-MailboxAuditStatus -OutputDir .\audit-status\
+
+# Shows:
+# - Audit enabled/disabled
+# - Audit actions logged
+# - Retention settings</code></pre>
+<h3>ENUM: Groups &amp; Licenses</h3>
+<h4>ENUM: Group Information</h4>
+<p><strong>Use Case:</strong> Enumerate groups</p>
+<pre><code># All groups
+Get-Groups -OutputDir .\groups\
+
+# Group members
+Get-GroupMembers -OutputDir .\group-members\
+
+# Dynamic groups (potential abuse)
+Get-DynamicGroups -OutputDir .\dynamic-groups\
+
+# Review dynamic group membership rules</code></pre>
+<h4>ENUM: License Information</h4>
+<p><strong>Use Case:</strong> Understand tenant licensing</p>
+<pre><code># All licenses
+Get-Licenses -OutputDir .\licenses\
+
+# License compatibility check
+Get-LicenseCompatibility
+
+# User license assignments
+Get-LicensesByUser -OutputDir .\user-licenses\</code></pre>
+<h3>ENUM: Role Management</h3>
+<h4>ENUM: PIM Role Assignments</h4>
+<p><strong>Use Case:</strong> Audit Privileged Identity Management</p>
+<pre><code># PIM assignments
+Get-PIMAssignments -OutputDir .\pim\
+
+# Shows:
+# - Eligible role assignments
+# - Active role assignments
+# - PIM activation history</code></pre>
+<h4>ENUM: Role Activity</h4>
+<p><strong>Use Case:</strong> Track role usage</p>
+<pre><code># All role activity
+Get-AllRoleActivity -OutputDir .\role-activity\
+
+# Shows:
+# - Directory role memberships
+# - Last login per role
+# - Inactive admins</code></pre>
+<h3>AUTO: Automated Collection</h3>
+<h4>AUTO: Collect All Evidence</h4>
+<p><strong>Use Case:</strong> One-command full collection</p>
+<pre><code># Collect everything
+Get-AllEvidence -OutputDir .\full-evidence\
+
+# Automatically collects:
+# - UAL
+# - Sign-in logs
+# - Audit logs
+# - Mailbox rules
+# - OAuth apps
+# - Users
+# - Groups
+# - CA policies
+# - And more...
+
+# Great for initial IR response</code></pre>
+<h4>AUTO: Quick Triage</h4>
+<p><strong>Use Case:</strong> Focused user investigation</p>
+<pre><code># Triage specific user
+Start-MESTriage -UserPrincipalName compromised@company.com -OutputDir .\triage\
+
+# Customizable templates for quick investigation</code></pre>
+<h3>Attack Patterns (Red Team Use)</h3>
+<h4>Pattern: Post-Compromise Evidence Collection</h4>
+<pre><code># After compromising account with privileges
+
+# 1. Connect
+Connect-M365
+Connect-MgGraph
+
+# 2. Collect audit logs to understand detection
+Get-UAL -StartDate (Get-Date).AddDays(-30) -EndDate (Get-Date) -OutputDir .\logs\
+
+# 3. Identify other admins
+Get-AdminUsers -OutputDir .\admins\
+
+# 4. Check for monitoring gaps
+Get-MailboxAuditStatus -OutputDir .\audit\
+
+# 5. Find accounts without MFA
+Get-MFA -OutputDir .\mfa\
+
+# 6. Look for malicious apps already present
+Get-OAuthPermissionsGraph -OutputDir .\oauth\</code></pre>
+<h4>Pattern: Exfiltrate Intelligence</h4>
+<pre><code># Collect organizational intelligence
+
+# Users and structure
+Get-Users -OutputDir .\intel\users\
+Get-Groups -OutputDir .\intel\groups\
+Get-AdminUsers -OutputDir .\intel\admins\
+
+# Security posture
+Get-ConditionalAccessPolicies -OutputDir .\intel\ca\
+Get-MFA -OutputDir .\intel\mfa\
+
+# Infrastructure
+Get-Devices -OutputDir .\intel\devices\
+Get-Licenses -OutputDir .\intel\licenses\</code></pre>
+<h3>Defensive Use (Blue Team)</h3>
+<h4>Pattern: Incident Response Collection</h4>
+<pre><code># Compromise suspected on 2024-01-15
+
+# 1. Automated collection
+Get-AllEvidence -OutputDir .\IR-Case-001\
+
+# 2. Focused user investigation
+Start-MESTriage -UserPrincipalName victim@company.com -OutputDir .\IR-Case-001\victim\
+
+# 3. Check for persistence
+Get-MailboxRules -OutputDir .\IR-Case-001\rules\
+Get-OAuthPermissionsGraph -OutputDir .\IR-Case-001\oauth\
+
+# 4. Timeline creation
+Get-UAL -UserIds victim@company.com -StartDate 2024-01-10 -EndDate 2024-01-20 -OutputDir .\IR-Case-001\timeline\</code></pre>
+<h4>Pattern: Threat Hunting</h4>
+<pre><code># Hunt for suspicious activity
+
+# 1. Find risky users
+Get-RiskyUsers -OutputDir .\hunt\risky\
+Get-RiskyDetections -OutputDir .\hunt\detections\
+
+# 2. Check for suspicious mailbox rules
+Get-MailboxRules -OutputDir .\hunt\rules\
+# Review for forwarding/auto-delete
+
+# 3. OAuth app review
+Get-OAuthPermissionsGraph -OutputDir .\hunt\oauth\
+# Look for recently added, high-permission apps
+
+# 4. Failed sign-ins
+Get-GraphEntraSignInLogs -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) | Where-Object {$_.Status.ErrorCode -ne 0}</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Full Collection</strong>: Use Get-AllEvidence for comprehensive IR 💡 <strong>Date Ranges</strong>: Audit log retention varies by license (90 days for E5) 💡 <strong>OAuth Apps</strong>: Get-OAuthPermissionsGraph more detailed than Get-OAuthPermissions 💡 <strong>Mailbox Rules</strong>: Check regularly for persistence 💡 <strong>MFA Gaps</strong>: Get-MFA identifies vulnerable accounts 💡 <strong>PIM Audit</strong>: Get-PIMAssignments tracks privileged access 💡 <strong>Triage Template</strong>: Start-MESTriage great for quick user investigation 💡 <strong>Sign-In Logs</strong>: Look for impossible travel, suspicious IPs 💡 <strong>License Limits</strong>: Some features require E5/P2 licenses 💡 <strong>Retention</strong>: Collect logs before they age out (90 days typically)</p>
+<h3>Output Formats</h3>
+<p>All collection functions output to:</p>
+<ul>
+<li>CSV files (default)</li>
+<li>JSON (some functions)</li>
+<li>Console output (Show- functions)</li>
+</ul>
+<p>Results are organized in the specified OutputDir with timestamps.</p>
+<h3>Authentication &amp; Connection</h3>
+<h4>Connect to Services</h4>
+<pre><code># Microsoft 365 (Exchange Online)
+Connect-M365
+
+# Microsoft Graph
+Connect-MgGraph -Scopes "AuditLog.Read.All","Directory.Read.All"
+
+# Azure
+Connect-AzAccount
+# Or
+Connect-AzureAZ
+
+# Disconnect
+Disconnect-M365
+Disconnect-Azure
+Disconnect-AzureAZ</code></pre>
+<h3>Required Permissions</h3>
+<h4>Microsoft Graph Permissions Needed:</h4>
+<ul>
+<li>AuditLog.Read.All</li>
+<li>Directory.Read.All</li>
+<li>User.Read.All</li>
+<li>Group.Read.All</li>
+<li>Policy.Read.All</li>
+<li>SecurityEvents.Read.All</li>
+</ul>
+<h4>Exchange Online Permissions:</h4>
+<ul>
+<li>View-Only Audit Logs</li>
+<li>Mailbox Import Export (for email collection)</li>
+</ul>
+<h4>Azure Permissions:</h4>
+<ul>
+<li>Reader role (minimum)</li>
+<li>Security Reader (for security data)</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/invictus-ir/Microsoft-Extractor-Suite">https://github.com/invictus-ir/Microsoft-Extractor-Suite</a></li>
+<li>Documentation: <a href="https://microsoft-365-extractor-suite.readthedocs.io/">https://microsoft-365-extractor-suite.readthedocs.io/</a></li>
+<li>PowerShell Gallery: <a href="https://www.powershellgallery.com/packages/Microsoft-Extractor-Suite">https://www.powershellgallery.com/packages/Microsoft-Extractor-Suite</a></li>
+<li>Related: Microsoft-Analyzer-Suite (LETHAL FORENSICS)</li>
+<li>Company: Invictus IR</li>
+<li>Authors: Joey Rentenaar, Korstiaan Stam</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

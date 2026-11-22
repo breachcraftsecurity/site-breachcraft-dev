@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure AD Incident Response PowerShell Module - Breachcraft Dev</title>
+<meta name="description" content="The Azure Active Directory Incident Response PowerShell module provides a number of tools, developed by the Azure Active Directory Product Group in conjuncti...">
+<link rel="canonical" href="https://breachcraft.dev/tools/azure-ad-incident-response-powershell-module/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Azure AD Incident Response PowerShell Module</p>
+  <h1>Azure AD Incident Response PowerShell Module</h1>
+  <p class="lede">The Azure Active Directory Incident Response PowerShell module provides a number of tools, developed by the Azure Active Directory Product Group in conjuncti...</p>
+  <h2>What it is</h2>
+<p>The Azure Active Directory Incident Response PowerShell module provides a number of tools, developed by the Azure Active Directory Product Group in conjunction with the Microsoft Detection and Response Team (DART), to assist in compromise response.</p>
+<h3>Why use the module?</h3>
+<p>The module meets these development goals:</p>
+<ul>
+<li>Provide tooling that is quick and easy to install and use:</li>
+<li>Complex configuration steps are not desirable in a compromise situation </li>
+<li>Detailed help and examples are included as fundamentals</li>
+<li>Provide cmdlets that robustly get you the data you need:</li>
+<li>Combine IR specific data from a number of sources</li>
+<li>Give inbuilt options for displaying or capturing results</li>
+<li>Pagination and retry logic as default</li>
+<li>Make the module a community project for ongoing improvement</li>
+<li>Help bridge the gap between on-premises and cloud environments and knowledge</li>
+<li>Cmdlets to make connections and correlations</li>
+<li>Provide familiarity for those unfamiliar with cloud automation</li>
+<li>Security Operations Centre (SOC) friendly</li>
+</ul>
+<h3>How do I install the module?</h3>
+<p>The module can be found here:</p>
+<p><a href="https://www.powershellgallery.com/packages/AzureADIncidentResponse">https://www.powershellgallery.com/packages/AzureADIncidentResponse</a></p>
+<p>Please use the latest version. The module has a number of prerequisites that will be automatically installed:</p>
+<ul>
+<li>MSAL.ps PowerShell module</li>
+<li>AzureAD PowerShell module</li>
+<li>MSOnline PowerShell module</li>
+</ul>
+<p>From within PowerShell you need to run:</p>
+<pre><code>  Install-Module -Name AzureADIncidentResponse -AcceptLicense</code></pre>
+<p><code>Tip: you may need to trust the PowerShell gallery repository for this action to complete successfully.</code></p>
+<p>If you encounter an install issue with one of the dependent modules, MSAL.ps, see here for remediation steps:</p>
+<p><a href="https://github.com/AzureAD/MSAL.PS/blob/master/README.md#install-from-the-powershell-gallery">https://github.com/AzureAD/MSAL.PS/blob/master/README.md#install-from-the-powershell-gallery</a></p>
+<p><code>NB - one of the cmdlets in the module, Get-AzureADIRPrivilegedUserOnPremCorrelation, makes use of the Windows Server Active Directory module. If you wish to use that cmdlet, then the AzureADIncidentResponse module will need to be installed on a domain joined Windows Server, with connectivity to the internet. The domain will typically be the one in which the Azure AD connect server is installed. The ActiveDirectory PowerShell module will also need to be installed on the target server.</code></p>
+<h3>Contributing</h3>
+<p>This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <a href="https://cla.opensource.microsoft.com.">https://cla.opensource.microsoft.com.</a></p>
+<p>When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or comments.</p>
+<h3>Trademarks</h3>
+<p>This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow <a href="https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general">Microsoft's Trademark &amp;amp; Brand Guidelines</a>. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Azure AD incident response automation</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #azure #incident-response #powershell #automation</li></ul>
+<h3>Purpose</h3>
+<p>Automates Azure AD IR tasks:</p>
+<ul>
+<li>Log collection</li>
+<li>User investigation</li>
+<li>Threat detection</li>
+<li>Remediation actions</li>
+</ul>
+<h3>Installation</h3>
+<pre><code># Install from PowerShell Gallery
+Install-Module -Name AzureADIncidentResponse</code></pre>
+<h3>Common Functions</h3>
+<pre><code># Collect logs
+Get-AADIRSignInLogs
+Get-AADIRAuditLogs
+
+# User investigation
+Invoke-AADIRUserInvestigation -UserPrincipalName user@company.com
+
+# Risky sign-ins
+Get-AADIRRiskySignIns
+
+# Suspicious apps
+Get-AADIRSuspiciousApps</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>IR Automation</strong>: Streamlines incident response 💡 <strong>Azure AD Specialized</strong>: Entra ID focus 💡 <strong>Quick Investigation</strong>: Rapid user/app investigation</p>
+<h3>Resources</h3>
+<ul>
+<li>PowerShell Gallery: Search for Azure AD Incident Response</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

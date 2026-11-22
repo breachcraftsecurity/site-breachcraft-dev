@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SATO (Secure Azure Token Operations) - Breachcraft Dev</title>
+<meta name="description" content="SATO is a specialized toolkit designed to assist a red teamer in effectively managing Azure tokens, enabling advanced manipulation of oauth 2.0 grant types u...">
+<link rel="canonical" href="https://breachcraft.dev/tools/sato/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">SATO (Secure Azure Token Operations)</p>
+  <h1>SATO (Secure Azure Token Operations)</h1>
+  <p class="lede">SATO is a specialized toolkit designed to assist a red teamer in effectively managing Azure tokens, enabling advanced manipulation of oauth 2.0 grant types u...</p>
+  <h2>What it is</h2>
+<p><strong>SATO</strong>  is a specialized toolkit designed to assist a red teamer in effectively managing Azure tokens, enabling advanced manipulation of oauth 2.0 grant types used in Azure authentication mechanisms. This tool was built with offensive operations in mind, where tokens play a critical role in maintaining access and persistence in cloud environments.</p>
+<h3>Why SATO?</h3>
+<p>Azure assessments often present scenarios where credentials or certificates might be exposed, such as compromised passwords, service principal secrets, or certificates. If the opposite side is aware of the compromise and changes these credentials, tokens like access or refresh tokens remain valid until they expire. <strong>SATO</strong> capitalizes on this, offering red teams a way to continue their operations by working directly with these tokens.</p>
+<p>Moreover, <strong>tokens can bypass Conditional Access Policies (CAP)</strong> that enforce Multi-Factor Authentication (MFA) based on factors such as location and some others. CAPs are checked during authentication, while an <strong>access token</strong> is used for authorization. Since tokens are issued post-authentication, they can bypass such controls, making them a powerful tool for persistence.</p>
+<p><strong>SATO</strong> helps you exchange various pieces of authentication information (like passwords, client secrets, certificates, or permissions such as Key Vault signing) for valid <strong>access</strong> and <strong>refresh tokens</strong>. This approach ensures that even if primary credentials are invalidated, tokens can be leveraged to maintain access until they naturally expire, thereby maintaining operational continuity during engagements.</p>
+<h3>Key Features</h3>
+<ul>
+<li><strong>Token Acquisition &amp; Persistence</strong>:</li>
+<li>Exchange compromised credentials or certificates for  access and refresh tokens, ensuring continued access.</li>
+<li>use tokens to bypass certain Conditional Access Policies that enforce MFA or location-based restrictions.</li>
+</ul>
+<ul>
+<li><strong>Dynamic Grant Types</strong>:</li>
+<li>Supports multiple OAuth2 flows, including:</li>
+<li><code>client_credentials</code></li>
+<li><code>password</code></li>
+<li><code>refresh_token</code></li>
+<li><code>device_code</code></li>
+<li><code>jwt_assertion</code> and <code>jwt_assertion via key vault sign</code> (for certificates and Key Vault-based JWT signing)</li>
+</ul>
+<ul>
+<li><strong>Advanced JWT Signing</strong>:</li>
+<li>Sign JWTs using a compromised certificate or through Azure Key Vault signing permissions, giving flexibility depending on the environment being targeted</li>
+</ul>
+<ul>
+<li><strong>Predefined Scopes</strong>:</li>
+<li>Easily select common Azure scopes (like <strong>Microsoft Graph</strong>, <strong>Office 365</strong>, or <strong>Azure Key Vault</strong>) through predefined options, simplifying the process of token requests.</li>
+</ul>
+<ul>
+<li><strong>In-Depth JWT Analysis</strong>:</li>
+<li>Decode and analyze JWT tokens to understand the permissions granted, token expiration, and key claims, which are essential for understanding the scope and longevity of the access gained.</li>
+</ul>
+<h2>SATO - Secure Azure Token Operations</h2>
+<h3>Getting Started</h3>
+<h4>Installation</h4>
+<p>To use <strong>SATO</strong>, follow these steps:</p>
+<ol>
+<li>Clone the repository from GitHub:</li>
+</ol>
+<pre><code>    git clone https://github.com/obikuro/Sato.git</code></pre>
+<ol>
+<li>Import the module in PowerShell:</li>
+</ol>
+<pre><code>    Import-Module .\Sato\SATO.psd1</code></pre>
+<h3>Available Grant Types</h3>
+<p>The following <strong>OAuth2 grant types</strong> are supported by SATO:</p>
+<ul>
+<li><strong><code>client_credentials</code></strong>: Used when interacting with service principals (SPs)</li>
+<li><strong><code>password</code></strong>: Exchanges a username and password for tokens.</li>
+<li><strong><code>refresh_token</code></strong>: Uses a refresh token to obtain a new access token.</li>
+<li><strong><code>device_code</code></strong>: Interactive login -- device code phishing</li>
+<li><strong><code>jwt_assertion</code></strong>: Uses certificates private key for token acquisition.</li>
+<li><strong><code>jwt_assertion_sign</code></strong>: Signs a JWT using Azure Key Vault signing permissions for token acquisition.</li>
+</ul>
+<h4>Grant Type Parameter</h4>
+<pre><code>-GrantType &lt;grant_type&gt;</code></pre>
+<h3>Predefined Scopes</h3>
+<p>SATO offers predefined scopes for ease of use. These cover various Microsoft services such as Microsoft Graph, Azure Management, and more. You can select a predefined scope using the <code>-PredefinedScope</code> parameter.</p>
+<ul>
+<li><strong>MsGraph</strong>: New Microsoft Graph</li>
+<li><strong>MSTeams</strong>: Microsoft Teams</li>
+<li><strong>Office</strong>: Office 365</li>
+<li><strong>Outlook</strong>: Microsoft Outlook</li>
+<li><strong>WinGraph</strong>: Old Microsoft Graph</li>
+<li><strong>CoreARM</strong>: Classic Azure Resource Manager provider</li>
+<li><strong>MaARM</strong>: Azure Resource Manager provider</li>
+<li><strong>IntuneMam</strong>: Intune Mobile Application Management</li>
+<li><strong>SharePoint</strong>: SharePoint</li>
+<li><strong>OneDrive</strong>: OneDrive</li>
+<li><strong>KeyVault</strong>: Azure Key Vault</li>
+</ul>
+<h3>Examples</h3>
+<h4>Client Credentials Flow</h4>
+<p>This flow is used when you have access to a service principal's client ID and secret.</p>
+<pre><code>Invoke-Sato -GrantType "client_credentials" -TenantID "target-tenant-id" -ClientID "target-SP-id" -ClientSecret "target-SP-secret" -PredefinedScope WinGraph</code></pre>
+<h4>Password Flow</h4>
+<p>Use this flow to exchange a username and password for an access token.</p>
+<pre><code>Invoke-Sato -GrantType "password" -TenantID "target-tenant-id"  -Username "user@domain.com" -Password "target-user-password" -PredefinedScope WinGraph</code></pre>
+<h4>Refresh Token Flow</h4>
+<p>Use a refresh token to obtain a new access token.</p>
+<pre><code>Invoke-Sato -GrantType "refresh_token" -TenantID "target-tenant-id"  -RefreshToken "target-refresh-token" -Scope "&lt;https://management.azure.com/.default&gt;"</code></pre>
+<h4>JWT Assertion Flow</h4>
+<p>For scenarios where you want to use a compromised SP certificate's private key to obtain an access token.</p>
+<pre><code>Invoke-Sato -GrantType "jwt_assertion" -TenantID "target-tenant-id" -AppID "target-sp-id" -CertificatePath "C:\\path-to\\cert.pfx"</code></pre>
+<ul>
+<li><code>-CertificatePath</code>: This parameter is used to specify the file path to a certificate (e.g., <code>.pfx</code> file). </li>
+</ul>
+<ul>
+<li><code>-Certificate</code>: Use this parameter when you already have a certificate object loaded in memory (e.g., from a previous import or operation). </li>
+</ul>
+<h4>JWT Assertion Sign with Key Vault</h4>
+<p>For red teams using Azure Key Vault to sign JWT tokens.</p>
+<pre><code>Invoke-Sato -GrantType "jwt_assertion_sign" -TenantID "target-tenant-id" -AppID "target-sp-id" -KeyVaultName "key vault-name" -CertName "certificate-name" -KeyToken "keyvault-access-token"</code></pre>
+<p>When using the jwt_assertion_sign option, you must have signing permissions on an Azure Key Vault. This method takes advantage of Key Vault's signing capabilities to sign a crafted jwt token and exchange it for a valid Azure token.</p>
+<h4>Device Code Flow</h4>
+<p>use this grant for device code phishing scenarios</p>
+<pre><code>Invoke-Sato -GrantType "device_code" -TenantID "target-tenant-id"  -Scope "&lt;https://graph.microsoft.com/.default&gt;"</code></pre>
+<h3>Important Notes</h3>
+<h4>Use of <code>-UseCAE</code></h4>
+<p>The <code>-UseCAE</code> flag is used to enable Continuous Access Evaluation (CAE). When you specify <code>-UseCAE</code>, the CAE claim (<code>cp1</code>) will be included in the token, allowing you to maintain a token with an extended validity window.</p>
+<h4>Family of Client IDs (FOCI)</h4>
+<p>By default, SATO uses a Microsoft client ID, which is part of the Family of Client IDs (FOCI). This allows for seamless multi-tenant access without providing a client secret.</p>
+<h3>TBRES Token Hunter</h3>
+<p>TBRES Token Hunter scans the Windows Token Broker cache for TBRES files, decrypts DPAPI-protected payloads, extracts valid Azure/Office tokens, and writes them to file. It also presents an operator-friendly banner, live progress, and a summary (files scanned, valid tokens, expired skipped, errors, unique tenants/resources and the files that contained tokens).</p>
+<h4>Why this matters</h4>
+<p>Many Windows clients cache Azure/O365 tokens inside TBRES files. During an engagement , these artifacts can outlive password/secret changes. This hunter automates discovery + decrypt + parsing so you can quickly assess usable tokens.</p>
+<h4>How it works</h4>
+<ul>
+<li>Recursively searches: <strong>%USERPROFILE%\AppData\Local\Microsoft\TokenBroker\Cache</strong></li>
+</ul>
+<ul>
+<li>For each <strong>.tbres</strong> : reads, decrypts DPAPI when needed, parses TBRES response bytes, extracts the JWT, validates expiration, and records structured fields to a file.</li>
+</ul>
+<h4>Usage</h4>
+<pre><code>Import-Module .\SATO.psd1
+Invoke-TbresTokenHunter</code></pre>
+<h4>Optional examples</h4>
+<p>• Include expired tokens:</p>
+<pre><code>Invoke-TbresTokenHunter -IncludeExpired</code></pre>
+<p>• Scan a different directory:</p>
+<pre><code>Invoke-TbresTokenHunter -TBRESDirectory "C:\Users&lt;you&gt;\AppData\Local\Microsoft\TokenBroker\Cache\xxxxx.tbres"</code></pre>
+<p>• Keep only specific audiences (aud):</p>
+<pre><code>Invoke-TbresTokenHunter -ResourceFilter '00000003-0000-0000-c000-000000000000','d3590ed6-52b3-4102-aeff-aad2292ab01c'</code></pre>
+<h3>App ID → Friendly Name</h3>
+<p>Get a human-friendly name for known resource/app IDs.</p>
+<pre><code>Get-ApplicationNameById -AppId '&lt;guid&gt;'</code></pre>
+<p>The map lives in:</p>
+<pre><code>.\modules\appId-map.psd1</code></pre>
+<p>Advanced override (optional):</p>
+<pre><code>$env:TBRES_APPID_MAP = "C:\path\to\custom-appId-map.psd1"</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Tool</li><li><strong>Purpose</strong> AWS CloudFormation/Terraform static analysis</li><li><strong>Platform</strong> Linux, macOS, Windows</li><li><strong>Tags</strong> #aws #iac #security #static-analysis #terraform #cloudformation</li></ul>
+<h3>Purpose</h3>
+<p>Sato performs security analysis of:</p>
+<ul>
+<li>AWS CloudFormation templates</li>
+<li>Terraform configurations</li>
+<li>Infrastructure as Code (IaC)</li>
+<li>Identifies misconfigurations</li>
+</ul>
+<h3>Installation</h3>
+<pre><code>pip3 install sato</code></pre>
+<h3>Usage</h3>
+<pre><code># Analyze CloudFormation template
+sato analyze template.yaml
+
+# Analyze Terraform
+sato analyze main.tf
+
+# Multiple files
+sato analyze *.tf</code></pre>
+<h3>What It Detects</h3>
+<ul>
+<li>Security group misconfigurations</li>
+<li>S3 bucket public access</li>
+<li>IAM overly permissive policies</li>
+<li>Encryption not enabled</li>
+<li>Logging disabled</li>
+<li>And more IaC security issues</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>IaC Security</strong>: Catches issues before deployment 💡 <strong>AWS Focus</strong>: Specialized for AWS resources 💡 <strong>CI/CD Integration</strong>: Use in build pipelines</p>
+<p>Note: AWS tool, included for cloud coverage</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/JonathanDC64/sato">https://github.com/JonathanDC64/sato</a> (or similar)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

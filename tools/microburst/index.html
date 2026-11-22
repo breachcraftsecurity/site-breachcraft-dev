@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>microburst - Breachcraft Dev</title>
+<meta name="description" content="[licence badge]:https://img.shields.io/badge/license-New%20BSD-blue.svg">
+<link rel="canonical" href="https://breachcraft.dev/tools/microburst/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">microburst</p>
+  <h1>microburst</h1>
+  <p class="lede">[licence badge]:https://img.shields.io/badge/license-New%20BSD-blue.svg</p>
+  <h2>What it is</h2>
+<p>[licence badge]:<a href="https://img.shields.io/badge/license-New%20BSD-blue.svg">https://img.shields.io/badge/license-New%20BSD-blue.svg</a> [stars badge]:<a href="https://img.shields.io/github/stars/NetSPI/MicroBurst.svg">https://img.shields.io/github/stars/NetSPI/MicroBurst.svg</a> [forks badge]:<a href="https://img.shields.io/github/forks/NetSPI/MicroBurst.svg">https://img.shields.io/github/forks/NetSPI/MicroBurst.svg</a> [issues badge]:<a href="https://img.shields.io/github/issues/NetSPI/MicroBurst.svg">https://img.shields.io/github/issues/NetSPI/MicroBurst.svg</a></p>
+<p>[licence]:<a href="https://github.com/NetSPI/MicroBurst/blob/master/LICENSE.txt">https://github.com/NetSPI/MicroBurst/blob/master/LICENSE.txt</a> [stars]:<a href="https://github.com/NetSPI/MicroBurst/stargazers">https://github.com/NetSPI/MicroBurst/stargazers</a> [forks]:<a href="https://github.com/NetSPI/MicroBurst/network">https://github.com/NetSPI/MicroBurst/network</a> [issues]:<a href="https://github.com/NetSPI/MicroBurst/issues">https://github.com/NetSPI/MicroBurst/issues</a></p>
+<h4>MicroBurst: A PowerShell Toolkit for Attacking Azure</h4>
+<p>MicroBurst includes functions and scripts that support Azure Services discovery, weak configuration auditing, and post exploitation actions such as credential dumping. It is intended to be used during penetration tests where Azure is in use.</p>
+<h4>Author, Contributors, and License</h4>
+<ul>
+<li>Author: Karl Fosaaen (<a href="https://twitter.com/kfosaaen">@kfosaaen</a>), NetSPI</li>
+<li>Contributors: </li>
+<li>Scott Sutherland (<a href="https://twitter.com/_nullbind">@_nullbind</a>)</li>
+<li>Thomas Elling (<a href="https://twitter.com/thomas_elling">@thomaselling</a>)</li>
+<li>Jake Karnes (<a href="https://twitter.com/jakekarnes42">@jakekarnes42</a>)</li>
+<li>Josh Magri (<a href="https://twitter.com/passthehashbrwn">@passthehashbrwn</a>)</li>
+<li>License: BSD 3-Clause</li>
+<li>Required Dependencies: Az, Azure, AzureRM, AzureAD, and MSOnline PowerShell Modules are all used in different scripts</li>
+<li>Dependencies Note: Originally written with the AzureRM PS modules, older scripts have been ported to their newer Az equivalents</li>
+<li>Platform Note: These scripts will only run on a Windows-based platform.</li>
+</ul>
+<h4>Importing the Module / Usage</h4>
+<p>PS C:&gt; Import-Module .\MicroBurst.psm1 This will import all applicable functions based off of the currently installed modules in your environment. The scripts can then be invoked using their names like</p>
+<pre><code>PS C:&gt; Get-AzDomainInfo</code></pre>
+<p>If you want to simplify the trusting of the code files, use the following "Unblock-File" command to recursively trust each of the downloaded files:</p>
+<p>PS C:&gt; dir -Recurse .\MicroBurst-master | Unblock-File</p>
+<p>Recommended Modules to install:</p>
+<ul>
+<li>&lt;a href="https://docs.microsoft.com/en-us/powershell/azure/new-azureps-module-az?view=azps-3.6.1"&gt;Az&lt;/a&gt;</li>
+<li>&lt;a href="https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0"&gt;AzureAd&lt;/a&gt;</li>
+<li>&lt;a href="https://docs.microsoft.com/en-us/powershell/module/msonline/?view=azureadps-1.0"&gt;MSOnline&lt;/a&gt;</li>
+</ul>
+<p>Here's how a module can be installed in Powershell</p>
+<pre><code>PS C:&gt; Install-Module &lt;module-name&gt;</code></pre>
+<h4>Scripts Information</h4>
+<p>If you want to learn what a specific script does use <code>Get-Help</code> with script name like:</p>
+<pre><code>PS C:&gt; Get-Help Invoke-EnumerateAzureSubDomains</code></pre>
+<h4>Related Blogs</h4>
+<ul>
+<li>&lt;a href="https://blog.netspi.com/a-beginners-guide-to-gathering-azure-passwords/"&gt;A Beginners Guide to Gathering Azure Passwords&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/enumerating-azure-services/"&gt;Anonymously Enumerating Azure Services&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/anonymously-enumerating-azure-file-resources/"&gt;Anonymously Enumerating Azure File Resources&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/exporting-azure-runas-certificates/"&gt;Get-AzurePasswords: Exporting Azure RunAs Certificates for Persistence&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/azure-automation-accounts-key-stores"&gt;Using Azure Automation Accounts to Access Key Vaults&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/running-powershell-scripts-on-azure-vms"&gt;Running PowerShell on Azure VMs at Scale&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/maintaining-azure-persistence-via-automation-accounts/"&gt;Maintaining Azure Persistence via Automation Accounts&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/decrypting-azure-vm-extension-settings-with-get-azurevmextensionsettings/"&gt;Decrypting Azure VM Extension Settings with Get-AzureVMExtensionSettings&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/attacking-azure-with-custom-script-extensions/"&gt;Attacking Azure with Custom Script Extensions&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/lateral-movement-azure-app-services/"&gt;Lateral Movement in Azure App Services&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/encrypting-password-data-in-get-azpasswords/"&gt;Get-AzPasswords: Encrypting Automation Password Data&lt;/a&gt;</li>
+<li>&lt;a href="https://blog.netspi.com/azure-privilege-escalation-using-managed-identities/"&gt;Azure Privilege Escalation Using Managed Identities&lt;/a&gt;</li>
+<li>&lt;a href="https://www.netspi.com/blog/technical/cloud-penetration-testing/azure-persistence-with-desired-state-configurations/"&gt;Azure Persistence with Desired State Configurations&lt;/a&gt;</li>
+<li>&lt;a href="https://www.netspi.com/blog/technical/cloud-penetration-testing/extract-credentials-from-azure-kubernetes-service/"&gt;How To Extract Credentials from Azure Kubernetes Service (AKS)&lt;/a&gt;</li>
+<li>&lt;a href="https://www.netspi.com/blog/technical-blog/cloud-pentesting/extracting-managed-identity-certificates-from-azure-arc-service/"&gt;Extracting Managed Identity Certificates from the Azure Arc Service&lt;/a&gt;</li>
+</ul>
+<h4>Presentations</h4>
+<ul>
+<li>&lt;a href="https://youtu.be/CUTwkuiRgqg"&gt;Extracting all the Azure Passwords - DEF CON 29 - Cloud Village&lt;/a&gt;</li>
+<li>&lt;a href="https://notpayloads.blob.core.windows.net/slides/ExtractingalltheAzurePasswords.pdf"&gt;Slides&lt;/a&gt;</li>
+<li>&lt;a href="https://www.youtube.com/watch?v=EYtw-XPml0w"&gt;Adventures in Azure Privilege Escalation - DerbyCon 9&lt;/a&gt;</li>
+<li>&lt;a href="https://notpayloads.blob.core.windows.net/slides/Azure-PrivEsc-DerbyCon9.pdf"&gt;DerbyCon 9 (2019) Slides&lt;/a&gt;</li>
+<li>&lt;a href="https://www.youtube.com/watch?v=IdORwgxDpkw"&gt;Attacking Azure Environments with PowerShell - DerbyCon 8&lt;/a&gt;</li>
+<li>&lt;a href="https://www.slideshare.net/kfosaaen/derbycon-8-attacking-azure-environments-with-powershell"&gt;DerbyCon 8 (2018) Slides&lt;/a&gt;</li>
+<li>&lt;a href="https://www.slideshare.net/kfosaaen/bsides-portland-attacking-azure-environments-with-powershell"&gt;BSidesPDX (2018) Slides&lt;/a&gt;</li>
+</ul>
+<h4>Wiki Information</h4>
+<p>Check out the <a href="https://github.com/NetSPI/MicroBurst/wiki">MicroBurst Wiki</a> for more information on the usage of the toolkit and the available functions.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Azure Services discovery, weak configuration auditing, and post-exploitation</li><li><strong>Platform</strong> Windows</li><li><strong>Tags</strong> #azure #powershell #enumeration #credentials #persistence #post-exploitation</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Import module
+Import-Module .\MicroBurst.psm1
+
+# Trust downloaded files
+dir -Recurse .\MicroBurst-master | Unblock-File
+
+# Install dependencies
+Install-Module Az
+Install-Module AzureAD
+Install-Module MSOnline</code></pre>
+<h3>Quick Reference</h3>
+<h4>ENUM: Domain Information</h4>
+<pre><code>Get-AzDomainInfo</code></pre>
+<p><strong>Purpose:</strong> Gather domain information from Azure AD <strong>Use Case:</strong> Initial reconnaissance</p>
+<h4>ENUM: Enumerate Subdomains</h4>
+<pre><code>Invoke-EnumerateAzureSubDomains -Base &lt;company&gt;</code></pre>
+<p><strong>Purpose:</strong> Anonymously enumerate Azure subdomains <strong>Use Case:</strong> External enumeration without authentication</p>
+<h4>ENUM: Enumerate Azure Blobs</h4>
+<pre><code>Invoke-EnumerateAzureBlobs -Base &lt;company&gt;</code></pre>
+<p><strong>Purpose:</strong> Discover publicly accessible Azure storage blobs <strong>Use Case:</strong> Find exposed data in blob storage</p>
+<h4>CRED: Dump Automation Passwords</h4>
+<pre><code>Get-AzPasswords
+Get-AzurePasswords</code></pre>
+<p><strong>Purpose:</strong> Extract credentials from Azure Automation accounts <strong>Use Case:</strong> Credential harvesting from compromised subscription</p>
+<h4>CRED: Dump RunAs Certificates</h4>
+<pre><code>Get-AzurePasswords -ExportCerts</code></pre>
+<p><strong>Purpose:</strong> Export Azure RunAs certificates for persistence <strong>Use Case:</strong> Maintaining access via automation certificates</p>
+<h4>PRIVESC: Enumerate Managed Identities</h4>
+<pre><code>Get-AzureManagedIdentity</code></pre>
+<p><strong>Purpose:</strong> Find managed identities for privilege escalation <strong>Use Case:</strong> Identify paths for privilege escalation</p>
+<h4>PERSIST: Automation Account Persistence</h4>
+<pre><code># Use automation accounts to maintain access</code></pre>
+<p><strong>Purpose:</strong> Maintain persistence via automation accounts <strong>Use Case:</strong> Long-term access maintenance</p>
+<h4>EXEC: Run PowerShell on Azure VMs</h4>
+<pre><code>Invoke-AzVMBulkCMD -Script &lt;scriptblock&gt;</code></pre>
+<p><strong>Purpose:</strong> Execute PowerShell at scale across Azure VMs <strong>Use Case:</strong> Lateral movement and bulk operations</p>
+<h4>LATERAL: Azure App Services Movement</h4>
+<pre><code># App Services lateral movement techniques</code></pre>
+<p><strong>Purpose:</strong> Move between Azure App Services <strong>Use Case:</strong> Lateral movement within Azure environment</p>
+<h3>Common Attack Patterns</h3>
+<h4>Pattern 1: Initial Enumeration (Unauthenticated)</h4>
+<pre><code># Enumerate subdomains
+Invoke-EnumerateAzureSubDomains -Base contoso -Verbose
+
+# Enumerate blob storage
+Invoke-EnumerateAzureBlobs -Base contoso
+
+# Enumerate file shares
+Invoke-EnumerateAzureFiles -Base contoso</code></pre>
+<p><strong>Explanation:</strong> Start with anonymous enumeration to discover Azure resources <strong>Output:</strong> Lists of discovered subdomains, storage accounts, exposed files</p>
+<h4>Pattern 2: Post-Compromise Credential Harvesting</h4>
+<pre><code># Dump all accessible passwords
+Get-AzPasswords -Verbose
+
+# Export certificates for persistence
+Get-AzPasswords -ExportCerts -Verbose</code></pre>
+<p><strong>Explanation:</strong> After gaining access, extract credentials from automation accounts <strong>Output:</strong> Passwords, certificates, connection strings</p>
+<h4>Pattern 3: VM Extension Abuse</h4>
+<pre><code># Decrypt VM extension settings
+Get-AzureVMExtensionSettings
+
+# Deploy custom script extension
+# Attack using custom script extensions</code></pre>
+<p><strong>Explanation:</strong> Abuse Azure VM extensions for code execution <strong>Use Case:</strong> Remote code execution on target VMs</p>
+<h3>Key Functions by Category</h3>
+<h4>Enumeration</h4>
+<ul>
+<li><code>Get-AzDomainInfo</code> - Azure AD domain information</li>
+<li><code>Invoke-EnumerateAzureSubDomains</code> - Subdomain enumeration</li>
+<li><code>Invoke-EnumerateAzureBlobs</code> - Blob storage enumeration</li>
+<li><code>Invoke-EnumerateAzureFiles</code> - File share enumeration</li>
+<li><code>Get-AzureManagedIdentity</code> - Managed identity discovery</li>
+</ul>
+<h4>Credential Access</h4>
+<ul>
+<li><code>Get-AzPasswords</code> / <code>Get-AzurePasswords</code> - Automation account credential dumping</li>
+<li><code>Get-AzureVMExtensionSettings</code> - VM extension settings decryption</li>
+<li><code>Get-AzKeyVaultSecrets</code> - Key Vault secret extraction</li>
+</ul>
+<h4>Execution</h4>
+<ul>
+<li><code>Invoke-AzVMBulkCMD</code> - Bulk PowerShell execution on VMs</li>
+<li>Custom Script Extensions - Remote code execution</li>
+</ul>
+<h4>Persistence</h4>
+<ul>
+<li>Automation Account abuse</li>
+<li>Desired State Configuration (DSC)</li>
+<li>Managed Identity certificates</li>
+<li>RunAs certificates</li>
+</ul>
+<h3>Prerequisites &amp; Dependencies</h3>
+<p><strong>Required Modules:</strong></p>
+<ul>
+<li>Az (modern Azure module)</li>
+<li>AzureRM (legacy, some scripts)</li>
+<li>AzureAD</li>
+<li>MSOnline</li>
+</ul>
+<p><strong>Platform:</strong></p>
+<ul>
+<li>Windows only</li>
+</ul>
+<p><strong>Permissions Needed:</strong></p>
+<ul>
+<li>Varies by function</li>
+<li>Some functions work anonymously</li>
+<li>Post-exploitation functions require authenticated access</li>
+</ul>
+<h3>Pro Tips</h3>
+<ul>
+<li>Use <code>-Verbose</code> flag for detailed output</li>
+<li>Start with unauthenticated enumeration functions</li>
+<li>Export certificates immediately after credential dumping</li>
+<li>Automation accounts are goldmines for credentials</li>
+<li>VM extensions can contain sensitive data</li>
+<li>Managed identities enable privilege escalation</li>
+</ul>
+<h3>References</h3>
+<ul>
+<li><strong>GitHub:</strong> <a href="https://github.com/NetSPI/MicroBurst">https://github.com/NetSPI/MicroBurst</a></li>
+<li><strong>Documentation:</strong> <a href="https://github.com/NetSPI/MicroBurst/wiki">https://github.com/NetSPI/MicroBurst/wiki</a></li>
+<li><strong>Author:</strong> Karl Fosaaen (@kfosaaen), NetSPI</li>
+<li><strong>Key Blog Posts:</strong></li>
+<li><a href="https://blog.netspi.com/a-beginners-guide-to-gathering-azure-passwords/">A Beginners Guide to Gathering Azure Passwords</a></li>
+<li><a href="https://blog.netspi.com/enumerating-azure-services/">Anonymously Enumerating Azure Services</a></li>
+<li><a href="https://blog.netspi.com/azure-privilege-escalation-using-managed-identities/">Azure Privilege Escalation Using Managed Identities</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

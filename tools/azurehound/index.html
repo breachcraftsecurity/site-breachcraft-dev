@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AzureHound - Breachcraft Dev</title>
+<meta name="description" content="The BloodHound data collector for Microsoft Azure">
+<link rel="canonical" href="https://breachcraft.dev/tools/azurehound/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">AzureHound</p>
+  <h1>AzureHound</h1>
+  <p class="lede">The BloodHound data collector for Microsoft Azure</p>
+  <h2>What it is</h2>
+<p>The BloodHound data collector for Microsoft Azure</p>
+<h3>Get AzureHound</h3>
+<h4>Release Binaries</h4>
+<p>Download the appropriate binary for your platform from one of our <a href="https://github.com/SpecterOps/azurehound/releases">Releases</a>.</p>
+<h4>Rolling Release</h4>
+<p>The rolling release contains pre-built binaries that are automatically kept up-to-date with the <code>main</code> branch and can be downloaded from <a href="https://github.com/SpecterOps/azurehound/releases/tag/rolling">here</a>.</p>
+<blockquote><p><strong>Warning:</strong> The rolling release may be unstable.</p></blockquote>
+<h3>Compiling</h3>
+<h4>Prerequisites</h4>
+<ul>
+<li><a href="https://go.dev/dl/">Go 1.18</a> or later</li>
+</ul>
+<p>To build this project from source run the following:</p>
+<pre><code>go build -ldflags="-s -w -X github.com/bloodhoundad/azurehound/v2/constants.Version=`git describe tags --exact-match 2&gt; /dev/null || git rev-parse HEAD`"</code></pre>
+<h3>Documentation</h3>
+<p>Please refer to the <a href="https://bloodhound.specterops.io/home">BloodHound Community Edition documentation</a> for:</p>
+<ul>
+<li><a href="https://bloodhound.specterops.io/collect-data/ce-collection/azurehound">AzureHound Community Edition</a></li>
+<li><a href="https://bloodhound.specterops.io/collect-data/ce-collection/azurehound-flags">AzureHound Community Edition Flags</a></li>
+</ul>
+<h3>Usage</h3>
+<h4>Quickstart</h4>
+<p><strong>Print all Azure Tenant data to stdout</strong></p>
+<pre><code>❯ azurehound list -u "$USERNAME" -p "$PASSWORD" -t "$TENANT"</code></pre>
+<p><strong>Print all Azure Tenant data to file</strong></p>
+<pre><code>❯ azurehound list -u "$USERNAME" -p "$PASSWORD" -t "$TENANT" -o "mytenant.json"</code></pre>
+<p><strong>Print all Azure Tenant data to file, reusing your existing authentication from the Azure CLI</strong></p>
+<pre><code>❯ JWT=$(az account get-access-token --resource https://graph.microsoft.com | jq -r .accessToken)
+❯ azurehound list --jwt "$JWT"</code></pre>
+<p><strong>Configure and start data collection service for BloodHound Enterprise</strong></p>
+<pre><code>❯ azurehound configure
+(follow prompts)
+
+❯ azurehound start</code></pre>
+<h4>CLI</h4>
+<pre><code>❯ azurehound --help
+AzureHound vx.x.x
+Created by the BloodHound Enterprise team at SpecterOps - [https://bloodhoundenterprise.io](https://specterops.io/bloodhound-overview/)
+
+The official tool for collecting Azure data for BloodHound Community Edition and BloodHound Enterprise
+
+Usage:
+  azurehound [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  configure   Configure AzureHound
+  help        Help about any command
+  list        Lists Azure Objects
+  start       Start Azure data collection service for BloodHound Enterprise
+
+Flags:
+  -c, --config string          AzureHound configuration file (default: /Users/dlees/.config/azurehound/config.json)
+  -h, --help                   help for azurehound
+      --json                   Output logs as json
+  -j, --jwt string             Use an acquired JWT to authenticate into Azure
+      --log-file string        Output logs to this file
+      --proxy string           Sets the proxy URL for the AzureHound service
+  -r, --refresh-token string   Use an acquired refresh token to authenticate into Azure
+  -v, --verbosity int          AzureHound verbosity level (defaults to 0) [Min: -1, Max: 2]
+      --version                version for azurehound
+
+Use "azurehound [command] --help" for more information about a command.</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Go Binary</li><li><strong>Purpose</strong> BloodHound data collector for Microsoft Azure/Entra ID</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #azure #azuread #bloodhound #enumeration #graph-database #recon #attack-paths</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Download pre-compiled binary
+# https://github.com/SpecterOps/azurehound/releases
+
+# Or compile from source
+git clone https://github.com/SpecterOps/azurehound.git
+cd azurehound
+go build -ldflags="-s -w"
+
+# Make executable (Linux/macOS)
+chmod +x azurehound
+
+# Verify installation
+./azurehound --version</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Collect all data with username/password
+azurehound list -u "user@company.com" -p "password" -t "tenant.onmicrosoft.com"
+
+# Collect with JWT token
+JWT=$(az account get-access-token --resource https://graph.microsoft.com | jq -r .accessToken)
+azurehound list --jwt "$JWT" -o output.json
+
+# Collect with refresh token
+azurehound list --refresh-token "$REFRESH_TOKEN" -o output.json
+
+# Collect specific entities
+azurehound list apps,users,groups -u "user@company.com" -p "password" -t "tenant.com"
+
+# Configure for BloodHound Enterprise
+azurehound configure</code></pre>
+<h3>Authentication Methods</h3>
+<h4>AUTH: Username &amp; Password Authentication</h4>
+<p><strong>Use Case:</strong> Basic authentication with credentials</p>
+<pre><code># Full tenant enumeration
+azurehound list -u "user@company.com" -p "P@ssw0rd!" -t "company.onmicrosoft.com" -o data.json
+
+# Specify tenant ID instead of domain
+azurehound list -u "user@company.com" -p "P@ssw0rd!" -t "aaaabbbb-cccc-dddd-eeee-ffffgggghhhh"</code></pre>
+<h4>AUTH: JWT Token Authentication</h4>
+<p><strong>Use Case:</strong> Use existing access token (stealthier, no password in command line)</p>
+<pre><code># Get token from Azure CLI
+JWT=$(az account get-access-token --resource https://graph.microsoft.com | jq -r .accessToken)
+
+# Collect data with JWT
+azurehound list --jwt "$JWT" -o tenant-data.json
+
+# Get token from AADInternals
+# Import-Module AADInternals
+# $token = Get-AADIntAccessTokenForMSGraph
+# Save to file and use with --jwt</code></pre>
+<h4>AUTH: Refresh Token Authentication</h4>
+<p><strong>Use Case:</strong> Use refresh token for long-lived access</p>
+<pre><code># Collect with refresh token
+azurehound list --refresh-token "$REFRESH_TOKEN" -o data.json
+
+# Refresh token can be obtained from:
+# - AADInternals: Get-AADIntAccessTokenForMSGraph (includes refresh token)
+# - TokenTactics
+# - Browser dev tools during authentication</code></pre>
+<h4>AUTH: Managed Identity (Azure VM)</h4>
+<p><strong>Use Case:</strong> Collect from Azure VM with managed identity</p>
+<pre><code># Get token from managed identity
+JWT=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://graph.microsoft.com' -H Metadata:true | jq -r .access_token)
+
+# Collect with token
+azurehound list --jwt "$JWT" -o vm-collection.json</code></pre>
+<h3>ENUM: Data Collection</h3>
+<h4>ENUM: Collect All Data</h4>
+<p><strong>Use Case:</strong> Full tenant enumeration for BloodHound analysis</p>
+<pre><code># Collect everything (default)
+azurehound list -u "user@company.com" -p "password" -t "tenant.com" -o full-tenant.json
+
+# Output to stdout instead of file
+azurehound list --jwt "$JWT"
+
+# Verbose output
+azurehound list --jwt "$JWT" -v 2 -o data.json</code></pre>
+<h4>ENUM: Collect Specific Entity Types</h4>
+<p><strong>Use Case:</strong> Target specific Azure objects</p>
+<pre><code># Available entity types:
+# - apps (Applications)
+# - devices
+# - groups
+# - managementgroups
+# - resourcegroups
+# - servicePrincipals
+# - subscriptions
+# - tenants
+# - users
+# - virtualmachines
+# - roles (Directory Roles)
+# - keyvaults
+
+# Collect only users and groups
+azurehound list users,groups --jwt "$JWT" -o users-groups.json
+
+# Collect apps and service principals
+azurehound list apps,servicePrincipals --jwt "$JWT" -o apps-sps.json
+
+# Collect Azure resources
+azurehound list subscriptions,resourcegroups,virtualmachines --jwt "$JWT" -o azure-resources.json
+
+# Collect roles and assignments
+azurehound list roles --jwt "$JWT" -o roles.json</code></pre>
+<h4>ENUM: Collection with Proxy</h4>
+<p><strong>Use Case:</strong> Route traffic through proxy for OPSEC</p>
+<pre><code># Use HTTP proxy
+azurehound list --jwt "$JWT" --proxy "http://127.0.0.1:8080" -o data.json
+
+# Use SOCKS proxy
+azurehound list --jwt "$JWT" --proxy "socks5://127.0.0.1:1080" -o data.json</code></pre>
+<h3>Output &amp; Logging</h3>
+<h4>Output to File</h4>
+<p><strong>Use Case:</strong> Save JSON data for BloodHound ingestion</p>
+<pre><code># Standard output file
+azurehound list --jwt "$JWT" -o tenant-data.json
+
+# Timestamped output
+azurehound list --jwt "$JWT" -o "tenant-$(date +%Y%m%d-%H%M%S).json"</code></pre>
+<h4>Logging Configuration</h4>
+<p><strong>Use Case:</strong> Control verbosity and log to file</p>
+<pre><code># Silent mode (-1)
+azurehound list --jwt "$JWT" -v -1 -o data.json
+
+# Normal (0, default)
+azurehound list --jwt "$JWT" -o data.json
+
+# Verbose (1)
+azurehound list --jwt "$JWT" -v 1 -o data.json
+
+# Very verbose (2)
+azurehound list --jwt "$JWT" -v 2 -o data.json
+
+# JSON formatted logs
+azurehound list --jwt "$JWT" --json -o data.json
+
+# Log to file
+azurehound list --jwt "$JWT" --log-file azurehound.log -o data.json</code></pre>
+<h3>BloodHound Enterprise Integration</h3>
+<h4>Configure for BHE</h4>
+<p><strong>Use Case:</strong> Set up continuous collection for BloodHound Enterprise</p>
+<pre><code># Interactive configuration
+azurehound configure
+
+# Prompts for:
+# - API endpoint
+# - API key
+# - Collection interval
+# - Credentials/token
+
+# View current config
+cat ~/.config/azurehound/config.json</code></pre>
+<h4>Start Collection Service</h4>
+<p><strong>Use Case:</strong> Begin automated data collection</p>
+<pre><code># Start service (uses config from 'configure')
+azurehound start
+
+# Use custom config file
+azurehound start -c /path/to/config.json</code></pre>
+<h3>BloodHound Community Edition Workflow</h3>
+<h4>Pattern: Collect → Import → Analyze</h4>
+<pre><code># 1. Collect Azure data
+azurehound list --jwt "$JWT" -o azure-tenant.json
+
+# 2. Start BloodHound CE
+# (Ensure Neo4j database is running)
+
+# 3. Import JSON file into BloodHound
+# Open BloodHound UI → Upload Data → Select azure-tenant.json
+
+# 4. Run queries to find attack paths
+# - Pre-built queries for Azure
+# - Custom Cypher queries
+# - Path finding between users/apps/resources</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Compromised User → Full Tenant Mapping</h4>
+<pre><code># 1. Get access token from compromised account
+JWT=$(az account get-access-token --resource https://graph.microsoft.com | jq -r .accessToken)
+
+# 2. Collect all tenant data
+azurehound list --jwt "$JWT" -o compromised-tenant.json
+
+# 3. Import into BloodHound and analyze:
+# - Privilege escalation paths
+# - High-value targets (Global Admins, etc.)
+# - Application permissions
+# - Service principal relationships</code></pre>
+<h4>Pattern: Limited User → Target High-Value Accounts</h4>
+<pre><code># 1. Collect with limited user account
+azurehound list -u "lowpriv@company.com" -p "password" -t "company.com" -o recon.json
+
+# 2. Import into BloodHound
+
+# 3. Run queries to find:
+# - Who has Global Admin role?
+# - Shortest path to privileged role
+# - Applications with high permissions
+# - Users with PIM-eligible roles</code></pre>
+<h4>Pattern: Azure VM Managed Identity → Tenant Recon</h4>
+<pre><code># 1. Compromise Azure VM
+# 2. Use managed identity to get token
+JWT=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://graph.microsoft.com' -H Metadata:true | jq -r .access_token)
+
+# 3. Collect tenant data
+azurehound list --jwt "$JWT" -o from-vm.json
+
+# 4. Analyze in BloodHound
+# - Find other resources managed identity can access
+# - Map lateral movement options</code></pre>
+<h3>BloodHound Queries for Azure</h3>
+<h4>Pre-Built Azure Queries</h4>
+<pre><code># Find all Global Admins
+MATCH (u:AZUser)-[r:AZGlobalAdmin]-&gt;(t:AZTenant) RETURN u,r,t
+
+# Find users who can reset passwords
+MATCH (u:AZUser)-[r:AZResetPassword]-&gt;(victim:AZUser) RETURN u,r,victim
+
+# Find service principals with high permissions
+MATCH (sp:AZServicePrincipal)-[r:AZMGGrantAppRoles]-&gt;(t:AZTenant) RETURN sp,r,t
+
+# Find applications owned by users
+MATCH (u:AZUser)-[r:AZOwns]-&gt;(app:AZApp) RETURN u,r,app
+
+# Find VMs with managed identities
+MATCH (vm:AZVM)-[r:AZManagedIdentity]-&gt;(sp:AZServicePrincipal) RETURN vm,r,sp
+
+# Shortest path to Global Admin
+MATCH (start:AZUser {name: "lowpriv@company.com"}),
+      (end:AZRole {name: "Global Administrator"}),
+      p = shortestPath((start)-[*1..]-&gt;(end))
+RETURN p</code></pre>
+<h3>Data Collected by AzureHound</h3>
+<p><strong>Azure AD / Entra ID:</strong></p>
+<ul>
+<li>Users and their properties</li>
+<li>Groups and memberships</li>
+<li>Applications</li>
+<li>Service Principals</li>
+<li>Devices</li>
+<li>Directory Roles and assignments</li>
+<li>Administrative Units</li>
+</ul>
+<p><strong>Azure Resources:</strong></p>
+<ul>
+<li>Subscriptions</li>
+<li>Management Groups</li>
+<li>Resource Groups</li>
+<li>Virtual Machines</li>
+<li>Key Vaults</li>
+<li>Role assignments (RBAC)</li>
+<li>Managed Identities</li>
+</ul>
+<p><strong>Relationships:</strong></p>
+<ul>
+<li>Group memberships</li>
+<li>Role assignments</li>
+<li>Application ownership</li>
+<li>Service principal permissions</li>
+<li>Resource ownership</li>
+<li>Management relationships</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Token Permissions</strong>: Ensure token has Microsoft Graph permissions (User.Read.All, Group.Read.All, etc.) 💡 <strong>Minimal Permissions</strong>: Even a basic user can enumerate much of the tenant 💡 <strong>Combine with AADInternals</strong>: Use AADInternals to get tokens, AzureHound to map environment 💡 <strong>Regular Collections</strong>: Tenant changes frequently, re-run collection periodically 💡 <strong>Large Tenants</strong>: Collection can take time for large organizations (100k+ users) 💡 <strong>OPSEC</strong>: Use <code>--proxy</code> flag to route through C2 infrastructure 💡 <strong>JSON Output</strong>: Can be imported directly into BloodHound CE or Enterprise 💡 <strong>Custom Queries</strong>: Learn Cypher to write custom attack path queries 💡 <strong>Compare Collections</strong>: Import multiple collections to track changes over time 💡 <strong>VM Managed Identity</strong>: Often overlooked attack vector with high privileges</p>
+<h3>Relationship Types in BloodHound</h3>
+<p><strong>Azure AD Relationships:</strong></p>
+<ul>
+<li><code>AZGlobalAdmin</code> - User is Global Administrator</li>
+<li><code>AZResetPassword</code> - Can reset user password</li>
+<li><code>AZOwns</code> - Owns an object (app, service principal, etc.)</li>
+<li><code>AZMemberOf</code> - Group membership</li>
+<li><code>AZHasRole</code> - Has directory role assignment</li>
+<li><code>AZAddMembers</code> - Can add members to group</li>
+<li><code>AZAddSecret</code> - Can add secrets to app/SP</li>
+<li><code>AZExecuteCommand</code> - Can execute commands on VM</li>
+</ul>
+<p><strong>Azure RBAC Relationships:</strong></p>
+<ul>
+<li><code>AZContributor</code> - Contributor role on resource</li>
+<li><code>AZOwner</code> - Owner role on resource</li>
+<li><code>AZUserAccessAdministrator</code> - Can manage access</li>
+<li><code>AZVMContributor</code> - Can manage virtual machines</li>
+<li><code>AZManagedIdentity</code> - VM has managed identity</li>
+</ul>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>Using compromised Global Admin credentials (generates many API calls)</li>
+<li>Collecting from suspicious/unusual locations</li>
+<li>Repeated rapid collections (rate limiting, logs)</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Large-scale enumeration (generates Graph API audit logs)</li>
+<li>Collection from user accounts (shows in sign-in logs)</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Using existing legitimate tokens (no new authentication)</li>
+<li>Collecting through proxy</li>
+<li>Spacing out collections over time</li>
+<li>Using service account that regularly queries Graph API</li>
+</ul>
+<p><strong>Detection Vectors:</strong></p>
+<ul>
+<li>Azure AD Sign-in logs</li>
+<li>Microsoft Graph API audit logs</li>
+<li>Unusual number of Graph API calls</li>
+<li>Collection from new/unusual IP addresses</li>
+</ul>
+<h3>Configuration File Format</h3>
+<p><strong>Location:</strong> <code>~/.config/azurehound/config.json</code> (Linux/macOS) or <code>%APPDATA%\azurehound\config.json</code> (Windows)</p>
+<pre><code>{
+  "api_endpoint": "https://bloodhound.example.com",
+  "api_key": "your-bhe-api-key",
+  "tenant_id": "tenant-id",
+  "client_id": "app-client-id",
+  "client_secret": "app-secret",
+  "refresh_token": "long-lived-refresh-token",
+  "proxy": "http://127.0.0.1:8080"
+}</code></pre>
+<h3>Troubleshooting</h3>
+<h4>Authentication Errors</h4>
+<pre><code># Verify token is valid
+echo "$JWT" | cut -d. -f2 | base64 -d | jq
+
+# Check token expiration
+# Token typically valid for 1 hour
+
+# Get fresh token
+JWT=$(az account get-access-token --resource https://graph.microsoft.com | jq -r .accessToken)</code></pre>
+<h4>Permission Errors</h4>
+<pre><code># Ensure token has Graph permissions
+# Minimum: User.Read.All, Group.Read.All, Application.Read.All
+
+# Test with Azure CLI
+az ad user list --query "[0]"</code></pre>
+<h4>Large Tenant Collection</h4>
+<pre><code># Collect in chunks
+azurehound list users -o users.json --jwt "$JWT"
+azurehound list groups -o groups.json --jwt "$JWT"
+azurehound list apps -o apps.json --jwt "$JWT"
+
+# Then merge JSON files or import separately into BloodHound</code></pre>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/SpecterOps/azurehound">https://github.com/SpecterOps/azurehound</a></li>
+<li>Documentation: <a href="https://bloodhound.specterops.io/collect-data/ce-collection/azurehound">https://bloodhound.specterops.io/collect-data/ce-collection/azurehound</a></li>
+<li>BloodHound CE: <a href="https://github.com/SpecterOps/BloodHound">https://github.com/SpecterOps/BloodHound</a></li>
+<li>BloodHound Enterprise: <a href="https://bloodhoundenterprise.io">https://bloodhoundenterprise.io</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

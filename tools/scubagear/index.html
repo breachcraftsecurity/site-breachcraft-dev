@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install ScubaGear - Breachcraft Dev</title>
+<meta name="description" content="[![GitHub Release][github-release-img]][release]">
+<link rel="canonical" href="https://breachcraft.dev/tools/scubagear/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Install ScubaGear</p>
+  <h1>Install ScubaGear</h1>
+  <p class="lede">[![GitHub Release][github-release-img]][release]</p>
+  <h2>What it is</h2>
+<p>[![GitHub Release][github-release-img]][release] [![PSGallery Release][psgallery-release-img]][psgallery] [![CI Pipeline][ci-pipeline-img]][ci-pipeline] [![Functional Tests][functional-test-img]][functional-test] [![GitHub License][github-license-img]][license] [![GitHub Downloads][github-downloads-img]][release] [![PSGallery Downloads][psgallery-downloads-img]][psgallery] [![GitHub Issues][github-issues-img]][github-issues]</p>
+<p>ScubaGear is an assessment tool that verifies that a Microsoft 365 (M365) tenant’s configuration conforms to the policies described in the Secure Cloud Business Applications (<a href="https://cisa.gov/scuba">SCuBA</a>) Secure Configuration Baseline documents.</p>
+<blockquote><p><a href="https://cisagov.github.io/ScubaGear">!NOTE] This documentation can be read using [GitHub Pages</a>.</p></blockquote>
+<h3>Target Audience</h3>
+<p>ScubaGear is for M365 administrators who want to assess their tenant environments against CISA Secure Configuration Baselines.</p>
+<h3>Overview</h3>
+<p>ScubaGear uses a three-step process:</p>
+<ul>
+<li><strong>Step One</strong> - PowerShell code queries M365 APIs for various configuration settings.</li>
+<li><strong>Step Two</strong> - It then calls <a href="https://www.openpolicyagent.org">Open Policy Agent</a> (OPA) to compare these settings against Rego security policies written per the baseline documents.</li>
+<li><strong>Step Three</strong> - Finally, it reports the results of the comparison as HTML, JSON, and CSV.</li>
+</ul>
+<h3>Key Features</h3>
+<h4>Baseline Security Coverage</h4>
+<p>SCuBA controls have been mapped to both NIST SP 800-53 and the MITRE ATT&amp;CK framework.</p>
+<ul>
+<li>Baselines</li>
+<li>Microsoft Entra ID: Identity and access management policies</li>
+<li>Defender: Advanced threat protection settings</li>
+<li>Exchange Online: Email security and compliance configurations</li>
+<li>Power BI: Cloud-based data visualization tool security settings</li>
+<li>Power Platform: Low-code application security settings</li>
+<li>SharePoint: Document collaboration and access controls</li>
+<li>Teams: Communication and meeting security policies</li>
+</ul>
+<ul>
+<li>Removed Policies</li>
+</ul>
+<h4>Scuba Configuration UI</h4>
+<p>SCuBA now includes a graphical user interface that makes it easier than ever to create and manage your YAML configuration files. This intuitive tool helps reduce the complexity of manual editing and streamlines the configuration process for your organization. For more information review the Configuration UI documentation.</p>
+<h4>UI Key Features:</h4>
+<ul>
+<li>Launch with <code>Start-ScubaConfigApp</code></li>
+<li>Step-by-step setup wizard covering all configuration options</li>
+<li>Real-time validation with live YAML preview</li>
+<li>Microsoft Graph integration for user and group selection</li>
+<li>Seamless import/export of existing configuration files</li>
+</ul>
+<blockquote><p>Ideal for users who prefer a visual interface over command-line tools.</p></blockquote>
+<h4>ScubaGear Output</h4>
+<ul>
+<li><strong>HTML Reports</strong>: Interactive, user-friendly compliance reports. Sample BaselineReports.html</li>
+<li><strong>JSON Output</strong>: Structured results for reporting and parsing. Sample ScubaResults.json</li>
+<li><strong>CSV Export</strong>: Spreadsheet-compatible data for analysis. Sample ScubaResults.csv</li>
+</ul>
+<h3>Getting Started</h3>
+<p>Before launching <strong>ScubaGear</strong>, it's important to ensure your environment is properly configured. This includes having the necessary dependencies and permissions in place.</p>
+<p>Please review the prerequisites section to verify that your system meets all requirements. This will help avoid errors during execution and ensure a smooth experience when using ScubaGear.</p>
+<blockquote><p>!NOTE] After installing ScubaGear in your environment, we recommend using the built-in update functions and features when you need to update to the latest version. See the [Update Guide for more information.</p></blockquote>
+<h4>Quick Start Guide</h4>
+<p>ScubaGear can be run multiple times to properly evaluate baseline settings.</p>
+<ol>
+<li><strong>First Run (No Configuration File):</strong></li>
+</ol>
+<p>Start ScubaGear without a configuration file. This initial run generates a baseline template of your environment's current settings. It does not make changes but helps you understand the default posture.</p>
+<ol>
+<li><strong>Subsequent Runs (With Configuration File):</strong></li>
+</ol>
+<p>After reviewing and editing the generated configuration file, run ScubaGear again with the configuration file as input. This allows ScubaGear to compare your intended settings against the actual environment and elevate discrepancies accordingly.</p>
+<blockquote><p>[!IMPORTANT] ScubaGear has specific prerequisites and relies on defined configuration values to properly evaluate your Microsoft 365 tenant. After your initial assessment run, review the results thoroughly. Address any identified gaps by updating your tenant configuration or documenting risk acceptances in a YAML configuration file using exclusions, annotations, or omissions. <strong>Refer to the sections below for detailed guidance.</strong></p></blockquote>
+<p>This iterative approach ensures ScubaGear is aligned with your environment and that all policy evaluations are based on your customized baseline.</p>
+<h4>1. Install ScubaGear</h4>
+<p>To install ScubaGear from <a href="https://www.powershellgallery.com/packages/ScubaGear">PSGallery</a>, open a PowerShell 5 terminal on a Windows computer and install the module:</p>
+<pre><code>
+Install-Module -Name ScubaGear</code></pre>
+<h4>2. Install Dependencies</h4>
+<pre><code># Install the minimum required dependencies
+Initialize-SCuBA</code></pre>
+<h4>3. Verify Installation</h4>
+<pre><code># Check the version
+Invoke-SCuBA -Version</code></pre>
+<h4>4. Run Your First Assessment</h4>
+<pre><code># Assess all products (basic command)
+Invoke-SCuBA -ProductNames *</code></pre>
+<h4>5. Build YAML configuration file</h4>
+<p>ScubaGear uses a YAML configuration file to define how your environment should be evaluated. This file serves several important purposes:</p>
+<ul>
+<li><strong>Customization</strong> – Specify which products, baselines, and rules apply to your environment.</li>
+<li><strong>Configuration Mapping</strong> – Align ScubaGear’s policies with your tenant’s current settings.</li>
+<li><strong>Risk Acceptance</strong> – Document intentional deviations from baselines using <strong>exclusions</strong>, <strong>annotations</strong>, or <strong>omissions</strong>.</li>
+<li><strong>Traceability</strong> – Maintain a clear record of accepted risks and policy decisions for audits or internal reviews.</li>
+<li><strong>Repeatability</strong> – Run consistent assessments over time or across environments using the same configuration.</li>
+</ul>
+<blockquote><p><a href="https://www.cisa.gov/news-events/directives/bod-25-01-implementation-guidance-implementing-secure-practices-cloud-services">!IMPORTANT] Without a properly defined YAML file, ScubaGear will assume a default configuration that may not reflect your organization’s actual policies or risk posture. **It is required if the usage is for [CISA's Binding Operational Directive (BOD) 25-01 </a>**</p></blockquote>
+<h4>Reuse provided sample files</h4>
+<ul>
+<li>View sample configuration files</li>
+<li>Learn about all configuration options</li>
+</ul>
+<blockquote><p>!TIP] [full_config.yaml is included to help you get started. This file should be customized to reflect your tenant’s unique configuration before using it with the ScubaGear module.</p></blockquote>
+<h4>6. Run ScubaGear with a configuration File</h4>
+<p>When running <code>Invoke-SCuBA</code> for BOD 25-01 submissions:</p>
+<pre><code># Run with a configuration file
+Invoke-SCuBA -ConfigFilePath "path/to/your/config.yaml" -Organization 'example.onmicrosoft.com'</code></pre>
+<p>For all other instances:</p>
+<pre><code># Run with a configuration file (no-BOD)
+Invoke-SCuBA -ConfigFilePath "path/to/your/config.yaml" -SilenceBODWarnings</code></pre>
+<h4>7. Update ScubaGear</h4>
+<p>The following will update ScubaGear.</p>
+<pre><code># The following will update ScubaGear to the latest version
+Update-ScubaGear</code></pre>
+<p>The following will baseline all ScubaGear dependencies, please review the Update Guide in detail before running.</p>
+<pre><code># The follwing will remove and re-install all ScubaGear dependencies
+Reset-ScubaGearDependencies</code></pre>
+<h3>Table of Contents</h3>
+<h4>Getting Started</h4>
+<h4>Installation</h4>
+<ul>
+<li>Install from PSGallery</li>
+<li>Download from GitHub</li>
+<li>Uninstall</li>
+<li>Update</li>
+</ul>
+<h4>Prerequisites</h4>
+<ul>
+<li>Dependencies</li>
+<li>Required Permissions</li>
+<li>Interactive Permissions</li>
+<li>Non-Interactive Permissions</li>
+</ul>
+<h3>Configuration &amp; Usage</h3>
+<ul>
+<li>Configuration UI - <strong>Graphical interface</strong></li>
+<li>Configuration File - <strong>YAML-based configuration</strong></li>
+<li>Parameters Reference - <strong>Command-line options</strong></li>
+</ul>
+<h4>Running Assessments</h4>
+<ul>
+<li>Execution Guide</li>
+<li>Understanding Reports</li>
+</ul>
+<h4>Troubleshooting &amp; Support</h4>
+<ul>
+<li>Multiple Tenants</li>
+<li>Product-Specific Issues</li>
+<li>Defender</li>
+<li>Exchange Online</li>
+<li>Power Platform</li>
+<li>Microsoft Graph</li>
+<li>Network &amp;amp; Proxy</li>
+</ul>
+<h4>Automation</h4>
+<ul>
+<li><a href="https://github.com/cisagov/ScubaConnect">ScubaConnect</a> - ScubaConnect is cloud-native infrastructure, developed by CISA, that automates the execution of assessment tools ScubaGear and ScubaGoggles.</li>
+</ul>
+<h4>Additional Resources</h4>
+<ul>
+<li>Assumptions</li>
+<li>Mappings</li>
+</ul>
+<h3>Project License</h3>
+<p>Unless otherwise noted, this project is distributed under the Creative Commons Zero license. With developer approval, contributions may be submitted with an alternate compatible license. If accepted, those contributions will be listed herein with the appropriate license.</p>
+<p>[release]: <a href="https://github.com/cisagov/ScubaGear/releases">https://github.com/cisagov/ScubaGear/releases</a> [license]: <a href="https://github.com/cisagov/ScubaGear/blob/main/LICENSE">https://github.com/cisagov/ScubaGear/blob/main/LICENSE</a> [psgallery]: <a href="https://www.powershellgallery.com/packages/ScubaGear">https://www.powershellgallery.com/packages/ScubaGear</a> [github-cicd-workflow]: <a href="https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml">https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml</a> [github-issues]: <a href="https://github.com/cisagov/ScubaGear/issues">https://github.com/cisagov/ScubaGear/issues</a> [github-license-img]: <a href="https://img.shields.io/github/license/cisagov/ScubaGear">https://img.shields.io/github/license/cisagov/ScubaGear</a> [github-release-img]: <a href="https://img.shields.io/github/v/release/cisagov/ScubaGear?label=GitHub&amp;logo=github">https://img.shields.io/github/v/release/cisagov/ScubaGear?label=GitHub&amp;amp;logo=github</a> [psgallery-release-img]: <a href="https://img.shields.io/powershellgallery/v/ScubaGear?logo=powershell&amp;label=PSGallery">https://img.shields.io/powershellgallery/v/ScubaGear?logo=powershell&amp;amp;label=PSGallery</a> [ci-pipeline]: <a href="https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml">https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml</a> [ci-pipeline-img]: <a href="https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml/badge.svg">https://github.com/cisagov/ScubaGear/actions/workflows/run_pipeline.yaml/badge.svg</a> [functional-test]: <a href="https://github.com/cisagov/ScubaGear/actions/workflows/test_production_function.yaml">https://github.com/cisagov/ScubaGear/actions/workflows/test_production_function.yaml</a> [functional-test-img]: <a href="https://github.com/cisagov/ScubaGear/actions/workflows/test_production_function.yaml/badge.svg">https://github.com/cisagov/ScubaGear/actions/workflows/test_production_function.yaml/badge.svg</a> [github-cicd-workflow-img]: <a href="https://img.shields.io/github/actions/workflow/status/cisagov/ScubaGear/run_pipeline.yaml?logo=github">https://img.shields.io/github/actions/workflow/status/cisagov/ScubaGear/run_pipeline.yaml?logo=github</a> [github-downloads-img]: <a href="https://img.shields.io/github/downloads/cisagov/ScubaGear/total?logo=github">https://img.shields.io/github/downloads/cisagov/ScubaGear/total?logo=github</a> [psgallery-downloads-img]: <a href="https://img.shields.io/powershellgallery/dt/ScubaGear?logo=powershell">https://img.shields.io/powershellgallery/dt/ScubaGear?logo=powershell</a> [github-issues-img]: <a href="https://img.shields.io/github/issues/cisagov/ScubaGear">https://img.shields.io/github/issues/cisagov/ScubaGear</a></p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Microsoft 365 security configuration assessment</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #m365 #security-assessment #cisa #compliance #configuration-review</li></ul>
+<h3>Purpose</h3>
+<p>ScubaGear assesses M365 security:</p>
+<ul>
+<li>Compliance with CISA baselines</li>
+<li>Security configuration review</li>
+<li>Best practice validation</li>
+<li>Gap analysis</li>
+</ul>
+<p>Developed by CISA</p>
+<h3>Installation</h3>
+<pre><code>Install-Module -Name ScubaGear</code></pre>
+<h3>Assessment</h3>
+<pre><code># Run full assessment
+Invoke-SCuBA
+
+# Generates HTML report with:
+# - Configuration findings
+# - Compliance status
+# - Remediation guidance</code></pre>
+<h3>What It Checks</h3>
+<ul>
+<li>Azure AD / Entra ID settings</li>
+<li>Exchange Online configuration</li>
+<li>SharePoint settings</li>
+<li>Teams security</li>
+<li>OneDrive configurations</li>
+<li>Defender settings</li>
+</ul>
+<p>Compares against CISA security baselines</p>
+<h3>Pro Tips</h3>
+<p>💡 <strong>CISA Baselines</strong>: Official government recommendations 💡 <strong>Comprehensive</strong>: Checks multiple M365 services 💡 <strong>HTML Report</strong>: Easy-to-read assessment output 💡 <strong>Compliance</strong>: Helps meet security standards</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/cisagov/ScubaGear">https://github.com/cisagov/ScubaGear</a></li>
+<li>Organization: CISA</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

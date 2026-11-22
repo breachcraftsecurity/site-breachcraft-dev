@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BloodHound Legacy Edition (v4) Has Been Deprecated - Breachcraft Dev</title>
+<meta name="description" content="This repository is for BloodHound Legacy (version 4), which was last updated in 2023 and is no longer maintained">
+<link rel="canonical" href="https://breachcraft.dev/tools/bloodhound/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">BloodHound Legacy Edition (v4) Has Been Deprecated</p>
+  <h1>BloodHound Legacy Edition (v4) Has Been Deprecated</h1>
+  <p class="lede">This repository is for BloodHound Legacy (version 4), which was last updated in 2023 and is no longer maintained</p>
+  <h2>What it is</h2>
+<p>This repository is for BloodHound Legacy (version 4), which was last updated in 2023 and is no longer maintained. It will be archived in the near future.</p>
+<h3>Please Use the New BloodHound Community Edition</h3>
+<p>BloodHound Legacy has been replaced by the free BloodHound Community Edition:</p>
+<ul>
+<li><a href="https://github.com/SpecterOps/BloodHound">BloodHound Community Edition GitHub repository</a>  </li>
+<li><a href="https://bloodhound.specterops.io/get-started/quickstart/community-edition-quickstart">Installation instructions</a>  </li>
+<li><a href="https://bloodhound.specterops.io">Full documentation</a>  </li>
+</ul>
+<p>BloodHound was created by <a href="https://www.twitter.com/_wald0">@_wald0</a>, <a href="https://twitter.com/CptJesus">@CptJesus</a>, and <a href="https://twitter.com/harmj0y">@harmj0y</a>.</p>
+<p>BloodHound is maintained by the <a href="https://bloodhoundenterprise.io/">BloodHound Enterprise</a> team.</p>
+<h3>Access to Deprecated Resources</h3>
+<p>You can still access the deprecated BloodHound Legacy documentation <a href="https://bloodhound.readthedocs.io/en/latest/index.html">here</a>.</p>
+<h2>About BloodHound Enterprise</h2>
+<p><a href="https://specterops.io/bloodhound-overview/">BloodHound Enterprise</a> is an Attack Path Management solution that continuously maps and quantifies Active Directory attack paths. It helps eliminate millions—even billions—of attack paths within your existing architecture, removing the attacker’s easiest, most reliable, and most attractive techniques.</p>
+<h2>License</h2>
+<p>BloodHound uses graph theory to reveal hidden relationships and attack paths in an Active Directory environment. Copyright (C) 2016–2025 SpecterOps Inc.</p>
+<p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;<a href="http://www.gnu.org/licenses/.">http://www.gnu.org/licenses/&amp;gt;.</a></p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Graph-Based AD/Azure Analysis Tool</li><li><strong>Purpose</strong> Active Directory and Azure AD attack path analysis</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #active-directory #azure #attack-paths #graph-database #neo4j #enumeration</li></ul>
+<h3>Installation</h3>
+<pre><code># Install Neo4j
+# Download from https://neo4j.com/download/
+
+# Start Neo4j
+neo4j console
+
+# Download BloodHound
+# https://github.com/BloodHoundAD/BloodHound/releases
+
+# Run BloodHound
+./BloodHound --no-sandbox</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># Collect AD data with SharpHound
+./SharpHound.exe -c All
+
+# Collect Azure data with AzureHound
+azurehound list --jwt "$TOKEN" -o tenant.json
+
+# Import into BloodHound
+# Drag and drop JSON/ZIP files into BloodHound UI
+
+# Run pre-built queries
+# Click "Queries" tab in BloodHound</code></pre>
+<h3>Data Collection</h3>
+<p><strong>Active Directory:</strong></p>
+<ul>
+<li>Use SharpHound.exe or SharpHound.ps1</li>
+<li>Collects: Users, Groups, Computers, Trusts, ACLs, Sessions</li>
+</ul>
+<p><strong>Azure/Entra ID:</strong></p>
+<ul>
+<li>Use AzureHound</li>
+<li>Collects: Users, Groups, Service Principals, Roles, Permissions</li>
+</ul>
+<h3>Pre-Built Queries</h3>
+<p><strong>AD Queries:</strong></p>
+<ul>
+<li>Find all Domain Admins</li>
+<li>Shortest Path to Domain Admins</li>
+<li>Find Kerberoastable Users</li>
+<li>Find AS-REP Roastable Users</li>
+<li>Find Computers with Unconstrained Delegation</li>
+</ul>
+<p><strong>Azure Queries:</strong></p>
+<ul>
+<li>Find all Global Admins</li>
+<li>Shortest Path to Global Admin</li>
+<li>Find Service Principals with High Permissions</li>
+<li>Find Users with PIM Eligible Roles</li>
+</ul>
+<h3>Custom Cypher Queries</h3>
+<pre><code># Find path from user to DA
+MATCH p=shortestPath((u:User {name:"USER@DOMAIN.COM"})-[*1..]-&gt;(g:Group {name:"DOMAIN ADMINS@DOMAIN.COM"}))
+RETURN p
+
+# Find Azure Global Admins
+MATCH (u:AZUser)-[r:AZGlobalAdmin]-&gt;(t:AZTenant)
+RETURN u,r,t</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Graph Database</strong>: Uses Neo4j for fast path analysis 💡 <strong>Visual</strong>: Interactive graph visualization 💡 <strong>Attack Paths</strong>: Identifies privilege escalation routes 💡 <strong>Both AD and Azure</strong>: Supports on-prem and cloud 💡 <strong>Custom Queries</strong>: Learn Cypher for advanced analysis 💡 <strong>Regular Collection</strong>: Re-collect data to track changes 💡 <strong>Community Queries</strong>: Many community-contributed queries available</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/BloodHoundAD/BloodHound">https://github.com/BloodHoundAD/BloodHound</a></li>
+<li>Docs: <a href="https://bloodhound.readthedocs.io/">https://bloodhound.readthedocs.io/</a></li>
+<li>Company: SpecterOps</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>
