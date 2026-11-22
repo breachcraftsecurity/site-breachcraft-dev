@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>domainhunter &mdash; availability you can act on, doubts kept</title>
+<meta name="description" content="Domain availability from RDAP first, registrar fallbacks that disagree in public, and a purchase flow that quotes before it commits.">
+<link rel="canonical" href="https://breachcraft.dev/domainhunter/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" href="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Security</span></p>
+  <p class="badge"><span>CI</span> green &middot; 110-test offline suite &middot; 22 Nov 2026</p>
+  <p class="kicker">domainhunter</p>
+  <h1>A name is free, taken, or you do not know yet. Say which.</h1>
+  <p class="lede">Availability checks that treat RDAP as the authority, expose disagreement between registrars, and never report a fallback as fact.</p>
+
+  <h2>Usage</h2>
+  <pre><code>python run.py check example.com --price porkbun,godaddy
+python run.py check --file examples/domains.txt --json -o out.jsonl
+python run.py serp cloudbreachlabs
+python run.py buy --file wanted.txt --contact contact.json --max-price 20 --total-budget 60 --expect-currency USD</code></pre>
+  <p class="small">Every write is a dry run until <code>--commit</code>. Purchases use a UUID idempotency key and a purchase ledger, so a lost response is safe to retry.</p>
+
+  <h2>What it does</h2>
+  <ul>
+    <li>Ordered layers: DNS hint (informational), RDAP, IANA bootstrap, then a configured registrar fallback chain.</li>
+    <li>Conflicts recorded, not flattened: source disagreement, timeouts and single-source answers stay visible on the record.</li>
+    <li>Prices from four registrars for names RDAP says are free; first-year promo quotes suppressed where a real price exists.</li>
+    <li>Batch buying against a per-domain ceiling and a total budget, in your account's currency, with duplicate skipping.</li>
+    <li>SQLite cache and a purchase ledger; results de-duplicated.</li>
+  </ul>
+
+  <h2>Limits, stated so a pass is not over-read</h2>
+  <p>UK verdicts are currently two registrars agreeing, not RDAP: Nominet's RDAP is unreachable from the host this was built on. A premium name comes back available with a large price, so filter on price as well as verdict. Someone else's rules still apply to the scraping sources. Two registrar sources that disagree leave the verdict inconclusive by design; that is the correct answer, not a gap.</p>
+
+  <h2>Tests</h2>
+  <p>110 tests, all offline, with URL-routed fake HTTP sessions. No network or credentials needed for a pass.</p>
+
+  <p class="licence">Private, all rights reserved. Source and licence note on request; nothing here is a published release.</p>
+  <p class="action"><a href="/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

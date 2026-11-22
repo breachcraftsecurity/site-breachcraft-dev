@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>name-research &mdash; should we, answered in stages</title>
+<meta name="description" content="Deterministic naming research: generation, availability, search dominance, volume, collision scoring and a verdict you can read.">
+<link rel="canonical" href="https://breachcraft.dev/name-research/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Security</span></p>
+  <p class="badge"><span>CI</span> green &middot; 273-test offline suite &middot; 22 Nov 2026</p>
+  <p class="kicker">name-research</p>
+  <h1>Availability is a small part of naming. This answers <em>should we</em>.</h1>
+  <p class="lede">One pipeline, every stage a provider behind the same contract: generate, check availability, measure search dominance, volume and collisions, then return a verdict. Stages are swappable, repeatable and diffable.</p>
+
+  <h2>Usage</h2>
+  <pre><code>python run.py audit entrapath cloudbreachlabs
+python run.py websearch "breach craft" --json
+python run.py recon example.com
+python run.py judge --file shortlist.txt</code></pre>
+  <p class="small">Sources answer separately and are marked for corroboration; one source alone is recorded as <code>single_source</code>.</p>
+
+  <h2>Reading a verdict</h2>
+  <ul>
+    <li><code>blocked</code> &mdash; an existing same-industry entity. Drop it.</li>
+    <li><code>contested</code> &mdash; one exact hit, usually fiction or coincidence. Read the hits.</li>
+    <li><code>clean</code> &mdash; no exact results.</li>
+    <li><code>unknown</code> &mdash; a provider failed. Not a pass.</li>
+  </ul>
+
+  <h2>Assessment work, not just naming</h2>
+  <p>The same repo carries the engagement stages: plan the scope, add and hash evidence, retest for drift, report a finding against a contract, and review the bicep that ships the fix. Companies House, sanctions, certificate transparency, urlscan, VirusTotal and DNS posturing are commands, not copy-paste scripts. A worked example with real hashes sits in the repo.</p>
+
+  <h2>Limits, stated so a pass is not over-read</h2>
+  <p>Scores sort within a run; they are not probabilities and should never be quoted as one. An API that is down returns <code>unknown</code>, which is a gap, not a result. Search dominance is a snapshot of the search engine's index on the day, and volumes are vendor estimates. Whether a name is any good still needs a person.</p>
+
+  <h2>Tests</h2>
+  <p>273 tests, offline, no keys. Provider shapes are faked with recorded responses so the contracts stay tested without a network.</p>
+
+  <p class="licence">Private, all rights reserved. Source and licence note on request; nothing here is a published release.</p>
+  <p class="action"><a href="/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>voicebridge &mdash; a phone call that leaves evidence</title>
+<meta name="description" content="Send and receive WAV over Twilio, validate every webhook signature, transcribe on host or at the provider, and keep the record locally.">
+<link rel="canonical" href="https://breachcraft.dev/voicebridge/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Security</span></p>
+  <p class="badge"><span>CI</span> green &middot; 9-test offline suite &middot; 22 Nov 2026</p>
+  <p class="kicker">voicebridge</p>
+  <h1>The briefing goes out as audio. The evidence stays in your database.</h1>
+  <p class="lede">For engagements where the interaction is a phone call: dial, record both channels, take the answer back, transcribe it and log every event locally instead of trusting a provider console to keep it.</p>
+
+  <h2>Usage</h2>
+  <pre><code>python run.py serve --port 8099
+python run.py call +447700900001 --record
+python run.py send +447700900001 --wav brief.wav --text "briefing"
+python run.py log</code></pre>
+  <p class="small">The webhook needs HTTPS. A quick tunnel is enough locally; a named tunnel gives a stable hostname, and the signatures are computed against it, so the public base must match.</p>
+
+  <h2>What it does</h2>
+  <ul>
+    <li>TwiML served with correct escaping, dual-channel recording optional.</li>
+    <li>Signature validation on every route; a tunnel URL alone does not let someone inject audio.</li>
+    <li>Outbound audio as MMS, or WhatsApp where a UK long code cannot do MMS, plus plain text either way.</li>
+    <li>Webhook downloads recording media immediately, before the provider's retention expires it.</li>
+    <li>Transcription by Twilio or Whisper; Whisper keeps client audio on the host.</li>
+    <li>Every event in SQLite with direction, peer, SID, status, paths and transcript.</li>
+  </ul>
+
+  <h2>Limits, stated so a pass is not over-read</h2>
+  <p>UK long codes cannot send MMS; WAV outbound needs a US or Canadian number, a short code, or WhatsApp. Twilio fetches media server-side, so the file must be publicly reachable, not a local path. Recordings at the provider expire on a schedule, which is why the download is immediate. This moves audio; it does not do speech analytics.</p>
+
+  <h2>Tests</h2>
+  <p>9 offline tests: TwiML escaping, signature accept and reject, public URL derivation, recording parameters, sender validation and a log round-trip.</p>
+
+  <p class="licence">Private, all rights reserved. Source and licence note on request; nothing here is a published release.</p>
+  <p class="action"><a href="/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>
