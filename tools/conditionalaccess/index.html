@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ConditionalAccess - Breachcraft Dev</title>
+<meta name="description" content="This solution consists of powershell functions, bundled in a module to help automate and regulate Conditional Access deployment and maintance">
+<link rel="canonical" href="https://breachcraft.dev/tools/conditionalaccess/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">ConditionalAccess</p>
+  <h1>ConditionalAccess</h1>
+  <p class="lede">This solution consists of powershell functions, bundled in a module to help automate and regulate Conditional Access deployment and maintance</p>
+  <h2>What it is</h2>
+<p>This solution consists of powershell functions, bundled in a module to help automate and regulate Conditional Access deployment and maintance.</p>
+<h3>The module</h3>
+<p>The module consists of several public functions and several private functions, or sub-functions.</p>
+<h4>The public functions are:</h4>
+<ul>
+<li>Get-AccessToken                 (to retrieve an access token used for accessing Microsoft Graph)</li>
+<li>Get-ConditionalAccessPolicy     (to retrieve one or multiple Conditional Access Policies)</li>
+<li>Get-ConditionalAcessPolicyFile  (to retrieve one or multiple Conditional Access Policies with a .Json file as output)</li>
+<li>New-ConditionalAccessPolicy     (to create a new Conditional Access Policy using a .Json file as input)</li>
+<li>Remove-ConditionalAccessPolicy  (to remove an existing Conditional Access Policy)</li>
+<li>Set-ConditionalAccessPolicy     (to update an existing Conditional Access Policy)</li>
+<li>Deploy-ConditionalAccessPolicies (to Deploy a set of policies from a directory)</li>
+</ul>
+<p>To be in control over Conditional Access and to be able to apply efficient and effective version control, it is important that the .Json representation of the policies is readable by the people maintaining them. Since Microsoft Graph can only process GUIDs in .Json format when creating or updating Policies. The issue surfaced that Microsoft Graph and the people maintaining the policies need different versions of the policy files. To achieve this, the module contains several private function.</p>
+<h4>The private functions are:</h4>
+<ul>
+<li>ConvertFrom-ApplicationDisplayNametoGUID</li>
+<li>ConvertFrom-GroupDisplayNametoGUID</li>
+<li>ConvertFrom-RoleDisplayNametoGUID</li>
+<li>ConvertFrom-UserUserPrinicpleNameToGUID</li>
+<li>ConvertFrom-AgreementDisplayNametoGUID</li>
+<li>ConvertFrom-LocationDisplayNametoGUID</li>
+</ul>
+<ul>
+<li>ConvertFrom-ApplicationGUIDtoDisplayName</li>
+<li>ConvertFromGroupGUIDToDisplayname</li>
+<li>ConvertFrom-RoleGUIDtoDisplayName</li>
+<li>ConvertFrom-UserGUIDtoUserPrincipalName</li>
+<li>ConvertFrom-AgreementGUIDToDisplayName</li>
+<li>ConvertFrom-LocationGUIDToDisplayName</li>
+</ul>
+<p>The private functions convert the human-readable DisplayNames (and UserPrincipalNames) that are stated in the policy files to their respective GUIDs in the target AzureAD tenant. The private functions are sub-functions to the public functions, meaning all the conversions happen in the background.</p>
+<h3>Getting Started</h3>
+<h4>Licensing</h4>
+<p>To use the functions that actually change the policies in your tenant, you need at least an AzureAD premium P1 license. For Risk Based Conditional Access Policies you will need an AzureAD premium p2 license.</p>
+<h4>Start with the demo</h4>
+<ol>
+<li>Download or clone the repository </li>
+<li>Open .\Examples\Script\Demo.ps1</li>
+</ol>
+<ol>
+<li>Go to your Azure tenant and create a new "App Registration"</li>
+<li>Fill in a DisplayName of your choice, and choose the "Single tenant" option</li>
+<li>Go to the Authentication tab and "Add a Platform". pick the Native Client option: "https://login.microsoftonline.com/common/oauth2/nativeclient" </li>
+</ol>
+<p>and choose "Yes" for default Client Type</p>
+<ol>
+<li>Under API Permissions add the following permissions and grant Admin Consent:</li>
+</ol>
+<ul>
+<li>User.Read.All</li>
+<li>Application.Read.All</li>
+<li>Group.Read.All</li>
+<li>Policy.Read.All</li>
+<li>Policy.ReadWrite.ConditionalAccess</li>
+<li>RoleManagement.Read.Directory</li>
+<li>Optional permission for automatic group creation:  </li>
+</ul>
+<p>Group.Create</p>
+<ol>
+<li>Go to the "Certificates &amp; secrets" Tab and create a new Secret. Be sure to save the secret somewhere. </li>
+<li>In the "Overview" of the App Registration, look for the ClientID and the Directory (tenant)ID.</li>
+<li>Go back to .\Examples\Script\Demo.ps1 fill in the variables: $ClientID, $TenantID and $ClientSecret with the information from the steps above. </li>
+<li>Run the Import-Module .\ConditionalAccess\ConditionalAccess.psm1 command to import the module</li>
+<li>run $AccessToken = Get-AccessToken -ClientId $ClientId -TenantId $TenantId -ClientSecret $ClientSecret to obtain an Access Token</li>
+<li>Open the desired Policy .Json file of your choice and adjust the content so that the displayNames in the $File match existing DisplayNames in the Targeted Tenant. The Users in the examples will most likely not exist in your tenant and probably need to be adjusted. </li>
+<li>After loading a valid Json in $File you can run the commands you want for the demo </li>
+</ol>
+<h4>Demo tips</h4>
+<p>You can use $ca = Get-ConditionalAccessPolicy -accessToken $AccessToken -DisplayName "CA-01- All Apps - All Admins - Require MFA" To dissect the content of the created or existing Policy of your choice. e.g. you can run: $ca.conditions.users.includeRoles To see that the "All" in the example policy was succesfully translated to a large number of GUIDs of RoleTemplates in the target Tenant. If you want to see the raw guids from Graph instead of the converted human readable names add -ConvertGUIDs $False.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Scripts/Tools</li><li><strong>Purpose</strong> Azure AD Conditional Access policy management and analysis</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #azure #conditional-access #policies #security #analysis</li></ul>
+<h3>Purpose</h3>
+<p>Tools for:</p>
+<ul>
+<li>CA policy enumeration</li>
+<li>Policy analysis</li>
+<li>Gap identification</li>
+<li>Configuration review</li>
+</ul>
+<h3>Common Operations</h3>
+<pre><code># List all CA policies
+Get-AzureADMSConditionalAccessPolicy
+
+# Get specific policy
+Get-AzureADMSConditionalAccessPolicy -PolicyId &lt;policy-id&gt;
+
+# Export policies
+Get-AzureADMSConditionalAccessPolicy | ConvertTo-Json | Out-File policies.json</code></pre>
+<h3>Analysis</h3>
+<p>Review policies for:</p>
+<ul>
+<li>MFA enforcement</li>
+<li>Device compliance requirements</li>
+<li>Location-based rules</li>
+<li>Application assignments</li>
+<li>Exclusions (potential gaps)</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Gap Analysis</strong>: Look for excluded users/apps 💡 <strong>Legacy Auth</strong>: Ensure legacy protocols blocked 💡 <strong>MFA Coverage</strong>: Verify MFA enforcement 💡 <strong>Device Trust</strong>: Check device compliance requirements</p>
+<h3>Resources</h3>
+<ul>
+<li>Azure AD PowerShell Module</li>
+<li>Microsoft Graph PowerShell</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

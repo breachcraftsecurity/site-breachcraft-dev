@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic Blob Finder - Breachcraft Dev</title>
+<meta name="description" content="&gt; Identify Azure blobs using a list of account name and container name strings">
+<link rel="canonical" href="https://breachcraft.dev/tools/basicblobfinder/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Basic Blob Finder</p>
+  <h1>Basic Blob Finder</h1>
+  <p class="lede">&gt; Identify Azure blobs using a list of account name and container name strings</p>
+  <h2>What it is</h2>
+<blockquote><p>Identify Azure blobs using a list of account name and container name strings</p></blockquote>
+<p>This is a simple proof-of-concept tool to hunt for public Azure storage containers and enumerate the blobs therein. It is naive in the implementation, is single-threaded, and assumes you know what you are looking for.</p>
+<h3>Usage</h3>
+<p>Create a file with account name and container name strings that you wish to enumerate. The file should have one entry per line, and can be in one of two formats:</p>
+<ol>
+<li><code>name</code> - When a single string is specified, Basic Blob Finder will use the</li>
+</ol>
+<p>string as both the account name and the container name.</p>
+<ol>
+<li><code>account:container</code> - When a colon is used to separate two strings, the</li>
+</ol>
+<p>first string is used to test as the account name; the second is used as the container name.</p>
+<p>Words that do not match the requirements for an account name or a container name are skipped. See <a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview#:~:text=When%20naming%20your%20storage%20account,can%20have%20the%20same%20name.">Storage account overview</a> and <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata">Naming and Referencing Containers, Blobs, and Metadata</a> for the naming requirement details.</p>
+<p>See the file <code>namelist</code> for examples.</p>
+<p>Basic Blob Finder will test if the account name exists using DNS. If the account name exists, Basic Blob Finder will test for the container name using an HTTPS request. If the account name and the container name exist, and if the container name is public, then Basic Blob Finder will identify the disclosed blobs by URL, as shown here:</p>
+<pre><code>basicblobfinder (main) $ ./basicblobfinder.py
+Test for the presence of Azure Blob resources.
+This is a naive PoC to test for the presence of Azure Blob resources which could
+certainly benefit from threading and other performance improvements.
+
+Usage: ./basicblobfinder.py &lt;name list file&gt;
+
+The name list file should be in the format storageaccount:containername or a
+single string that is used as both the storage account and container name.
+(ex. falsimentis:falsimentis-container or falsimentis). Invalid names are skipped.
+
+basicblobfinder (main) $ cat namelist
+falsimentis
+falsi-mentis
+fa
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+falsimentis:falsimentis-container
+falsimentis:falsimentis-container2
+invalidacct:nosuchcontainer
+basicblobfinder (main) $ ./basicblobfinder.py namelist
+Invalid storage account name falsi-mentis, skipping.
+Invalid storage account name fa, skipping.
+Invalid storage account name ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, skipping.
+
+Valid storage account and container name: falsimentis:falsimentis-container
+Blob data objects:
+    https://falsimentis.blob.core.windows.net/falsimentis-container/01 Newborn Euselachii.wav</code></pre>
+<h3>Contact</h3>
+<p><a href="mailto:jwright@hasbog.com">Joshua Wright</a> | <a href="https://twitter.com/joswr1ght">@joswr1ght</a></p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Script</li><li><strong>Purpose</strong> Find publicly accessible Azure Blob Storage containers</li><li><strong>Platform</strong> Linux, macOS, Windows</li><li><strong>Tags</strong> #azure #blob-storage #osint #enumeration #reconnaissance</li></ul>
+<h3>Installation</h3>
+<pre><code># Clone repository
+git clone https://github.com/ewpratten/basicblobfinder.git
+cd basicblobfinder
+
+# No dependencies required (uses standard library)
+python3 basicblobfinder.py -h</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># Basic search
+python3 basicblobfinder.py companyname
+
+# Multiple keywords
+python3 basicblobfinder.py company product division
+
+# Save results
+python3 basicblobfinder.py company &gt; results.txt</code></pre>
+<h3>RECON: Blob Storage Discovery</h3>
+<pre><code># Single keyword
+python3 basicblobfinder.py acmecorp
+
+# Tries variations like:
+# acmecorp.blob.core.windows.net
+# acmecorp-files.blob.core.windows.net
+# acmecorp-backup.blob.core.windows.net
+# etc.
+
+# Multiple keywords
+python3 basicblobfinder.py company product</code></pre>
+<h3>Common Patterns Tested</h3>
+<p>The tool tests common naming patterns:</p>
+<ul>
+<li><code>{keyword}.blob.core.windows.net</code></li>
+<li><code>{keyword}-files.blob.core.windows.net</code></li>
+<li><code>{keyword}-backup.blob.core.windows.net</code></li>
+<li><code>{keyword}-data.blob.core.windows.net</code></li>
+<li><code>{keyword}-public.blob.core.windows.net</code></li>
+<li>etc.</li>
+</ul>
+<h3>What to Look For</h3>
+<p><strong>Publicly Accessible Storage:</strong></p>
+<ul>
+<li>Configuration files</li>
+<li>Backups</li>
+<li>Database dumps</li>
+<li>Application code</li>
+<li>Credentials</li>
+<li>Customer data</li>
+<li>Internal documents</li>
+</ul>
+<h3>Manual Verification</h3>
+<pre><code># After finding storage account
+az storage blob list --account-name foundaccount --container-name public --auth-mode login
+
+# Or use browser
+https://{account}.blob.core.windows.net/{container}/</code></pre>
+<h3>Integration</h3>
+<pre><code># Chain with cloud_enum for comprehensive coverage
+./cloud_enum.py -k company --disable-aws --disable-gcp
+
+# Then verify with basicblobfinder
+python3 basicblobfinder.py company</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Keywords Matter</strong>: Use company names, products, domains 💡 <strong>Common Patterns</strong>: -backup, -data, -files, -public most common 💡 <strong>Manual Follow-up</strong>: Always manually verify discovered storage 💡 <strong>Azure CLI</strong>: Use <code>az storage</code> commands to list/download contents 💡 <strong>Permissions</strong>: Look for public read access (misconfiguration)</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/ewpratten/basicblobfinder">https://github.com/ewpratten/basicblobfinder</a></li>
+<li>Author: @ewpratten</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aviary - Breachcraft Dev</title>
+<meta name="description" content="This repo is archived as of 27 Dec 2022 - and is no longer being maintained">
+<link rel="canonical" href="https://breachcraft.dev/tools/sparrow/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Aviary</p>
+  <h1>Aviary</h1>
+  <p class="lede">This repo is archived as of 27 Dec 2022 - and is no longer being maintained</p>
+  <h2>What it is</h2>
+<p>Aviary is a new dashboard that CISA and partners developed to help visualize and analyze outputs from its Sparrow detection tool released in December 2020. Sparrow helps network defenders detect possible compromised accounts and applications in Azure/Microsoft O365 environments. CISA created Sparrow to support hunts for threat activity following the SolarWinds compromise. Aviary--a Splunk-base dashboard--facilitates analysis of Sparrow data outputs.</p>
+<p>To download Aviary, visit <a href="https://github.com/cisagov/Sparrow/releases/">releases.</a></p>
+<h2>Sparrow.ps1</h2>
+<p>Sparrow.ps1 was created by CISA's Cloud Forensics team to help detect possible compromised accounts and applications in the Azure/m365 environment. The tool is intended for use by incident responders, and focuses on the narrow scope of user and application activity endemic to identity and authentication based attacks seen recently in multiple sectors. It is neither comprehensive nor exhaustive of available data, and is intended to narrow a larger set of available investigation modules and telemetry to those specific to recent attacks on federated identity sources and applications.</p>
+<p>Sparrow.ps1 will check and install the required PowerShell modules on the analysis machine, check the unified audit log in Azure/M365 for certain indicators of compromise (IoC's), list Azure AD domains, and check Azure service principals and their Microsoft Graph API permissions to identify potential malicious activity. The tool then outputs the data into multiple CSV files that are located in the user's default home directory in a folder called 'ExportDir' (ie: Desktop/ExportDir).</p>
+<p>For more guidance on how to use Sparrow and Aviary, please see: <a href="https://us-cert.cisa.gov/ncas/alerts/aa21-008a">https://us-cert.cisa.gov/ncas/alerts/aa21-008a</a></p>
+<h3>Requirements</h3>
+<p>The following AzureAD/m365 permissions are required to run Sparrow.ps1, and provide it read-only access to the Tenant.</p>
+<ul>
+<li>Azure Active Directory:</li>
+<li>Security Reader</li>
+<li>Security and Compliance Center:</li>
+<li>Compliance Administrator</li>
+<li>Exchange Online Admin Center: Utilize a custom group for these specific permissions:</li>
+<li>Mail Recipients</li>
+<li>Security Group Creation and Membership</li>
+<li>User options</li>
+<li>View-Only Audit log</li>
+<li>View-Only Configuration</li>
+<li>View-Only Recipients</li>
+</ul>
+<p>To check for the MailItemsAccessed Operation, your tenant organization requires an Office 365 or Microsoft 365 E5/G5 license.</p>
+<p>Unified Audit Logs will need to be enabled.</p>
+<h3>Installation</h3>
+<p>Sparrow.ps1 does not require any extra steps for installation once the permissions detailed in Requirements are satisfied.</p>
+<p>The function, Check-PSModules, will check to see if the three required PowerShell modules are installed on the system and if not, it will use the default PowerShell repository on the system to reach out and install. If the modules are present but not imported, the script will also import the missing modules so that they are ready for use.</p>
+<p>The required PowerShell modules:</p>
+<ul>
+<li>ExchangeOnlineManagement (<a href="https://www.powershellgallery.com/packages/ExchangeOnlineManagement/2.0.3">https://www.powershellgallery.com/packages/ExchangeOnlineManagement/2.0.3</a>)</li>
+<li>AzureAD (<a href="https://www.powershellgallery.com/packages/AzureAD/2.0.2.128">https://www.powershellgallery.com/packages/AzureAD/2.0.2.128</a>)</li>
+<li>MSOnline (<a href="https://www.powershellgallery.com/packages/MSOnline/1.1.183.57">https://www.powershellgallery.com/packages/MSOnline/1.1.183.57</a>)</li>
+</ul>
+<p>To install the PowerShell modules, run the following commands:</p>
+<pre><code>Install-Module ExchangeOnlineManagement
+Install-Module AzureAD
+Install-Module MSOnline </code></pre>
+<h3>Usage</h3>
+<p>To download and run Sparrow.ps1, type the following command into a PowerShell window (assuming file is in your working directory):</p>
+<pre><code>Invoke-WebRequest 'https://github.com/cisagov/Sparrow/raw/develop/Sparrow.ps1' -OutFile 'Sparrow.ps1' -UseBasicParsing; .\Sparrow.ps1</code></pre>
+<h3>Using Behind A Proxy</h3>
+<p>If you are executing the script from behind a proxy, you may need to run the following commands, substituting your proxy server prior to execution:</p>
+<pre><code>[System.Net.WebRequest]::DefaultWebProxy = New-Object System.Net.WebProxy('http://proxyname:port')
+[System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials</code></pre>
+<h3>Issues</h3>
+<p>If you have issues using the code, open an issue on the repository!</p>
+<p>You can do this by clicking "Issues" at the top and clicking "New Issue" on the following page.</p>
+<h3>Contributing</h3>
+<p>We welcome contributions!  Please see here for details.</p>
+<h3>License</h3>
+<p>This project is in the worldwide public domain.</p>
+<p>This project is in the public domain within the United States, and copyright and related rights in the work worldwide are waived through the <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal public domain dedication</a>.</p>
+<p>All contributions to this project will be released under the CC0 dedication. By submitting a pull request, you are agreeing to comply with this waiver of copyright interest.</p>
+<h3>Legal Disclaimer</h3>
+<p>NOTICE</p>
+<p>This software package (“software” or “code”) was created by the United States Government and is not subject to copyright. You may use, modify, or redistribute the code in any manner. However, you may not subsequently copyright the code as it is distributed. The United States Government makes no claim of copyright on the changes you effect, nor will it restrict your distribution of bona fide changes to the software. If you decide to update or redistribute the code, please include this notice with the code. Where relevant, we ask that you credit the Cybersecurity and Infrastructure Security Agency with the following statement: “Original code developed by the Cybersecurity and Infrastructure Security Agency (CISA), U.S. Department of Homeland Security.”</p>
+<p>USE THIS SOFTWARE AT YOUR OWN RISK. THIS SOFTWARE COMES WITH NO WARRANTY, EITHER EXPRESS OR IMPLIED. THE UNITED STATES GOVERNMENT ASSUMES NO LIABILITY FOR THE USE OR MISUSE OF THIS SOFTWARE OR ITS DERIVATIVES.</p>
+<p>THIS SOFTWARE IS OFFERED “AS-IS.” THE UNITED STATES GOVERNMENT WILL NOT INSTALL, REMOVE, OPERATE OR SUPPORT THIS SOFTWARE AT YOUR REQUEST. IF YOU ARE UNSURE OF HOW THIS SOFTWARE WILL INTERACT WITH YOUR SYSTEM, DO NOT USE IT.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Microsoft 365 and Azure compromise detection</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #forensics #incident-response #m365 #azure #detection #blue-team</li></ul>
+<h3>Purpose</h3>
+<p>Sparrow helps detect:</p>
+<ul>
+<li>APT compromise indicators</li>
+<li>Suspicious OAuth applications</li>
+<li>Mailbox persistence</li>
+<li>Azure AD abuse</li>
+<li>M365 tenant compromise</li>
+</ul>
+<p>Developed by CISA for incident response</p>
+<h3>Installation</h3>
+<pre><code>Install-Module -Name Sparrow</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># Run all checks
+Invoke-Sparrow
+
+# Specific checks
+Get-SparrowMailboxAuditLog
+Get-SparrowMailboxRule
+Get-SparrowOAuthApp</code></pre>
+<h3>Detection Modules</h3>
+<pre><code># Check for suspicious OAuth apps
+Get-SparrowOAuthApp
+
+# Check mailbox rules
+Get-SparrowMailboxRule
+
+# Check unified audit log
+Get-SparrowMailboxAuditLog
+
+# Check Azure AD sign-ins
+Get-SparrowAzureADSignInLogs</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>IR Tool</strong>: Designed for incident response 💡 <strong>CISA Developed</strong>: Government-backed detection tool 💡 <strong>APT Focus</strong>: Targets nation-state TTPs 💡 <strong>Comprehensive</strong>: Checks multiple compromise vectors</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/cisagov/Sparrow">https://github.com/cisagov/Sparrow</a></li>
+<li>Organization: CISA (Cybersecurity and Infrastructure Security Agency)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

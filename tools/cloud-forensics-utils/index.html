@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud Forensics Utils - Breachcraft Dev</title>
+<meta name="description" content="This repository contains some tools to be used by forensics teams to collect">
+<link rel="canonical" href="https://breachcraft.dev/tools/cloud-forensics-utils/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Cloud Forensics Utils</p>
+  <h1>Cloud Forensics Utils</h1>
+  <p class="lede">This repository contains some tools to be used by forensics teams to collect</p>
+  <h2>What it is</h2>
+<p>This repository contains some tools to be used by forensics teams to collect evidence from cloud platforms. Currently, Google Cloud Platform, Microsoft Azure, and Amazon Web Services are supported.</p>
+<p>It consists of one module called <code>libcloudforensics</code> which implements functions that can be desirable in the context of incident response in a cloud environment, as well as a CLI wrapper tool for these functions.</p>
+<p>Documentation can be found on the <a href="https://libcloudforensics.readthedocs.io/en/latest/">ReadTheDocs page</a>.</p>
+<p>Quick access:</p>
+<ul>
+<li><a href="https://libcloudforensics.readthedocs.io/en/latest/gettingstarted.html#installing-from-pypi">Installation</a></li>
+<li><a href="https://libcloudforensics.readthedocs.io/en/latest/usermanual/index.html#">User Manual</a></li>
+<li><a href="https://libcloudforensics.readthedocs.io/en/latest/contributing.html">How to contribute</a></li>
+</ul>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Library</li><li><strong>Purpose</strong> Cloud forensics automation for AWS, Azure, GCP</li><li><strong>Platform</strong> Linux, macOS, Windows</li><li><strong>Tags</strong> #forensics #incident-response #aws #azure #gcp #automation</li></ul>
+<h3>Purpose</h3>
+<p>Automates cloud forensics tasks:</p>
+<ul>
+<li>Disk acquisition</li>
+<li>Memory capture</li>
+<li>Log collection</li>
+<li>Evidence preservation</li>
+</ul>
+<p>Supports AWS, Azure, and GCP</p>
+<h3>Installation</h3>
+<pre><code>pip3 install libcloudforensics</code></pre>
+<h3>Common Operations</h3>
+<pre><code>from libcloudforensics import aws, azure, gcp
+
+# Create disk snapshot
+# Copy for forensic analysis
+# Preserve evidence
+# Automate IR tasks</code></pre>
+<h3>Use Cases</h3>
+<p><strong>Incident Response:</strong></p>
+<ul>
+<li>Rapid disk snapshotting</li>
+<li>Evidence collection</li>
+<li>Chain of custody preservation</li>
+</ul>
+<p><strong>Forensic Analysis:</strong></p>
+<ul>
+<li>Acquire cloud resources</li>
+<li>Analyze compromised systems</li>
+<li>Preserve volatile data</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Multi-Cloud</strong>: Works across AWS, Azure, GCP 💡 <strong>Automation</strong>: Scriptable forensics tasks 💡 <strong>IR Speed</strong>: Rapid evidence collection 💡 <strong>Preservation</strong>: Maintains chain of custody</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/google/cloud-forensics-utils">https://github.com/google/cloud-forensics-utils</a></li>
+<li>Company: Google</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

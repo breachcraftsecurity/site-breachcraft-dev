@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation - Breachcraft Dev</title>
+<meta name="description" content="Stormspotter creates an “attack graph” of the resources in an Azure subscription">
+<link rel="canonical" href="https://breachcraft.dev/tools/stormspotter/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Installation</p>
+  <h1>Installation</h1>
+  <p class="lede">Stormspotter creates an “attack graph” of the resources in an Azure subscription</p>
+  <h2>What it is</h2>
+<p>Stormspotter creates an “attack graph” of the resources in an Azure subscription. It enables red teams and pentesters to visualize the attack surface and pivot opportunities within a tenant, and supercharges your defenders to quickly orient and prioritize incident response work.</p>
+<h3>With Docker</h3>
+<p>Most users may find it easier to install Stormspotter via Docker. This is the recommended method.</p>
+<pre><code>git clone https://github.com/Azure/Stormspotter
+docker-compose up</code></pre>
+<p>The <code>docker-compose</code> file will create three containers:</p>
+<ul>
+<li>Stormspotter Frontend</li>
+<li>Stormspotter Backend</li>
+<li>Neo4j v4</li>
+</ul>
+<p>By default, the Stormspotter container will expose the UI on port 9091. The neo4j container will expose neo4j on ports 7474 (HTTP), and 7687 (Bolt). Default configuration of Neo4j does not have SSL enabled, therefore you may initially interact directly with the neo4j interface on port 7474.</p>
+<p><strong>Note</strong>: Currently, Stormspotter only supports running these containers locally. Attempting to upload to the frontend hosted remotely will be unsuccessful but this behavior is expected to change in the future.</p>
+<p>The default credentials for neo4j are: <strong>neo4j/password</strong>. You can change this in the <code>docker-compose</code> file via the NEO4JAUTH environment variable.</p>
+<h3>Without Docker</h3>
+<p>If you choose to run Stormspotter without Docker, you must have <a href="https://www.python.org/downloads/">Python 3.8</a>, <a href="https://www.npmjs.com/get-npm">NodeJS/npm</a>, and <a href="https://neo4j.com/docs/operations-manual/current/installation/">Neo4j</a> installed. You can also grab the latest Stormspotter releases from <a href="https://github.com/Azure/Stormspotter/releases">here</a>.</p>
+<h4>Backend</h4>
+<p>The backend handles parsing data into Neo4j is built with <a href="https://fastapi.tiangolo.com/">FastAPI</a>. If you don't plan on uploading new content for the database, you may not need to run the backend at all. The backend is configured to run on port 9090. You may change this by changing the port number on line 5 of app.py. If you do, you must also change the port in the Q-Uploader component in the DatabaseView Component so that the uploads from the frontend get sent to the correct port where the backend resides.</p>
+<pre><code>cd backend
+python3 ssbackend.pyz</code></pre>
+<h4>Web App</h4>
+<p>The web app is developed using <a href="https://vuejs.org/">Vue</a> and the <a href="https://quasar.dev/">Quasar Framework</a>. The single-page app (SPA) has been built for you and resides in <code>frontend/dist/spa</code>. To serve this directory:</p>
+<pre><code>npm install -g @quasar/cli
+cd frontend/dist/spa
+quasar serve -p 9091 --history</code></pre>
+<p>You can then visit <a href="http://localhost:9091">http://localhost:9091</a> in your browser.</p>
+<h2>Running Stormspotter</h2>
+<h4>Stormcollector</h4>
+<p>Stormcollector is the portion of Stormspotter that allows you to enumerate the subscriptions the provided credentials have access to. The <strong>_RECOMMENDED_</strong> way to use Stormcollector is to run the <code>sscollector.pyz</code> package, found in <a href="https://github.com/Azure/Stormspotter/releases/">the release file for your operating system</a>. This PYZ has been created with <a href="https://github.com/linkedin/shiv">Shiv</a> and comes with all the packages already zipped up! The dependencies will extract themselves to a <code>.shiv</code> folder in the user's home directory.</p>
+<pre><code>cd stormcollector
+python3 sscollector.pyz -h</code></pre>
+<p>If for some reason you don't want to use the provided package, you may install the required packages with <code>pip</code> or <code>pipenv</code>. With this approach, it's _highly recommended_ to install Stormcollector in a virtual environment to prevent package conflicts. If you have issues managing your virtual environments, you should use the recommended method above.</p>
+<pre><code>cd stormcollector
+python3 -m pip install pipenv
+pipenv install .
+python3 ./sscollector.py</code></pre>
+<p>Current login types supported:</p>
+<ul>
+<li>Azure CLI (must use <code>az login</code> first)</li>
+<li>Service Principal Client ID/Secret</li>
+</ul>
+<p>You can check out all of the options Stormcollector offers by using the <code>-h</code> switch as shown above. The most basic usages of Stormcollector are:</p>
+<pre><code>python3 sscollector.pyz cli
+python3 sscollector.pyz spn -t &lt;tenant&gt; -c &lt;clientID&gt; -s &lt;clientSecret&gt;</code></pre>
+<p><strong>Common options for all authentication types</strong></p>
+<ul>
+<li><strong>--cloud</strong>: Specify a different Azure Cloud (GERMAN, CHINA, USGOV)</li>
+<li><strong>--config</strong>: Specify a custom configuration for cloud environments</li>
+<li><strong>--azure</strong>: Only enumerate Azure Resource Manager resources</li>
+<li><strong>--aad</strong>: Only enumerate Azure Active Directory</li>
+<li><strong>--subs</strong>: Subscriptions you wish to scan. Multiple subscriptions can be added as a space deliminated list.</li>
+<li><strong>--nosubs</strong>: Subscriptions you wish to exclude. Multiple subscriptions can be excluded as a space deliminated list.</li>
+<li><strong>--json</strong>: Convert SQLite output to JSON (<strong>WARNING: STORMSPOTTER ONLY PARSES SQLITE FORMAT</strong> )</li>
+<li>This option is useful if you want to parse the output for reasons other than Stormspotter.</li>
+<li><strong>--ssl-cert</strong>: Specify an SSL cert for Stormcollector to use for requests. Not a common option</li>
+<li><strong>--backfill</strong>: Perform AAD enumeration only for object IDs associated with RBAC enumeration. Only applicable when --azure is specified.</li>
+</ul>
+<p><strong>Uploading Results</strong></p>
+<p>Once you've started up the UI, you will see a section in the database tab labeled "Stormcollector Upload". Add your file to this uploader and the processing will begin. As the results get processed, you can check the backend logs to view progress, and the results should also be reflected in the same Database View tab.</p>
+<h2>Notes</h2>
+<ul>
+<li>With Stormspotter currently in beta, not all resource types have been implemented for display. You may see labels with missing icons and/or simply display the "name" and "id" fields. Over time, more resources will be properly implemented.</li>
+</ul>
+<h3>Known Issues</h3>
+<ul>
+<li>Check for <a href="https://github.com/Azure/Stormspotter/issues/24">known issues</a> before submitting one.</li>
+</ul>
+<h2>Screenshots</h2>
+<ul>
+<li><strong>_View Permissions on a KeyVault_</strong></li>
+</ul>
+<ul>
+<li><strong>_Show Members of an Azure AD Role_</strong></li>
+</ul>
+<ul>
+<li><strong>_Show Incoming and Outgoing Relationships_</strong></li>
+</ul>
+<h2>Contributing</h2>
+<p>This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <a href="https://cla.opensource.microsoft.com.">https://cla.opensource.microsoft.com.</a></p>
+<p>When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or comments.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python/React Application</li><li><strong>Purpose</strong> Azure Red Team tool for graphing Azure resources</li><li><strong>Platform</strong> Linux, macOS, Windows (Docker)</li><li><strong>Tags</strong> #azure #graph-database #enumeration #visualization #red-team</li></ul>
+<h3>Purpose</h3>
+<p>StormSpotter creates visual graphs of Azure environments:</p>
+<ul>
+<li>Resource relationships</li>
+<li>Permission mappings</li>
+<li>Attack path visualization</li>
+<li>Similar to BloodHound for Azure</li>
+</ul>
+<h3>Installation</h3>
+<pre><code># Docker-based installation
+git clone https://github.com/Azure/Stormspotter.git
+cd Stormspotter
+docker-compose up</code></pre>
+<h3>Data Collection</h3>
+<pre><code># Collect Azure data
+cd stormcollector
+python3 stormspotter.py -cli
+
+# Authenticate to Azure
+# Data collected to JSON files</code></pre>
+<h3>Visualization</h3>
+<pre><code># Access web interface
+# http://localhost:9091
+
+# Upload collected JSON files
+# Explore graph visualization</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Azure BloodHound</strong>: Similar concept to BloodHound for Azure 💡 <strong>Visual Analysis</strong>: Interactive graph exploration 💡 <strong>Docker-Based</strong>: Easy deployment via containers 💡 <strong>Red Team</strong>: Identifies attack paths in Azure</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/Azure/Stormspotter">https://github.com/Azure/Stormspotter</a></li>
+<li>Company: Microsoft Azure (Red Team)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

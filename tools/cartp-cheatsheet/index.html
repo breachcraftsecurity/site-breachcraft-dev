@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARTP-cheatsheet - Breachcraft Dev</title>
+<meta name="description" content="List of Microsoft portals https://msportals.io/">
+<link rel="canonical" href="https://breachcraft.dev/tools/cartp-cheatsheet/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">CARTP-cheatsheet</p>
+  <h1>CARTP-cheatsheet</h1>
+  <p class="lede">List of Microsoft portals https://msportals.io/</p>
+  <h2>What it is</h2>
+<p>Azure AD cheatsheet for the CARTP course</p>
+<h2>Index</h2>
+<ul>
+<li>General</li>
+<li>Recon \ OSINT</li>
+<li>Initial access attacks</li>
+<li>Authenticated enumeration</li>
+<li>Privilege Escalation</li>
+<li>Cloud &amp;lt;-&amp;gt; On-Prem - Lateral Movement</li>
+<li>Persistence</li>
+</ul>
+<h2>General</h2>
+<ul>
+<li>List of Microsoft portals <a href="https://msportals.io/">https://msportals.io/</a></li>
+<li>Great resources</li>
+<li><a href="https://pentestbook.six2dez.com/enumeration/cloud/azure">https://pentestbook.six2dez.com/enumeration/cloud/azure</a></li>
+<li><a href="https://github.com/Kyuu-Ji/Awesome-Azure-Pentest">https://github.com/Kyuu-Ji/Awesome-Azure-Pentest</a></li>
+<li><a href="https://github.com/dafthack/CloudPentestCheatsheets/blob/master/cheatsheets/Azure.md">https://github.com/dafthack/CloudPentestCheatsheets/blob/master/cheatsheets/Azure.md</a></li>
+</ul>
+<h4>Access C disk of a computer (check local admin)</h4>
+<pre><code>ls \\&lt;COMPUTERNAME&gt;\c$</code></pre>
+<h4>Use this parameter to not print errors powershell</h4>
+<pre><code>-ErrorAction SilentlyContinue</code></pre>
+<h4>Rename powershell windows</h4>
+<pre><code>$host.ui.RawUI.WindowTitle = "&lt;NAME&gt;"</code></pre>
+<h4>Save Credentials</h4>
+<pre><code>$creds = get-credential
+
+$password = ConvertTo-SecureString '&lt;PASSWORD&gt;' -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential('&lt;USERNAME&gt;', $password)</code></pre>
+<h4>Find a specific file</h4>
+<pre><code>Get-Childitem -Path C:\ -Force -Include &lt;FILENAME OR WORD TO SEARCH&gt; -Recurse -ErrorAction SilentlyContinue</code></pre>
+<h3>PSSession</h3>
+<h4>Save pssession in variable</h4>
+<pre><code>$sess = New-PSSession -Credential $creds -ComputerName &lt;IP&gt;</code></pre>
+<h4>Run commands on machine</h4>
+<pre><code>Invoke-Commannd -ScriptBlock {COMMAND} -Session $sess</code></pre>
+<h4>Load script on machine</h4>
+<pre><code>Invoke-Commannd -Filepath &lt;PATH TO SCRIPT&gt; -Session $sess</code></pre>
+<h4>Copy item through PSSession</h4>
+<pre><code>Copy-Item -ToSession $sess -Path &lt;PATH&gt; -Destination &lt;DEST&gt; -verbose</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Reference Documentation</li><li><strong>Purpose</strong> Certified Azure Red Team Professional exam cheatsheet</li><li><strong>Platform</strong> Documentation</li><li><strong>Tags</strong> #azure #certification #red-team #reference #training</li></ul>
+<h3>Purpose</h3>
+<p>CARTP (Certified Azure Red Team Professional) cheatsheet provides:</p>
+<ul>
+<li>Exam preparation material</li>
+<li>Azure attack techniques</li>
+<li>Command references</li>
+<li>Methodology guides</li>
+</ul>
+<h3>Topics Covered</h3>
+<ul>
+<li>Azure AD / Entra ID attacks</li>
+<li>Token manipulation</li>
+<li>Privilege escalation</li>
+<li>Lateral movement</li>
+<li>Persistence techniques</li>
+<li>Data exfiltration</li>
+<li>Common tools and usage</li>
+</ul>
+<h3>Usage</h3>
+<p>Reference material for:</p>
+<ul>
+<li>CARTP exam preparation</li>
+<li>Azure red team engagements</li>
+<li>Quick command lookup</li>
+<li>Technique refresher</li>
+</ul>
+<h3>Related Training</h3>
+<ul>
+<li>Altered Security CARTP course</li>
+<li>Azure AD attack labs</li>
+<li>Hands-on red team exercises</li>
+</ul>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Exam Prep</strong>: Structured for CARTP certification 💡 <strong>Practical</strong>: Real-world techniques 💡 <strong>Comprehensive</strong>: Covers full Azure attack lifecycle 💡 <strong>Reference</strong>: Quick lookup during engagements</p>
+<h3>Resources</h3>
+<ul>
+<li>Search for CARTP cheatsheet resources</li>
+<li>Altered Security: <a href="https://www.alteredsecurity.com/">https://www.alteredsecurity.com/</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

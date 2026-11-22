@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is Hawk? - Breachcraft Dev</title>
+<meta name="description" content="Visit hawkforensics.io for comprehensive documentation including:">
+<link rel="canonical" href="https://breachcraft.dev/tools/hawk/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">What is Hawk?</p>
+  <h1>What is Hawk?</h1>
+  <p class="lede">Visit hawkforensics.io for comprehensive documentation including:</p>
+  <h2>What it is</h2>
+<p>Visit <a href="https://hawkforensics.io/">hawkforensics.io</a> for comprehensive documentation including:</p>
+<ul>
+<li>Detailed installation and permissions guides</li>
+<li>Step-by-step tutorials and "How to" videos</li>
+<li>Troubleshooting help</li>
+<li>Best practices and usage examples</li>
+</ul>
+<p>Hawk is a free, open-source PowerShell module that streamlines the collection of forensic data from Microsoft cloud environments. Designed primarily for security professionals, incident responders, and administrators, Hawk automates the gathering of critical log data across Microsoft services, with a focus on Microsoft 365 (M365) and Microsoft Entra ID.</p>
+<h3>Core Capabilities</h3>
+<ul>
+<li><strong>Data Collection</strong>: Efficiently gather forensic data with automated collection processes</li>
+<li><strong>Security Analysis</strong>: Examine security configurations, audit logs, and user activities</li>
+<li><strong>Export &amp; Report</strong>: Generate both CSV reports and JSON data for SIEM integration</li>
+</ul>
+<h3>What Hawk is and isn't</h3>
+<p>While Hawk includes basic analysis capabilities to flag potential items of interest (such as suspicious mail forwarding rules, over-privileged applications, or risky user activities), it is fundamentally a data collection tool rather than an automated threat detection system.</p>
+<p>Hawk streamlines data collection compared to manually running individual queries through web interfaces, freeing up those resources for other administrative tasks. The tool's goal is to quickly get you the data needed to come to a conclusion; not to make the conclusion for you.</p>
+<h2>Getting Started</h2>
+<h3>System Requirements</h3>
+<ul>
+<li>Windows operating system with administrator access</li>
+<li>PowerShell 5.0 or above (PowerShell Core will be supported in future)</li>
+<li>Network connectivity to:</li>
+<li>PowerShell Gallery</li>
+<li>Graph API</li>
+<li>Microsoft 365 services</li>
+</ul>
+<h3>Installation</h3>
+<pre><code>Install-Module -Name Hawk</code></pre>
+<h2>Investigation Types</h2>
+<p>Hawk offers two main investigation approaches:</p>
+<h3>Tenant Investigations</h3>
+<ul>
+<li>Examines broader Microsoft Cloud tenant settings, audit logs, and security configurations</li>
+<li>Provides an excellent starting point for identifying suspicious patterns</li>
+<li>Use <code>Start-HawkTenantInvestigation</code> to begin a tenant-wide investigation</li>
+</ul>
+<h3>User Investigations</h3>
+<ul>
+<li>Performs deep-dive analysis into individual user accounts</li>
+<li>Examines mailbox configurations, inbox rules, and login histories</li>
+<li>Use <code>Start-HawkUserInvestigation -UserPrincipleName &lt;user@domain.com&gt;</code> to investigate specific users</li>
+</ul>
+<h2>Understanding Output</h2>
+<p>Hawk organizes investigation results into a structured directory hierarchy:</p>
+<pre><code>📂 [Investigation Root]
+├── 📂 Tenant/
+│   ├── AdminAuditLogConfig.csv
+│   ├── OrgConfig.csv
+│   ├── _Investigate_*.csv
+│   └── [other tenant files]
+├── 📂 [user1@domain.com]/
+│   ├── Mailbox_Info.csv
+│   ├── InboxRules.csv
+│   ├── _Investigate_*.csv
+│   └── [other user files]
+└── 📂 [user2@domain.com]/
+    └── [similar structure]</code></pre>
+<p>Files prefixed with <code>_Investigate_</code> contain potentially suspicious findings that warrant further review.</p>
+<h2>Contributing</h2>
+<p>Everyone is welcome to contribute to Hawk. The goal is to maintain a community-led tool that provides security professionals with the resources they need.</p>
+<h3>Ways to Contribute</h3>
+<ol>
+<li><strong>Join the Development Team</strong>: Contact us at hawkpsmodule@gmail.com</li>
+<li><strong>Submit Feature Requests</strong>: Use our <a href="https://github.com/T0pCyber/hawk/issues/new?template=01_feature_request_form.yml">feature request template</a></li>
+<li><strong>Report Issues</strong>: Use our <a href="https://github.com/T0pCyber/hawk/issues/new?template=02_bug_report_form.yml">bug report template</a></li>
+</ol>
+<p>For critical issues or inquiries, email hawkpsmodule@gmail.com.</p>
+<h2>Support</h2>
+<ul>
+<li><a href="https://www.powershellgallery.com/packages/HAWK">PowerShell Gallery Package</a></li>
+<li><a href="https://github.com/T0pCyber/hawk/issues">GitHub Issues</a></li>
+<li><a href="https://github.com/T0pCyber/hawk/discussions">GitHub Discussions</a></li>
+<li>Email: hawkpsmodule@gmail.com</li>
+</ul>
+<h2><strong>Hawk Telemetry Disclosure</strong></h2>
+<h3><strong>Overview</strong></h3>
+<p>Hawk, the open-source PowerShell module, collects limited usage data to help improve the module by identifying the most frequently used features. This data assists in prioritizing updates, enhancements, and new functionality.</p>
+<h3><strong>What Data is Collected?</strong></h3>
+<p>✅ <strong>Collected Data:</strong></p>
+<ul>
+<li>Function names that are run within Hawk.</li>
+<li>Region of use</li>
+</ul>
+<p>❌ <strong>Not Collected:</strong></p>
+<ul>
+<li>No user-identifiable data.</li>
+<li>No script inputs, outputs, or arguments.</li>
+<li>No personal, confidential, or sensitive data.</li>
+<li>No data is shared or sold.</li>
+</ul>
+<h3><strong>Why is This Data Collected?</strong></h3>
+<p>The telemetry helps us understand which functions are used most frequently so we can:</p>
+<ul>
+<li>Prioritize updates and improvements.</li>
+<li>Optimize performance for widely used features.</li>
+<li>Make data-driven decisions about future development.</li>
+</ul>
+<h3><strong>How is the Data Used?</strong></h3>
+<p>The collected data is strictly used for internal development purposes to enhance the Hawk module. It is never shared, sold, or used for any form of tracking beyond feature usage.</p>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> PowerShell Module</li><li><strong>Purpose</strong> Microsoft 365 and Azure AD threat hunting</li><li><strong>Platform</strong> Windows, PowerShell Core</li><li><strong>Tags</strong> #threat-hunting #m365 #azure #forensics #incident-response</li></ul>
+<h3>Purpose</h3>
+<p>Hawk provides:</p>
+<ul>
+<li>Automated M365/Azure AD log collection</li>
+<li>Threat hunting capabilities</li>
+<li>Compromise detection</li>
+<li>Incident response automation</li>
+</ul>
+<h3>Installation</h3>
+<pre><code>Install-Module -Name Hawk</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># Start investigation
+Start-HawkTenantInvestigation
+
+# User-specific investigation
+Start-HawkUserInvestigation -UserPrincipalName user@company.com
+
+# Mailbox investigation
+Get-HawkUserMailboxAuditing -UserPrincipalName user@company.com</code></pre>
+<h3>Investigation Types</h3>
+<pre><code># Full tenant investigation
+Start-HawkTenantInvestigation
+
+# User investigation
+Start-HawkUserInvestigation -UserPrincipalName user@company.com
+
+# Mailbox audit
+Get-HawkUserMailboxAuditing -UserPrincipalName user@company.com
+
+# Admin audit logs
+Get-HawkTenantAdminAudit
+
+# Investigate inbox rules
+Get-HawkUserInboxRule -UserPrincipalName user@company.com</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>Automated Collection</strong>: Gathers relevant logs automatically 💡 <strong>Threat Hunting</strong>: Identifies suspicious patterns 💡 <strong>IR Focus</strong>: Designed for incident response 💡 <strong>Comprehensive</strong>: Collects from multiple M365 sources</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/T0pCyber/hawk">https://github.com/T0pCyber/hawk</a></li>
+<li>PowerShell Gallery: <a href="https://www.powershellgallery.com/packages/Hawk">https://www.powershellgallery.com/packages/Hawk</a></li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>

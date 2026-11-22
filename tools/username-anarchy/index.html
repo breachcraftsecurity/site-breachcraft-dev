@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; connect-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>username anarchy - Breachcraft Dev</title>
+<meta name="description" content="Homepage: https://www.morningstarsecurity.com/research/username-anarchy">
+<link rel="canonical" href="https://breachcraft.dev/tools/username-anarchy/">
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0b1014">
+</head>
+<body>
+<main>
+  <p class="brand">Breachcraft<span>Dev</span></p>
+  <p class="badge"><span>Azure tool</span> upstream README &middot; captured 22 Nov 2026</p>
+  <p class="kicker">username anarchy</p>
+  <h1>username anarchy</h1>
+  <p class="lede">Homepage: https://www.morningstarsecurity.com/research/username-anarchy</p>
+  <h2>What it is</h2>
+<p>Username Anarchy ======================================</p>
+<ul>
+<li>Version: 0.6 (20 September 2024)</li>
+<li>Author: urbanadventurer (Andrew Horton)</li>
+<li>Homepage: <a href="https://www.morningstarsecurity.com/research/username-anarchy">https://www.morningstarsecurity.com/research/username-anarchy</a></li>
+<li>Source: <a href="https://github.com/urbanadventurer/username-anarchy/">https://github.com/urbanadventurer/username-anarchy/</a></li>
+<li>License: MIT</li>
+</ul>
+<p>Description ------------ Tools for generating usernames when penetration testing. <em>Usernames are half the password brute force problem.</em></p>
+<p>This is useful for user account/password brute force guessing and username enumeration when usernames are based on the users' names. By attempting a few weak passwords across a large set of user accounts, user account lockout thresholds can be avoided.</p>
+<p>Users' names can be identified through a variety of methods:</p>
+<ul>
+<li>Web scraping employee names from LinkedIn, Facebook, and other social networks.</li>
+<li>Extracting metadata from document types such as PDF, Word, Excel, etc. This can be performed with FOCA.</li>
+</ul>
+<p>Common aliases, or self chosen usernames, from forums are also included.</p>
+<p>Features --------</p>
+<ul>
+<li>Plugin architecture for username formats</li>
+<li>Format string style username format definitions</li>
+<li>Substitutions. e.g. when only a first initial and lastname is known (LinkedIn lists users like this), it will attempt all possible first names</li>
+<li>Country databases of common first and last names from Familypedia and PublicProfiler</li>
+<li>Has the Facebook common first and lastnames lists</li>
+</ul>
+<p>Extras ------</p>
+<ul>
+<li>Common forum usernames, ordered by popularity</li>
+</ul>
+<p>Usage ----- Username Anarchy is a command line tool.</p>
+<pre><code>	 ___ ____                                                        
+	|   |    \ ______  ____ _______   ____  _____     __ __    ____  
+	|   :    //  ___/_/    \\_  __ \ /    \ \__  \   /  :  \ _/    \
+	'   .   / \___ \ \   o_/ |  | \/|   :  \ /  o \ |  . .  \\   o_/ 
+	 \_____/ /______) \_____)|__|   |___:  /(______)|__: :  / \_____)
+	       _____                         \/       .__     \/      
+	      /     \    ____  _____  _______   ____  |  |__  ___.__.   
+	     /   o   \  /    \ \__  \ \_  __ \_/ ___\ |  |  \(   :  |   
+	    /    .    \|   .  \ /  o \ |  | \/\  \___ |   .  \\___  |   
+	    \____:__  /|___:__/(______)|__|    \_____)|___:__//_____|   
+	            \/                                                  
+	Usage: ./username-anarchy [OPTIONS]... [firstname|first last|first middle last]
+	Author: Andrew Horton (urbanadventurer). Version: 0.5
+
+	Names:
+	 -i, --input-file FILE     Input list of names. Can be SPACE, CSV or TAB delimited.
+	                           Defaults to firstname, lastname. Valid column headings are:
+	                           firstinitial, firstname, lastinitial, lastname,
+	                           middleinitial, middlename.
+	 -a, --auto                Automatically generate names from a country/list
+	 -c, --country COUNTRY     COUNTRY can be one of the following datasets:
+	                           PublicProfiler:
+	                           argentina, austria, belgium, canada, china,
+	                           denmark, france, germany, hungary, india, ireland,
+	                           italy, luxembourg, netherlands, newzealand, norway,
+	                           poland, serbia, slovenia, spain, sweden,
+	                           switzerland, uk, us
+	                           Other:
+	                           Facebook - uses the Facebook top 10,000 names
+	     --given-names FILE    Dictionary of given names
+	     --family-names FILE   Dictionary of family names
+	 -s, --substitute STATE    Control name substitutions
+	                           Valid values are 'on' and 'off'. Default: off
+	                           Can substitute any part of a name not available
+	 -m, --max-sub NUM         Limit quantity of substitutions per plugin.
+	                           Default: -1 (Unlimited)
+
+	Username format:
+	 -l, --list-formats        List format plugins
+	 -f, --select-format LIST  Select format plugins by name. Comma delimited list
+	 -r, --recognise USERNAME  Recognise which format is in use for a username.
+	                           This uses the Facebook dataset. Use verbose mode to
+	                           show progress.
+	 -F, --format FORMAT       Define the user format using either format string or
+	                           ABK format. See README.md for format details.
+
+	Output:
+	 -@, --suffix BOOL         Suffix. e.g. @example.com
+	                           Default: None
+	 -C BOOL,                  Case insensitive usernames.
+	     --case-insensitive    Default: True (All lower case)
+
+	Miscellaneous:
+	 -v, --verbose             Display plugin format comments in output and displays
+	                           last name searches in plugin format recogniser
+	 -h, --help
+</code></pre>
+<p>Example Usage -------------</p>
+<h4>You know the name of a user but not the username format</h4>
+<p>./username-anarchy anna key anna annakey anna.key annakey annak a.key akey kanna k.anna ...</p>
+<h4>You know the username format and names of users</h4>
+<p>./username-anarchy --input-file ./test-names.txt  --select-format first.last andrew.horton jim.vongrippenvud peter.otoole</p>
+<h4>You know the server is in France</h4>
+<p>Note that -a or --auto is required when you do not specify any input names.</p>
+<p>./username-anarchy --country france --auto martin bernard thomas durand richard robert petit moreau dubois simon martinsmith martinjohnson ...</p>
+<h4>List username format plugins</h4>
+<p>./username-anarchy --list-formats Plugin name         	Example -------------------------------------------------------------------------------- first               	anna firstlast           	annakey first.last          	anna.key firstlast[8]        	annakey firstl              	annak f.last              	a.key flast               	akey lfirst              	kanna l.first             	k.anna lastf               	keya last                	key last.f              	key.a last.first          	key.anna FLast               	AKey first1              	anna0,anna1,anna2 fl                  	ak fmlast              	abkey firstmiddlelast     	annaboomkey fml                 	abk FL                  	AK FirstLast           	AnnaKey First.Last          	Anna.Key Last                	Key FML                 	ABK</p>
+<h4>Automatically recognise the username format in use</h4>
+<p>./username-anarchy --recognise j.smith Recognising j.smith. This can take a while. Username format j.smith recognised. Plugin name: f.last</p>
+<p>Input Files ----------- To generate usernames for more than one user account you must provide the names in a text file. This can be either TAB or CSV delimited.</p>
+<h4>Example 1</h4>
+<p>Firstname,Lastname Andrew,Horton Jim, von Grippenvud Peter,O'Toole</p>
+<h4>Example 2</h4>
+<p>LinkedIn often shows the firstname and last initial</p>
+<p>firstname,lastinitial andrew,h foo,b</p>
+<h4>Example 3</h4>
+<p>Mixed set of names</p>
+<p>firstname,firstinitial,middleinitial,lastname,lastinitial andrew,,,horton, jim,,,,v ,p,,o'toole,</p>
+<p>Custom Plugins --------------</p>
+<h4>Command line Plugins</h4>
+<p>Define a custom plugin format using either the ABK or format string format. Specify the username format with -F or --format</p>
+<h4>Example 1</h4>
+<p>./username-anarchy -F "v-annakey" andrew horton v-andrewhorton</p>
+<h4>Example 2</h4>
+<p>./username-anarchy -F "v-%f%l" -a -C poland v-nowaksmith v-nowakjohnson v-nowakjones v-nowakwilliams v-nowakbrown v-nowaklee v-nowakkhan v-nowaksingh v-nowakkumar v-nowakmiller ...</p>
+<h4>Writing Plugins</h4>
+<p>You can add plugins to username anarchy by defining them in format-plugins.rb</p>
+<p>This example uses the ABK format.</p>
+<p>Plugin.define "last.first" do def generate(n) n.format_anna("key.anna") end end</p>
+<p>This example uses the format string format.</p>
+<p>Plugin.define "first" do def generate(n) n.format("%f") end end</p>
+<h4>Format Strings</h4>
+<p>Username Anarchy provides a method of defining a username format with format strings.</p>
+<ul>
+<li>%F - Firstname</li>
+<li>%M - Middlename</li>
+<li>%L - Lastname</li>
+<li>%f - firstname</li>
+<li>%m - middlename</li>
+<li>%l - lastname</li>
+<li>%i.f - first initial</li>
+<li>%i.m - middle initial</li>
+<li>%i.l - last initial</li>
+<li>%i.F - First initial</li>
+<li>%i.M - Middle initial</li>
+<li>%i.L - Last initial</li>
+<li>%D - Digit range 0..9</li>
+<li>%DD - Digit range 00..99</li>
+</ul>
+<h4>ABK Format</h4>
+<p>Username Anarchy provides a method of defining a username format with ABK format which translates to format strings.</p>
+<ul>
+<li>Anna - %F</li>
+<li>Boom - %M </li>
+<li>Key - %L</li>
+<li>anna - %f</li>
+<li>boom - %m</li>
+<li>key - %l</li>
+<li>A - %i.F</li>
+<li>B - %i.M</li>
+<li>K - %i.L</li>
+<li>a - %i.f</li>
+<li>b - %i.m</li>
+<li>k - %i.l</li>
+</ul>
+<p>Forum Usernames --------------- The forum-names folder contains:</p>
+<ul>
+<li>common-forum-names.csv - A CSV file with forum names and the frequency they appeared with</li>
+<li>common-forum-names-top10k.txt - The top 10,000 forum names</li>
+<li>common-forum-names.txt - 1,774,313 forum names</li>
+<li>phpbb-scraper.rb - a web scraper for usernames on PHPbb forums</li>
+</ul>
+<p>Name Resources --------------</p>
+<h4>Names</h4>
+<ul>
+<li><a href="http://worldnames.publicprofiler.org/SearchArea.aspx">http://worldnames.publicprofiler.org/SearchArea.aspx</a> Some common countries. Top 10 surnames and forenames</li>
+<li><a href="https://secure.wikimedia.org/wikipedia/en/wiki/List_of_most_popular_given_names">https://secure.wikimedia.org/wikipedia/en/wiki/List_of_most_popular_given_names</a></li>
+<li><a href="http://www.babynamefacts.com/popularnames/countries.php?country=NZD">http://www.babynamefacts.com/popularnames/countries.php?country=NZD</a> top 100 baby names per country</li>
+<li><a href="https://secure.wikimedia.org/wikipedia/en/wiki/List_of_most_common_surnames_in_Oceania">https://secure.wikimedia.org/wikipedia/en/wiki/List_of_most_common_surnames_in_Oceania</a></li>
+</ul>
+<h4>Name Parsing:</h4>
+<ul>
+<li><a href="https://secure.wikimedia.org/wikipedia/en/wiki/Capitalization">https://secure.wikimedia.org/wikipedia/en/wiki/Capitalization</a></li>
+<li><a href="http://cpansearch.perl.org/src/KIMRYAN/Lingua-EN-NameParse-1.28/lib/Lingua/EN/NameParse.pm">http://cpansearch.perl.org/src/KIMRYAN/Lingua-EN-NameParse-1.28/lib/Lingua/EN/NameParse.pm</a></li>
+<li><a href="http://search.cpan.org/~summer/Lingua-EN-NameCase/NameCase.pm">http://search.cpan.org/~summer/Lingua-EN-NameCase/NameCase.pm</a></li>
+</ul>
+  <h2>Commands</h2>
+<ul class="facts"><li><strong>Type</strong> Ruby Script</li><li><strong>Purpose</strong> Generate username variations from names for enumeration</li><li><strong>Platform</strong> Linux, macOS, Windows (with Ruby)</li><li><strong>Tags</strong> #osint #username-generation #enumeration #wordlist</li></ul>
+<h3>Installation</h3>
+<pre><code># Clone repository
+git clone https://github.com/urbanadventurer/username-anarchy.git
+cd username-anarchy
+
+# Requires Ruby (usually pre-installed on Linux/macOS)
+ruby -v</code></pre>
+<h3>Quick Reference</h3>
+<pre><code># From full name
+./username-anarchy John Smith
+
+# From file of names
+./username-anarchy --input-file names.txt
+
+# Specific format
+./username-anarchy --select-format first.last John Smith
+
+# Save to file
+./username-anarchy John Smith &gt; usernames.txt</code></pre>
+<h3>Username Generation</h3>
+<pre><code># Single name
+./username-anarchy John Smith
+# Outputs:
+# john
+# smith
+# jsmith
+# smithj
+# john.smith
+# j.smith
+# johns
+# etc.
+
+# Multiple names from file
+cat &gt; names.txt &lt;&lt; EOF
+John Smith
+Jane Doe
+Bob Johnson
+EOF
+
+./username-anarchy --input-file names.txt &gt; potential-usernames.txt</code></pre>
+<h3>Format Selection</h3>
+<pre><code># Common O365 format (first.last)
+./username-anarchy --select-format first.last John Smith
+# Output: john.smith
+
+# FirstLast format
+./username-anarchy --select-format firstlast John Smith
+# Output: johnsmith
+
+# First initial + last name
+./username-anarchy --select-format flast John Smith
+# Output: jsmith
+
+# List all available formats
+./username-anarchy --list-formats</code></pre>
+<h3>Common Use Cases</h3>
+<h4>O365 Enumeration Preparation</h4>
+<pre><code># Generate usernames from LinkedIn names
+./username-anarchy --input-file linkedin-names.txt &gt; usernames.txt
+
+# Use with o365spray
+o365spray --enum -U usernames.txt --domain company.com
+
+# Or Oh365UserFinder
+python3 oh365userfinder.py -r usernames.txt -w valid-users.txt</code></pre>
+<h4>Password Spraying Lists</h4>
+<pre><code># Generate variations
+./username-anarchy --input-file employees.txt &gt; all-variations.txt
+
+# Filter to company format (e.g., first.last)
+./username-anarchy --select-format first.last --input-file employees.txt &gt; formatted-users.txt
+
+# Spray
+o365spray --spray -U formatted-users.txt -p 'Password123!' --domain company.com</code></pre>
+<h3>Integration</h3>
+<pre><code># Chain with enumeration tools
+./username-anarchy John Smith Jane Doe &gt; users.txt
+o365spray --enum -U users.txt --domain company.com --output ./results/</code></pre>
+<h3>Pro Tips</h3>
+<p>💡 <strong>LinkedIn Mining</strong>: Extract names from LinkedIn, feed to username-anarchy 💡 <strong>Format Discovery</strong>: Test different formats to find company standard 💡 <strong>Fuzzing</strong>: Generates many variations - reduces manual work 💡 <strong>Dedupe</strong>: Use <code>sort -u</code> to remove duplicates from output 💡 <strong>Common Formats</strong>: first.last, flast, first_last most common in enterprises</p>
+<h3>Resources</h3>
+<ul>
+<li>GitHub: <a href="https://github.com/urbanadventurer/username-anarchy">https://github.com/urbanadventurer/username-anarchy</a></li>
+<li>Author: @urbanadventurer</li>
+</ul>
+  <p class="licence">Captured from <a href="https://github.com/AzureFactory/Azure_Offensive_Tooling">AzureFactory/Azure_Offensive_Tooling</a> on 22 Nov 2026. Upstream content, reproduced as captured; each tool keeps its own licence. Private, all rights reserved.</p>
+  <p class="action"><a href="/tools/">All tools</a> &rarr;</p>
+  <p class="small">Elsewhere &middot; <a href="https://breachcraftsecurity.com/">Services</a> &middot; <a href="https://breachcraft.academy/">Academy</a> &middot; <a href="https://breachcraft.app/">Labs</a> &middot; <a href="https://breachcraft.org/">Standards</a></p>
+  <p class="small">Breachcraft Security &middot; Evilsaint Ltd &middot; <a href="mailto:hello@breachcraftsecurity.com">hello@breachcraftsecurity.com</a></p>
+</main>
+</body>
+</html>
